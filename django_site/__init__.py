@@ -23,8 +23,7 @@ Basic usage in your :xfile:`settings.py` file::
 
 The base class provides a :meth:`startup <Site.startup>` 
 method which runs after Django has populated the model cache.
-It analyzes the installed apps and
-emits two startup signals 
+It analyzes the installed apps and emits two startup signals 
 :attr:`pre_analyze <django_site.signals.pre_analyze>`
 and :attr:`post_analyze <django_site.signals.post_analyze>`.
 
@@ -37,10 +36,6 @@ then you can write in any models module code like this::
     def my_handler(sender,**kw):
         # code to run exactly once per process at startup
         
-
-
-    >>> from django.conf import settings
-    >>> print settings.SITE.welcome_text()
 
 Another usage is to subclass the :class:`Site` class, 
 bringing the concept of an application instance to Django::
@@ -458,7 +453,7 @@ class Site(object):
         import django
         yield ("Django",django.get_version(),"http://www.djangoproject.com")
         
-        yield ("DjangoSite",__version__,"http://www.lino-framework.org")
+        yield ("django-site",__version__,"http://site.lino-framework.org")
         
 
     def welcome_text(self):
@@ -481,4 +476,3 @@ class Site(object):
         #~ return "Lino " + __version__
 
 
-            

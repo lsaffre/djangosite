@@ -1,118 +1,26 @@
-T:\hgwork\site\docs\autodoc\index.rst:10: WARNING: toctree contains reference to nonexisting document u'autodoc/django_site.utils'
-T:\hgwork\site\docs\index.rst:32: WARNING: toctree contains reference to nonexisting document u'about/index'
-T:\hgwork\site\docs\releases\index.rst:13: WARNING: toctree contains reference to nonexisting document u'releases/coming'
+<autodoc>:0: WARNING: duplicate object description of django_site.utils.AttrDict, other instance in T:\hgwork\site\docs\autodoc\django_site.rst, use :noindex: for one of them
+<autodoc>:0: WARNING: duplicate object description of django_site.utils.AttrDict.define, other instance in T:\hgwork\site\docs\autodoc\django_site.rst, use :noindex: for one of them
+<autodoc>:0: WARNING: duplicate object description of django_site.utils.AttrDict.resolve, other instance in T:\hgwork\site\docs\autodoc\django_site.rst, use :noindex: for one of them
+<autodoc>:0: WARNING: duplicate object description of django_site.utils.Cycler, other instance in T:\hgwork\site\docs\autodoc\django_site.rst, use :noindex: for one of them
+T:\hgwork\site\docs\index.rst:31: WARNING: toctree contains reference to nonexisting document u'about/index'
 T:\hgwork\site\docs\releases\index.rst:23: WARNING: toctree glob pattern u'1.0.?' didn't match any documents
-
-`django_site` is a Django app which does not define 
-any models, but provides a :class:`Site` class designed to 
-be instantiated as ``settings.SITE``.
-Basic usage in your :xfile:`settings.py` file::
-
-      from django_site import Site
-      SITE = Site(__file__,globals())
-      INSTALLED_APPS = [... "django_site"]
-
-The base class provides a :meth:`startup <Site.startup>` 
-method which runs after Django has populated the model cache.
-It analyzes the installed apps and
-emits two startup signals 
-:attr:`pre_analyze <django_site.signals.pre_analyze>`
-and :attr:`post_analyze <django_site.signals.post_analyze>`.
-
-If you have `django_site` installed, 
-then you can write in any models module code like this::
-
-    from django_site.signals import post_analyze, receiver
-    
-    @receiver(post_analyze)
-    def my_handler(sender,**kw):
-        # code to run exactly once per process at startup
-        
-
-
-    >>> from django.conf import settings
-    >>> print settings.SITE.welcome_text()
-
-Another usage is to subclass the :class:`Site` class, 
-bringing the concept of an application instance to Django::
-
-      from django_site import Site
-      
-      class MySite(Site):
-          version = "1.0"
-          
-          def do_maintenance(self):
-              # your application specific code here
-              
-      SITE = MySite(__file__,globals())
-              
-        
-This simple trick brings inheritance to the settings and 
-lets us define methods that can be overridden in 
-local :xfile:`settings.py` files.
-
-These features are used extensively by the Lino project which 
-defines two subclasses :class:`lino.Site` and :class:`lino.ui.Site`.
-
-
-:11: WARNING: py:attr reference target not found: django_site.signals.pre_analyze
-
-`django_site` is a Django app which does not define 
-any models, but provides a :class:`Site` class designed to 
-be instantiated as ``settings.SITE``.
-Basic usage in your :xfile:`settings.py` file::
-
-      from django_site import Site
-      SITE = Site(__file__,globals())
-      INSTALLED_APPS = [... "django_site"]
-
-The base class provides a :meth:`startup <Site.startup>` 
-method which runs after Django has populated the model cache.
-It analyzes the installed apps and
-emits two startup signals 
-:attr:`pre_analyze <django_site.signals.pre_analyze>`
-and :attr:`post_analyze <django_site.signals.post_analyze>`.
-
-If you have `django_site` installed, 
-then you can write in any models module code like this::
-
-    from django_site.signals import post_analyze, receiver
-    
-    @receiver(post_analyze)
-    def my_handler(sender,**kw):
-        # code to run exactly once per process at startup
-        
-
-
-    >>> from django.conf import settings
-    >>> print settings.SITE.welcome_text()
-
-Another usage is to subclass the :class:`Site` class, 
-bringing the concept of an application instance to Django::
-
-      from django_site import Site
-      
-      class MySite(Site):
-          version = "1.0"
-          
-          def do_maintenance(self):
-              # your application specific code here
-              
-      SITE = MySite(__file__,globals())
-              
-        
-This simple trick brings inheritance to the settings and 
-lets us define methods that can be overridden in 
-local :xfile:`settings.py` files.
-
-These features are used extensively by the Lino project which 
-defines two subclasses :class:`lino.Site` and :class:`lino.ui.Site`.
-
-
-:11: WARNING: py:attr reference target not found: django_site.signals.post_analyze
-The current stable release is :doc:`0.0.1`.
-We're currently working on :doc:`coming`.
-:1: WARNING: unknown document: 0.0.1
-The current stable release is :doc:`0.0.1`.
-We're currently working on :doc:`coming`.
-:1: WARNING: unknown document: coming
+T:\hgwork\site\docs\releases\0.0.1.rst:: WARNING: document isn't included in any toctree
+<autodoc>:1: WARNING: py:class reference target not found: object
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:1: WARNING: setting reference target not found: SITE
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:3: WARNING: py:mod reference target not found: lino.projects.cosi.Site
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:3: WARNING: setting reference target not found: SITE
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:26: WARNING: setting reference target not found: SITE
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:30: WARNING: setting reference target not found: TEMPLATE_DIRS
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:30: WARNING: setting reference target not found: FIXTURE_DIRS
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:30: WARNING: setting reference target not found: TEMPLATE_LOADERS
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.django_settings:1: WARNING: py:meth reference target not found: Lino.__init__
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.is_local_project_dir:1: WARNING: py:class reference target not found: Lino
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.loading_from_dump:1: WARNING: py:meth reference target not found: lino.utils.dumpy.Serializer.serialize
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.loading_from_dump:1: WARNING: py:func reference target not found: lino.modlib.cal.models.update_auto_task
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.loading_from_dump:1: WARNING: py:mod reference target not found: lino.modlib.mails.models
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.loading_from_dump:1: WARNING: unknown document: /blog/2011/0901
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.project_dir:11: WARNING: xfile reference target not found: fixtures
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.startup:1: WARNING: py:mod reference target not found: lino.models
+t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.using:6: WARNING: py:meth reference target not found: welcome_html
+T:\hgwork\site\docs\autodoc\django_site.rst:8: WARNING: py:class reference target not found: dict
+T:\hgwork\site\docs\autodoc\django_site.utils.rst:8: WARNING: py:class reference target not found: dict

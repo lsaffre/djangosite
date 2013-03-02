@@ -12,6 +12,7 @@ extension.
     django_site
     django_site.utils
     django_site.models
+    django_site.signals
     django_site.modeltools
     django_site.management
     
