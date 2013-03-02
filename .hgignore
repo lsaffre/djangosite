@@ -1,0 +1,6 @@
+syntax:glob
+
+*.egg-info
+*.pot
+*.py[co]
+django_site.egg-info
