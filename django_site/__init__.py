@@ -104,7 +104,7 @@ class Site(object):
     This class is first defined in :mod:`django_site`, 
     subclassed by :mod:`lino` and by :mod:`lino.ui`, 
     then usually subclassed by the application developer
-    (e.g. :mod:`lino.projects.cosi.Lino`),
+    (e.g. :mod:`lino.projects.cosi.Site`),
     then imported into your local :xfile:`settings.py`,
     where you may subclass it another time before 
     finally instantiating it, and assigning it to 
@@ -239,7 +239,7 @@ class Site(object):
     
     site_config = None
     """
-    ui.Lino overrides this to hold a SiteConfig instance.
+    ui.Site overrides this to hold a SiteConfig instance.
     """
     
     modules = AttrDict()

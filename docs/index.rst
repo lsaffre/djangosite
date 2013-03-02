@@ -5,6 +5,8 @@ django-site
 Welcome to the project homepage of django-site. 
 
 
+.. currentmodule:: django_site
+
 .. py2rst::
 
   import django_site
