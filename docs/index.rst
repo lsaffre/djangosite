@@ -2,7 +2,7 @@
 django-site
 ===========
 
-Welcome to the project homepage of django-site. 
+Welcome to the `django-site` project homepage. 
 
 .. currentmodule:: django_site
 

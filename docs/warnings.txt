@@ -15,12 +15,12 @@ t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:30: WARNING
 t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site:30: WARNING: setting reference target not found: TEMPLATE_LOADERS
 t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.django_settings:1: WARNING: py:meth reference target not found: Lino.__init__
 t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.is_local_project_dir:1: WARNING: py:class reference target not found: Lino
-t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.loading_from_dump:1: WARNING: py:meth reference target not found: lino.utils.dumpy.Serializer.serialize
-t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.loading_from_dump:1: WARNING: py:func reference target not found: lino.modlib.cal.models.update_auto_task
-t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.loading_from_dump:1: WARNING: py:mod reference target not found: lino.modlib.mails.models
-t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.loading_from_dump:1: WARNING: unknown document: /blog/2011/0901
 t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.project_dir:11: WARNING: xfile reference target not found: fixtures
 t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.startup:1: WARNING: py:mod reference target not found: lino.models
 t:\hgwork\site\django_site\__init__.py:docstring of django_site.Site.using:6: WARNING: py:meth reference target not found: welcome_html
 T:\hgwork\site\docs\autodoc\django_site.rst:8: WARNING: py:class reference target not found: dict
+T:\hgwork\site\docs\autodoc\django_site.management.rst:1: WARNING: py:mod reference target not found: django_site.management
+T:\hgwork\site\docs\autodoc\django_site.management.rst:11: WARNING: unknown document: /topics/dumpy
+T:\hgwork\site\docs\autodoc\django_site.management.rst:24: WARNING: unknown document: /tickets/50
+T:\hgwork\site\docs\autodoc\django_site.management.rst:4: WARNING: py:attr reference target not found: lino.Lino.demo_fixtures
 T:\hgwork\site\docs\autodoc\django_site.utils.rst:8: WARNING: py:class reference target not found: dict
