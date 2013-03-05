@@ -1,5 +1,5 @@
 DJANGO_ADMIN=python $(shell python -c "from os.path import join,dirname; from django import bin;print join(dirname(bin.__file__),'django-admin.py')")
-DJANGO_ADMIN := $(shell cygpath -m $(DJANGO_ADMIN))
+# DJANGO_ADMIN := $(shell cygpath -m $(DJANGO_ADMIN))
 SITENAME               = site
 TEMPDIR                = C:\\temp\\sphinxbuild\\$(SITENAME)
 #~ TEMPDIR                = /cygdrive/c/temp/sphinxbuild/$(SITENAME)
@@ -16,7 +16,8 @@ SPHINXOPTS = -w warnings.txt -n -P
 #~ SPHINXOPTS    = -W 
 #~ SPHINXOPTS    = 
 #~ SPHINXBUILD   = python l:\\snapshots\\sphinx\\sphinx-build.py
-SPHINXBUILD   = sphinx-build
+# SPHINXBUILD   = sphinx-build
+SPHINXBUILD   = c:\Python27\Scripts\sphinx-build-script.py
 PAPER         =
 
 # Internal variables.
@@ -25,7 +26,7 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS)
 
 
-.PHONY: help clean html show web pickle htmlhelp latex changes linkcheck makedocs
+.PHONY: help tests clean html show web pickle htmlhelp latex changes linkcheck makedocs
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -57,11 +58,8 @@ upload:
 
 
 doctest:
-	mkdir -p $(CACHEDIR) 
-	mkdir -p $(BUILDDIR)
-	$(SPHINXBUILD) -b doctest -d $(CACHEDIR) $(ALLSPHINXOPTS) . $(BUILDDIR)
-	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
+	coverage run $(SPHINXBUILD) -b doctest -d $(CACHEDIR) $(ALLSPHINXOPTS) . $(BUILDDIR)
+	coverage html
 
 unused_html:        
 	set DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS_MODULE); $(SPHINXBUILD) -b html -d $(CACHEDIR) $(ALLSPHINXOPTS) . $(BUILDDIR)

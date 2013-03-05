@@ -14,12 +14,12 @@
 import sys, os
 import django_site
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'lino.projects.sphinxdocs.settings'
-"""
-Trigger loading of Djangos model cache in order to avoid side effects that 
-would occur when this happens later while importing one of the models modules.
-"""
-from django.conf import settings
+os.environ['DJANGO_SETTINGS_MODULE'] = 'django_site.docs_settings'
+#~ """
+#~ Trigger loading of Djangos model cache in order to avoid side effects that 
+#~ would occur when this happens later while importing one of the models modules.
+#~ """
+#~ from django.conf import settings
 
 
 # If your extensions are in another directory, add it here. If the directory
@@ -40,7 +40,7 @@ extensions = [
   'sphinx.ext.extlinks',
   'sphinx.ext.graphviz',
   'sphinx.ext.intersphinx',
-  #~ 'sphinx.ext.doctest',
+  'sphinx.ext.doctest',
 ]
 
 
@@ -237,9 +237,11 @@ htmlhelp_basename = 'django_site'
 #~ from timtools.sphinx import setup
 
 from lino.utils.sphinxconf import setup
-#~ from lino.utils.sphinx import setup as stdsetup
+#~ from lino.utils.sphinxconf import setup as stdsetup
+#~ from django_site import djangodoctest
 #~ def setup(app):
     #~ stdsetup(app)
+    #~ djangodoctest.setup(app)
     #~ app.add_stylesheet('dialog.css')
     #~ app.add_stylesheet('scrollwide.css')
 

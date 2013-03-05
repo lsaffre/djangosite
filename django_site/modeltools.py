@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -26,11 +27,11 @@ import os
 import sys
 import datetime
 
+
 from django.db import models
 from django.conf import settings
 from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
-from django.utils.importlib import import_module
 from django.db.models import loading
 
 from django.core.validators import validate_email, ValidationError, URLValidator
@@ -156,5 +157,5 @@ def range_filter(v,f1,f2):
     q1 = Q(**{f1+'__isnull':True}) | Q(**{f1+'__lte':v})
     q2 = Q(**{f2+'__isnull':True}) | Q(**{f2+'__gte':v})
     return Q(q1,q2)
-  
+
 

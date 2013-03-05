@@ -12,52 +12,6 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Lino; if not, see <http://www.gnu.org/licenses/>.
 """
-`django_site` is a Django app which does not define 
-any models, but provides a :class:`Site` class designed to 
-be instantiated as ``settings.SITE``.
-Basic usage in your :xfile:`settings.py` file::
-
-      from django_site import Site
-      SITE = Site(__file__,globals())
-      INSTALLED_APPS = [... "django_site"]
-
-The base class provides a :meth:`startup <Site.startup>` 
-method which runs after Django has populated the model cache.
-It analyzes the installed apps and emits two startup signals 
-:attr:`pre_analyze <django_site.signals.pre_analyze>`
-and :attr:`post_analyze <django_site.signals.post_analyze>`.
-
-If you have `django_site` installed, 
-then you can write in any models module code like this::
-
-    from django_site.signals import post_analyze, receiver
-    
-    @receiver(post_analyze)
-    def my_handler(sender,**kw):
-        # code to run exactly once per process at startup
-        
-
-Another usage is to subclass the :class:`Site` class, 
-bringing the concept of an application instance to Django::
-
-      from django_site import Site
-      
-      class MySite(Site):
-          version = "1.0"
-          
-          def do_maintenance(self):
-              # your application specific code here
-              
-      SITE = MySite(__file__,globals())
-              
-        
-This simple trick brings inheritance to the settings and 
-lets us define methods that can be overridden in 
-local :xfile:`settings.py` files.
-
-These features are used extensively by the Lino project which 
-defines two subclasses :class:`lino.Site` and :class:`lino.ui.Site`.
-
 """
 
 from __future__ import unicode_literals
@@ -71,8 +25,6 @@ import datetime
 
 from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
-
-from .utils import AttrDict
 
 execfile(os.path.join(os.path.dirname(__file__),'version.py'))
 
@@ -91,50 +43,20 @@ See file COPYING.txt for more information."""
 
 NOT_FOUND_MSG = '(not installed)'
 
+from .utils import AttrDict
+
+
     
   
 class Site(object):
     """
     Base class for the Site instance to be stored in :setting:`SITE`.
     
-    This class is first defined in :mod:`django_site`, 
-    subclassed by :mod:`lino` and by :mod:`lino.ui`, 
-    then usually subclassed by the application developer
-    (e.g. :mod:`lino.projects.cosi.Site`),
-    then imported into your local :xfile:`settings.py`,
-    where you may subclass it another time before 
-    finally instantiating it, and assigning it to 
-    the :setting:`SITE` variable.
+    A :class:`Site` describes and represents the 
+    :doc:`software application </application>` 
+    running on a given site (aka "project" in Django jargon).
     
-    Instantiation is always the same line of code::
-    
-      from django_site import Site
-      SITE = Site(__file__,globals())
-      INSTALLED_APPS = [... "django_site"]
-      
-    With the parameters `__file__` and `globals()` you give `django_site` 
-    information about your local :xfile:`settings.py` 
-    (where it is in the file system), 
-    and the possibility to modify your Django settings.
-    
-    To use it, add ``"django_site"`` as the last item 
-    of your :setting:`INSTALLED_APPS`.
-    
-    During instantiation the `Site` will modify the following Django settings 
-    (which means that if you want to modify one of these, 
-    do it *after* instantiating your :setting:`SITE`):
-    
-      :setting:`ROOT_URLCONF`
-      :setting:`SERIALIZATION_MODULES`
-      :setting:`MEDIA_ROOT` 
-      :setting:`TEMPLATE_DIRS`
-      :setting:`FIXTURE_DIRS` 
-      :setting:`LOGGING_CONFIG`
-      :setting:`LOGGING`
-      :setting:`MIDDLEWARE_CLASSES`
-      :setting:`TEMPLATE_LOADERS`
-      ...
-    
+    See :doc:`/usage`.
     """
     
     make_missing_dirs = True
@@ -250,7 +172,7 @@ class Site(object):
     """
     
     
-    def __init__(self,project_file,django_settings):
+    def __init__(self,project_file,django_settings,*installed_apps):
         if django_settings.has_key('LINO'):
             raise Exception("Oops: rename settings.LINO to settings.SITE")
         if django_settings.has_key('Lino'):
@@ -274,7 +196,34 @@ class Site(object):
                   'NAME': join(self.project_dir,'default.db')
               }
             })
+        django_settings.update(INSTALLED_APPS=list(installed_apps+('django_site',)))
             
+        
+    def startup(self):
+        """
+        Start the Lino instance (the object stored as :setting:`LINO` in 
+        your :xfile:`settings.py`).
+        This is called exactly once from :mod:`lino.models` 
+        when Django has has populated it's model cache.
+        
+        This code can run several times at once when running e.g. under mod_wsgi: 
+        another thread has started and not yet finished `startup()`.
+        
+        """
+        if self._startup_done:
+            #~ # logger.info("Lino startup already done")
+            return
+            
+        self._startup_done = True
+        
+        self.do_site_startup()
+        
+    def do_site_startup(self):
+        """
+        This method is called during site startup
+        """
+        from .signals import startup
+        startup.send(self)
         
     def get_settings_subdirs(self,subdir_name):
         """
@@ -302,30 +251,7 @@ class Site(object):
         #~ from lino.core.kernel import analyze_models
         #~ analyze_models()
         
-    def startup(self):
-        """
-        Start the Lino instance (the object stored as :setting:`LINO` in 
-        your :xfile:`settings.py`).
-        This is called exactly once from :mod:`lino.models` 
-        when Django has has populated it's model cache.
         
-        This code can run several times at once when running e.g. under mod_wsgi: 
-        another thread has started and not yet finished `startup()`.
-        
-        """
-        if self._startup_done:
-            #~ # logger.info("Lino startup already done")
-            return
-            
-        self._startup_done = True
-        
-        self.do_site_startup()
-        
-    def do_site_startup(self):
-        """
-        This method is called during site startup
-        """
-        pass
         
     def is_installed_model_spec(self,model_spec):
         app_label, model_name = model_spec.split(".")
@@ -448,4 +374,11 @@ class Site(object):
         return name + ' ' + version
         #~ return "Lino " + __version__
 
+
+def _test():
+    import doctest
+    doctest.testmod()
+
+if __name__ == "__main__":
+    _test()
 

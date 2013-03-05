@@ -6,7 +6,3 @@
     :members:
     :show-inheritance:
 
-.. automodule:: django_site.utils
-    :members:
-    :show-inheritance:
-

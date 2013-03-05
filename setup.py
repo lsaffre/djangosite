@@ -14,7 +14,7 @@ setup(name = 'django-site',
   author_email = 'luc.saffre@gmail.com',
   requires = ['Django'],
   url = "http://site.lino-framework.org",
-  #~ test_suite = 'lino.test_apps',
+  #~ test_suite = '',
   classifiers="""\
   Programming Language :: Python
   Programming Language :: Python :: 2
