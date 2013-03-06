@@ -1,8 +1,8 @@
 =========================
-:mod:`django_site.utils`
+:mod:`djangosite.models`
 =========================
 
-.. automodule:: django_site.utils
+.. automodule:: djangosite.models
     :members:
     :show-inheritance:
 

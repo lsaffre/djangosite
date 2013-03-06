@@ -1,0 +1,3 @@
+T:\hgwork\site\docs\autodoc\index.rst:10: WARNING: toctree contains reference to nonexisting document u'autodoc/djangosite.dbtools'
+T:\hgwork\site\docs\autodoc\djangosite.dbutils.rst:: WARNING: document isn't included in any toctree
+T:\hgwork\site\docs\releases\0.0.1.rst:: WARNING: document isn't included in any toctree

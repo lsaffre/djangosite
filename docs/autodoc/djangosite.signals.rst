@@ -1,7 +1,7 @@
-:mod:`django_site.signals`
+:mod:`djangosite.signals`
 ==========================
 
-.. automodule:: django_site.signals
+.. automodule:: djangosite.signals
     :members:
     :show-inheritance:
 

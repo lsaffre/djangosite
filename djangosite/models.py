@@ -19,7 +19,7 @@ in his post `Django Startup Signal (Sun 24 June 2012)
 <http://www.xormedia.com/django-startup-signal/>`_.
 
 This adds a subtle hack to also cope with postponed imports.
-If there are postponed apps, then :mod:`django_site.models` must itself raise 
+If there are postponed apps, then :mod:`djangosite.models` must itself raise 
 an `ImportError` so that it gets itself postponed and imported another 
 time.
 
@@ -32,7 +32,7 @@ import sys
 from django.db.models import loading
 
 if len(loading.cache.postponed) > 0:
-    if not 'django_site' in loading.cache.postponed: # i.e. if this is the first time
+    if not 'djangosite' in loading.cache.postponed: # i.e. if this is the first time
         raise ImportError("Waiting for postponed apps (%s) to import" % 
             loading.cache.postponed)
 

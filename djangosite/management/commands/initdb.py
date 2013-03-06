@@ -1,16 +1,5 @@
 # -*- coding: UTF-8 -*-
-## Copyright 2009-2013 Luc Saffre
-## This file is part of the Lino project.
-## Lino is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 3 of the License, or
-## (at your option) any later version.
-## Lino is distributed in the hope that it will be useful, 
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-## GNU General Public License for more details.
-## You should have received a copy of the GNU General Public License
-## along with Lino; if not, see <http://www.gnu.org/licenses/>.
+# Copyright 2009-2013 Luc Saffre
 
 """
 Performs an initialization of the database, replacing all data by default 
@@ -40,7 +29,6 @@ See also ticket :doc:`/tickets/50`.
 import logging
 from optparse import make_option 
 
-#~ from lino.runtime import settings
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
@@ -52,9 +40,8 @@ from django.db import connections, transaction, DEFAULT_DB_ALIAS
 from django.db import models
 
 
-import lino
-from django_site.modeltools import app_labels
-from lino.utils import confirm
+from djangosite.dbutils import app_labels
+from djangosite.utils import confirm
 
 USE_SQLDELETE = True
 

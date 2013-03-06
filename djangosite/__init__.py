@@ -16,7 +16,6 @@
 
 from __future__ import unicode_literals
 
-
 import os
 import sys
 import cgi
@@ -44,8 +43,6 @@ See file COPYING.txt for more information."""
 NOT_FOUND_MSG = '(not installed)'
 
 from .utils import AttrDict
-
-
     
   
 class Site(object):
@@ -65,13 +62,6 @@ class Site(object):
     create missing dirs when needed 
     (but to raise an exception in these cases, asking you to create it yourself)
     """
-    
-    help_url = "http://code.google.com/p/lino"
-    #~ site_url = 
-    #~ index_html = "This is the main page."
-    #~ title = None
-    title = "Unnamed Django site"
-    #~ domain = "www.example.com"
     
     short_name = None # "Unnamed Lino Application"
     """
@@ -172,11 +162,11 @@ class Site(object):
     """
     
     
-    def __init__(self,project_file,django_settings,*installed_apps):
-        if django_settings.has_key('LINO'):
-            raise Exception("Oops: rename settings.LINO to settings.SITE")
-        if django_settings.has_key('Lino'):
-            raise Exception("Oops: rename settings.Lino to settings.Site")
+    def __init__(self,project_file,django_settings,*installed_apps,**kwargs):
+        #~ if django_settings.has_key('LINO'):
+            #~ raise Exception("Oops: rename settings.LINO to settings.SITE")
+        #~ if django_settings.has_key('Lino'):
+            #~ raise Exception("Oops: rename settings.Lino to settings.Site")
             
         self.project_dir = normpath(dirname(project_file))
         self.project_name = os.path.split(self.project_dir)[-1]
@@ -196,7 +186,12 @@ class Site(object):
                   'NAME': join(self.project_dir,'default.db')
               }
             })
-        django_settings.update(INSTALLED_APPS=list(installed_apps+('django_site',)))
+        django_settings.update(INSTALLED_APPS=tuple(installed_apps+('djangosite',)))
+        
+        for k,v in kwargs.items():
+            if not hasattr(self,k):
+                raise Exception("%s has no attribute %s" % (self.__class__,k))
+            setattr(self,k,v)
             
         
     def startup(self):
@@ -304,13 +299,10 @@ class Site(object):
         Call the named method on each module in :setting:`INSTALLED_APPS`
         that defines it.
         """
-        from lino.utils import dblogger
-        #~ for mod in self.get_installed_modules():
         from django.db.models import loading
         for mod in loading.get_apps():
             meth = getattr(mod,methname,None)
             if meth is not None:
-                #~ dblogger.debug("Running %s of %s", methname, mod.__name__)
                 meth(self,*args)
 
     def demo_date(self,days=0,**offset):
@@ -339,7 +331,7 @@ class Site(object):
         :meth:`site_version`.
         
         """
-        from lino.utils import ispure
+        from .utils import ispure
         assert ispure(self.short_name)
         
         if self.short_name and self.version and self.url:
@@ -373,6 +365,7 @@ class Site(object):
         #~ return self.short_name + ' ' + self.version
         return name + ' ' + version
         #~ return "Lino " + __version__
+
 
 
 def _test():

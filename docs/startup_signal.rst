@@ -21,7 +21,7 @@ The basic trick is to simply send the signal
 "at the end of your last app's models.py file"
 as described by `Ross McFarland on Sun 24 June 2012
 <http://www.xormedia.com/django-startup-signal/>`_
-That's why :mod:`django_site` must be the 
+That's why :mod:`djangosite` must be the 
 *last* item of your :setting:`INSTALLED_APPS`.
 
 Note that this is *not* the same problem as

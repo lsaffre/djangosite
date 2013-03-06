@@ -1,9 +1,9 @@
 # -*- coding: UTF-8 -*-
 ## Copyright 2013 Luc Saffre
 
-import sys
+#~ import sys
 
-from unipath import Path
+#~ from unipath import Path
 
 from sphinx.ext.doctest import TestDirective
 from sphinx.util.nodes import set_source_info
@@ -52,7 +52,7 @@ class DjangoDocTester(object):
 
 
     def setup(self,settings_module_name):
-        sys.path.insert(0,Path().absolute())
+        #~ sys.path.insert(0,Path().absolute())
         #~ print sys.path
         self.update_settings(settings_module_name)
         self.runner = DjangoTestSuiteRunner(verbosity=0)
@@ -64,8 +64,8 @@ class DjangoDocTester(object):
         self.runner.teardown_test_environment()     
         self.runner = None
         self.old_config = None
-        if sys.path[0] == Path().absolute():
-            del sys.path[0] 
+        #~ if sys.path[0] == Path().absolute():
+            #~ del sys.path[0] 
         
 tester = DjangoDocTester()    
     
@@ -89,7 +89,7 @@ class DjangoDoctestDirective(TestDirective):
         settings_module = self.arguments[0]
         models_module = '.'.join(settings_module.split('.')[:-1])+'.models'
         setup_code = """\
-from django_site.djangodoctest import tester
+from djangosite.utils.doctest import tester
 tester.setup('%s')
 from %s import *
 """ % (settings_module,models_module)

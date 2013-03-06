@@ -9,10 +9,12 @@ extension.
 
 .. toctree::
 
-    django_site
-    django_site.utils
-    django_site.models
-    django_site.signals
-    django_site.modeltools
-    django_site.management
+    djangosite
+    djangosite.models
+    djangosite.signals
+    djangosite.management
+    djangosite.dbutils
+    djangosite.utils
+    djangosite.utils.rstgen
+    djangosite.utils.sphinxconf
     

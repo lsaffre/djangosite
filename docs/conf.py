@@ -12,9 +12,10 @@
 # serve to show the default.
 
 import sys, os
-import django_site
+import djangosite
+from unipath import Path
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'django_site.docs_settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'djangosite.docs_settings'
 #~ """
 #~ Trigger loading of Djangos model cache in order to avoid side effects that 
 #~ would occur when this happens later while importing one of the models modules.
@@ -25,7 +26,16 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'django_site.docs_settings'
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-#sys.path.append(os.path.abspath('.'))
+
+sys.path.append(Path(__file__).parent.absolute())
+#~ sys.path.insert(0,Path(__file__).parent.absolute())
+
+#~ print sys.path
+
+from djangosite import utils
+#~ raise Exception("djangosite.utils.__file__ is: %s" % utils.__file__)
+from djangosite.utils.sphinxconf import setup
+
 
 # General configuration
 # ---------------------
@@ -69,7 +79,7 @@ copyright = u'2002-2013, Luc Saffre'
 
 # The full version, including alpha/beta/rc tags.
 #~ release = file(os.path.join(os.path.dirname(__file__),'..','VERSION')).read().strip()
-release = django_site.__version__
+release = djangosite.__version__
 
 # The short X.Y version.
 version = '.'.join(release.split('.')[:2])
@@ -193,7 +203,7 @@ html_use_opensearch = 'http://lino.saffre-rumma.net'
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'django_site'
+htmlhelp_basename = 'djangosite'
 
 
 # Options for LaTeX output
@@ -234,21 +244,12 @@ htmlhelp_basename = 'django_site'
 
 #~ srcref_base_uri="http://code.google.com/lino"
 #~ srcref_base_uri="http://code.google.com/p/lino/source/browse/#hg" 
-#~ from timtools.sphinx import setup
 
-from lino.utils.sphinxconf import setup
-#~ from lino.utils.sphinxconf import setup as stdsetup
-#~ from django_site import djangodoctest
-#~ def setup(app):
-    #~ stdsetup(app)
-    #~ djangodoctest.setup(app)
-    #~ app.add_stylesheet('dialog.css')
-    #~ app.add_stylesheet('scrollwide.css')
 
 extlinks = {
   #~ 'issue': ('http://code.google.com/p/lino/issues/detail?id=%s', 'Issue '),
-  'checkin': ('http://code.google.com/p/django_site/source/detail?r=%s', 'Checkin '),
-  'srcref': ('http://code.google.com/p/django_site/source/browse%s', ''),
+  'checkin': ('http://code.google.com/p/django-site/source/detail?r=%s', 'Checkin '),
+  'srcref': ('http://code.google.com/p/django-site/source/browse%s', ''),
   'djangoticket': ('http://code.djangoproject.com/ticket/%s', 'Django ticket #'),
 }
     
@@ -279,3 +280,15 @@ todo_include_todos = True
 
 #~ New in version 1.1
 gettext_compact = True
+
+
+
+
+#~ from lino.utils.sphinxconf import setup
+#~ from lino.utils.sphinxconf import setup as stdsetup
+#~ from djangosite import djangodoctest
+#~ def setup(app):
+    #~ stdsetup(app)
+    #~ djangodoctest.setup(app)
+    #~ app.add_stylesheet('dialog.css')
+    #~ app.add_stylesheet('scrollwide.css')

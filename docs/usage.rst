@@ -1,35 +1,37 @@
 Usage
 =====
 
-A Site is usually meant to work for a given set of Django apps. 
-Each Lino application defines its :setting:`INSTALLED_APPS` setting.
+To use a Django Site, you do something like the following *at the beginning* 
+of your :xfile:`settings.py` file::
 
-A Site usually also defines a Django app, but not always:
-it can consist of just a settings file (e.g. :mod:`lino.projects.min1`).
-
-This class is first defined in :mod:`django_site`, 
-subclassed by :mod:`lino` and by :mod:`lino.ui`, 
-then usually subclassed by the application developer
-(e.g. :mod:`lino.projects.cosi.Site`),
-then imported into your local :xfile:`settings.py`,
-where you may subclass it another time before 
-finally instantiating it, and assigning it to 
-the :setting:`SITE` variable.
-
-Instantiation is always the same line of code::
-
-  from django_site import Site
-  SITE = Site(__file__,globals())
-  INSTALLED_APPS = [... "django_site"]
+  from djangosite import Site
+  SITE = Site(__file__,globals(),'myapp1','myapp2')
   
-With the parameters `__file__` and `globals()` you give `django_site` 
-information about your local :xfile:`settings.py` 
-(where it is in the file system), 
-and the possibility to modify your Django settings.
+That is, you import the :class:`Site` class (or some subclass, see later), 
+then assign an instance of it to a setting variable whose 
+name must be ``SITE``.
 
-During instantiation the `Site` will modify the following Django settings 
-(which means that if you want to modify one of these, 
-do it *after* instantiating your :setting:`SITE`):
+The first parameter must be 
+`__file__ <http://docs.python.org/2/reference/datamodel.html#index-49>`__
+attribute.
+This is the shortest way to tell `djangosite` 
+where your local :xfile:`settings.py` 
+is in the file system.
+
+The second parameter must always be `globals()`.
+By passing your globals dictionary you give djangosite 
+the possibility to **modify your Django settings**.
+Which means that if you want to modify one of these, 
+do it *after* instantiating your :setting:`SITE`).
+That's why we told you to instantiate your `SITE`
+*at the beginning* of your :xfile:`settings.py` file
+
+You've maybe heard that it is not allowed 
+to modify Django's settings once it has started.
+But there's nothing illegal with this here
+because this happens before Django has seen your :xfile:`settings.py`.
+
+The base class will modify the following Django settings 
 
   :setting:`DATABASES`
   :setting:`INSTALLED_APPS`

@@ -3,18 +3,18 @@ from setuptools import setup
 #~ from distutils.core import setup
 #~ from distribute.core import setup
 
-execfile(os.path.join(os.path.dirname(__file__),'django_site','version.py'))
+execfile(os.path.join(os.path.dirname(__file__),'djangosite','version.py'))
 
 setup(name = 'django-site',
   version = __version__,
   description = "",
   license = 'Free BSD',
-  packages = ['django_site'],
+  packages = ['djangosite'],
   author = 'Luc Saffre',
   author_email = 'luc.saffre@gmail.com',
   requires = ['Django'],
   url = "http://site.lino-framework.org",
-  #~ test_suite = '',
+  test_suite = 'tests.suite',
   classifiers="""\
   Programming Language :: Python
   Programming Language :: Python :: 2

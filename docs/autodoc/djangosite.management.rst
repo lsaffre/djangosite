@@ -1,24 +1,24 @@
-:mod:`django_site.management`
+:mod:`djangosite.management`
 =============================
 
 initdb
 ------
 
-.. automodule:: django_site.management.commands.initdb
+.. automodule:: djangosite.management.commands.initdb
     :members:
     :show-inheritance:
 
 initdb_demo
 -----------
 
-.. automodule:: django_site.management.commands.initdb_demo
+.. automodule:: djangosite.management.commands.initdb_demo
     :members:
     :show-inheritance:
 
 run
 ---
 
-.. automodule:: django_site.management.commands.run
+.. automodule:: djangosite.management.commands.run
     :members:
     :show-inheritance:
 

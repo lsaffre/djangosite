@@ -1,6 +1,7 @@
 DJANGO_ADMIN=python $(shell python -c "from os.path import join,dirname; from django import bin;print join(dirname(bin.__file__),'django-admin.py')")
 # DJANGO_ADMIN := $(shell cygpath -m $(DJANGO_ADMIN))
 SITENAME               = site
+#~ TEMPDIR                = C:\\temp\\sphinxbuild\\$(SITENAME)
 TEMPDIR                = C:\\temp\\sphinxbuild\\$(SITENAME)
 #~ TEMPDIR                = /cygdrive/c/temp/sphinxbuild/$(SITENAME)
 BUILDDIR               = $(TEMPDIR)\\html
@@ -17,7 +18,7 @@ SPHINXOPTS = -w warnings.txt -n -P
 #~ SPHINXOPTS    = 
 #~ SPHINXBUILD   = python l:\\snapshots\\sphinx\\sphinx-build.py
 # SPHINXBUILD   = sphinx-build
-SPHINXBUILD   = c:\Python27\Scripts\sphinx-build-script.py
+SPHINXBUILD   = sphinx-build
 PAPER         =
 
 # Internal variables.
@@ -51,14 +52,11 @@ html:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
   
-upload:
-	cd $(BUILDDIR) && rsync -r --progress --delete --times ./ luc@lino-framework.org:~/public_html/$(SITENAME)
-	#python ../setup.py upload_sphinx --upload-dir $(BUILDDIR)
-	#cd $(BUILDDIR) && rsync -r --progress --delete --times ./ luc@saffre-rumma.net:~/public_html/sphinxbuild/$(SITENAME)
-
-
 doctest:
-	coverage run $(SPHINXBUILD) -b doctest -d $(CACHEDIR) $(ALLSPHINXOPTS) . $(BUILDDIR)
+	$(SPHINXBUILD) -b doctest -d $(CACHEDIR) $(ALLSPHINXOPTS) . $(BUILDDIR)
+
+cov:
+	coverage run -m djangosite.m.runtests
 	coverage html
 
 unused_html:        
@@ -85,4 +83,11 @@ htmlhelp:
 	@echo
 	@echo "Build finished; now you can run HTML Help Workshop with the" \
 	      ".hhp project file in .build/htmlhelp."
+
+
+upload:
+	cd $(BUILDDIR) && rsync -r --progress --delete --times ./ luc@lino-framework.org:~/public_html/$(SITENAME)
+	#python ../setup.py upload_sphinx --upload-dir $(BUILDDIR)
+	#cd $(BUILDDIR) && rsync -r --progress --delete --times ./ luc@saffre-rumma.net:~/public_html/sphinxbuild/$(SITENAME)
+
 

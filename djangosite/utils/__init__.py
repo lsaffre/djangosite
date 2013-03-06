@@ -25,7 +25,7 @@ class AttrDict(dict):
     
     Usage example:
     
-    >>> from django_site.utils import AttrDict
+    >>> from djangosite.utils import AttrDict
     >>> a = AttrDict()
     >>> a.define('foo',1)
     >>> a.define('bar','baz',2)
@@ -79,6 +79,62 @@ class AttrDict(dict):
             o = getattr(o,part,default)
             # o = o.__getattr__(part)
         return o
+
+
+def iif(condition,true_value,false_value): 
+    """
+    "Inline If" : an ``if`` statement as a function.
+    
+    Examples:
+    >>> import six
+    >>> from djangosite.utils import iif
+    >>> six.print_("Hello, %s world!" % iif(1+1==2,"real","imaginary"))
+    Hello, real world!
+    """
+    if condition: return true
+    return false_value
+    
+
+def ispure(s):
+    """
+    Returns `True` if the specified string `s` is either a unicode 
+    string or contains only ASCII characters.
+    """
+    if s is None: return True 
+    if type(s) == types.UnicodeType:
+        return True
+    if type(s) == types.StringType:
+        try:
+            s.decode('ascii')
+        except UnicodeDecodeError as e:
+            return False
+        return True
+    return False
+
+def assert_pure(s):
+    #~ assert ispure(s), "%r: not pure" % s
+    if s is None: return 
+    if isinstance(s,unicode):
+        return True
+    try:
+        s.decode('ascii')
+    except UnicodeDecodeError as e:
+        raise Exception("%r is not pure : %s" % (s,e))
+     
+
+
+
+def confirm(prompt=None):
+    """
+    Ask for user confirmation from the console.
+    """
+    while True:
+        ln = raw_input(prompt)
+        if ln.lower() in ('y','j','o'):
+            return True
+        if ln.lower() == 'n':
+            return False
+        print "Please anwer Y or N"
 
 
 

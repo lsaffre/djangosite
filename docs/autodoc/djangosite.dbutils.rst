@@ -1,8 +1,8 @@
 =============================
-:mod:`django_site.modeltools`
+:mod:`djangosite.dbutils`
 =============================
 
-.. automodule:: django_site.modeltools
+.. automodule:: djangosite.dbutils
     :members:
     :show-inheritance:
 

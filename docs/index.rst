@@ -33,17 +33,17 @@ Installation is easy::
 Usage
 -----
 
-The :mod:`django_site` Python package is a small Django app which 
+The :mod:`djangosite` Python package is a small Django app which 
 does not define any models, it just provides a :class:`Site` class 
 designed to be instantiated as ``settings.SITE``.
 
 Basic usage in your :xfile:`settings.py` file::
 
-  from django_site import Site
+  from djangosite import Site
   SITE = Site(__file__,globals())
   # ... your settings here
-  INSTALLED_APPS = [..., "django_site"]
-  # Note that "django_site" must be the last item of your INSTALLED_APPS
+  INSTALLED_APPS = [..., "djangosite"]
+  # Note that "djangosite" must be the last item of your INSTALLED_APPS
 
 See :doc:`/usage` for more.
 
@@ -51,14 +51,14 @@ Startup signals
 ---------------
 
 The base implementation does little more than to emit a 
-:attr:`startup <django_site.signals.startup>`
+:attr:`startup <djangosite.signals.startup>`
 signal when Django has populated the model cache.
 
 You can now write code like the following 
 in any `models` or `admin` 
 module of your existing project::
 
-  from django_site.signals import startup, receiver
+  from djangosite.signals import startup, receiver
   
   @receiver(startup)
   def my_handler(sender,**kw):
@@ -68,9 +68,9 @@ module of your existing project::
 Extending `django-site`
 -----------------------
 
-Another usage is to subclass the :class:`django_site.Site` class::
+Another usage is to subclass the :class:`djangosite.Site` class::
 
-  from django_site import Site
+  from djangosite import Site
   
   class MySite(Site):
       version = "1.0"
