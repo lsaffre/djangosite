@@ -5,10 +5,9 @@ django-site
 Description
 -----------
 
-`django-site` adds to Django the concept of 
-":doc:`the application which is running on this 
-site <application>`", 
-globally accessible as ``settings.SITE``
+`django-site` adds to a Django project the concept of 
+":doc:`the application which is running on this site <application>`",
+stored as a Python object in ``settings.SITE``
 (not to confuse with Django's `SITE_ID
 <https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-SITE_ID>`__ 
 setting).
@@ -16,11 +15,6 @@ This is the foundation for projects like
 `django-north <http://north.lino-framework.org>`__
 and the 
 `Lino framework <http://www.lino-framework.org>`__.
-
-An immediate benefit of `django-site` is to 
-add an :doc:`application server startup signal <startup_signal>`.
-to your Django project.
-
 
 
 Installation
@@ -50,9 +44,10 @@ See :doc:`/usage` for more.
 Startup signals
 ---------------
 
-The base implementation does little more than to emit a 
-:attr:`startup <djangosite.signals.startup>`
-signal when Django has populated the model cache.
+An immediate benefit of the base implementation is to 
+emit a :attr:`startup <djangosite.signals.startup>`
+signal when Django 
+has finished populating the model cache.
 
 You can now write code like the following 
 in any `models` or `admin` 
@@ -74,7 +69,6 @@ Another usage is to subclass the :class:`djangosite.Site` class::
   
   class MySite(Site):
       version = "1.0"
-      
       def do_maintenance(self):
           # your application specific code here
           

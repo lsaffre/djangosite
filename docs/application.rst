@@ -50,25 +50,31 @@ What is a Site?
 A :class:`Site` defines a `software application 
 <http://en.wikipedia.org/wiki/Software_application>`_,
 that is, a piece of software which is perceived as an 
-entity *by an end-user*.
-Software vendors might call it a product.
-
-End users don't know about Django's :setting:`INSTALLED_APPS` setting.
+entity by end-users.
+(Where *end users* are not *system administrators*,
+they don't know e.g. about Django's :setting:`INSTALLED_APPS` setting.)
 
 A Site has attributes like
 
-:attr:`Site.author` and :attr:`Site.author_email`
-    Name and email address of the author
 :attr:`Site.short_name`
     The "short" user-visible name
-- :attr:`Site.version`
-- :attr:`Site.description`
+:attr:`Site.version`
+    The version
+:attr:`Site.author` and :attr:`Site.author_email`
+    Name and email address of the author
+:attr:`Site.description`
+    short description
+    
+>>> from django.conf import settings
+>>> print settings.SITE.welcome_text()
+Using Python 2.7.3, Django 1.4.5, django-site 0.0.2.
 
 A Site is usually meant to work for a given set of Django apps. 
 Each Lino application defines its 
 
 A Site usually also defines a Django app, but not always:
-it can consist of just a settings file (e.g. :mod:`lino.projects.min1`).
+it can consist of just a settings file 
+(e.g. :mod:`lino.projects.min1`).
 
 The :class:`Site <djangosite.Site>` is first defined in :mod:`djangosite`, 
 subclassed by :mod:`lino` and by :mod:`lino.ui`, 

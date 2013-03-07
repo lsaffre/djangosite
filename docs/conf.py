@@ -22,17 +22,14 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'djangosite.docs_settings'
 #~ """
 #~ from django.conf import settings
 
+DOCSDIR = Path(__file__).parent.absolute()
+HGWORK = DOCSDIR.ancestor(2)
 
-# If your extensions are in another directory, add it here. If the directory
-# is relative to the documentation root, use os.path.abspath to make it
-# absolute, like shown here.
-
-sys.path.append(Path(__file__).parent.absolute())
-#~ sys.path.insert(0,Path(__file__).parent.absolute())
+sys.path.append(DOCSDIR)
 
 #~ print sys.path
 
-from djangosite import utils
+#~ from djangosite import utils
 #~ raise Exception("djangosite.utils.__file__ is: %s" % utils.__file__)
 from djangosite.utils.sphinxconf import setup
 
@@ -49,7 +46,7 @@ extensions = [
   'sphinx.ext.todo',
   'sphinx.ext.extlinks',
   'sphinx.ext.graphviz',
-  'sphinx.ext.intersphinx',
+  #~ 'sphinx.ext.intersphinx',
   'sphinx.ext.doctest',
 ]
 
@@ -252,21 +249,17 @@ extlinks = {
   'srcref': ('http://code.google.com/p/django-site/source/browse%s', ''),
   'djangoticket': ('http://code.djangoproject.com/ticket/%s', 'Django ticket #'),
 }
-    
-#~ intersphinx_mapping = {
-  #~ 'django': ('http://docs.djangoproject.com', 'http://docs.djangoproject.com/en/dev/objects.inv')
-#~ }
 
-#~ welfare_inv = os.path.join('..','..','welfare','objects.inv')
-intersphinx_mapping = {
-  #~ 'welfare': ('http://packages.python.org/lino-welfare/en', None )
-  'lino': (
-    'http://www.lino-framework.org',
-    r'c:\temp\sphinxbuild\lino\html\objects.inv' ),
-  'welfare': (
-    'http://welfare.lino-framework.org',
-    r'c:\temp\sphinxbuild\welfare\html\objects.inv' )
-}
+#~ intersphinx_mapping = dict()
+#~ intersphinx_mapping.update(north=(
+    #~ 'http://www.lino-framework.org',
+    #~ Path(HGWORK,'north','docs','.build','html','objects.inv')))
+#~ intersphinx_mapping.update(lino=(
+    #~ 'http://www.lino-framework.org',
+    #~ Path(HGWORK,'lino','docs','.build','html','objects.inv')))
+#~ intersphinx_mapping.update(welfare=(
+    #~ 'http://welfare.lino-framework.org',
+    #~ Path(HGWORK,'welfare','docs','.build','html','objects.inv')))
 
 autosummary_generate = True
 

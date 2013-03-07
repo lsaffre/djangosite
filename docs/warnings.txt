@@ -1,3 +1,33 @@
-T:\hgwork\site\docs\autodoc\index.rst:10: WARNING: toctree contains reference to nonexisting document u'autodoc/djangosite.dbtools'
-T:\hgwork\site\docs\autodoc\djangosite.dbutils.rst:: WARNING: document isn't included in any toctree
-T:\hgwork\site\docs\releases\0.0.1.rst:: WARNING: document isn't included in any toctree
+T:\hgwork\site\docs\application.rst:64: WARNING: Definition list ends without a blank line; unexpected unindent.
+T:\hgwork\site\docs\application.rst:60: WARNING: py:attr reference target not found: Site.author
+T:\hgwork\site\docs\application.rst:60: WARNING: py:attr reference target not found: Site.author_email
+T:\hgwork\site\docs\application.rst:73: WARNING: py:mod reference target not found: lino.projects.cosi.Site
+T:\hgwork\site\docs\application.rst:73: WARNING: setting reference target not found: SITE
+<autodoc>:1: WARNING: py:class reference target not found: object
+t:\hgwork\site\djangosite\__init__.py:docstring of djangosite.Site:1: WARNING: setting reference target not found: SITE
+t:\hgwork\site\djangosite\__init__.py:docstring of djangosite.Site.django_settings:1: WARNING: py:meth reference target not found: Lino.__init__
+t:\hgwork\site\djangosite\__init__.py:docstring of djangosite.Site.is_local_project_dir:1: WARNING: py:class reference target not found: Lino
+t:\hgwork\site\djangosite\__init__.py:docstring of djangosite.Site.project_dir:11: WARNING: xfile reference target not found: fixtures
+t:\hgwork\site\djangosite\__init__.py:docstring of djangosite.Site.startup:1: WARNING: py:mod reference target not found: lino.models
+t:\hgwork\site\djangosite\__init__.py:docstring of djangosite.Site.using:6: WARNING: py:meth reference target not found: welcome_html
+T:\hgwork\site\docs\autodoc\djangosite.management.rst:1: WARNING: py:mod reference target not found: djangosite.management
+T:\hgwork\site\docs\autodoc\djangosite.management.rst:14: WARNING: unknown document: /topics/dumpy
+t:\hgwork\site\djangosite\management\commands\initdb.py:docstring of djangosite.management.commands.initdb:24: WARNING: unknown document: /tickets/50
+T:\hgwork\site\docs\autodoc\djangosite.management.rst:7: WARNING: py:attr reference target not found: lino.Lino.demo_fixtures
+<autodoc>:1: WARNING: py:class reference target not found: dict
+T:\hgwork\site\docs\autodoc\djangosite.utils.rstgen.rst:9: WARNING: py:func reference target not found: table
+T:\hgwork\site\docs\autodoc\djangosite.utils.rstgen.rst:9: WARNING: py:meth reference target not found: lino.core.actions.ActionRequest.to_rst
+t:\hgwork\site\djangosite\utils\rstgen.py:docstring of djangosite.utils.rstgen:24: WARNING: py:func reference target not found: table
+<autodoc>:1: WARNING: py:class reference target not found: object
+t:\hgwork\site\djangosite\utils\sphinxconf.py:docstring of djangosite.utils.sphinxconf.ComplexTableDirective:30: WARNING: unknown document: /blog/2013/0116
+<autodoc>:1: WARNING: py:class reference target not found: docutils.parsers.rst.Directive
+t:\hgwork\site\djangosite\utils\sphinxconf.py:docstring of djangosite.utils.sphinxconf.TextImageDirective:1: WARNING: unknown document: /blog/2013/0116
+<autodoc>:1: WARNING: py:class reference target not found: object
+T:\hgwork\site\docs\index.rst:30: WARNING: py:class reference target not found: Site
+T:\hgwork\site\docs\releases\coming.rst:6: WARNING: py:mod reference target not found: lino.utils.babel
+T:\hgwork\site\docs\releases\coming.rst:6: WARNING: py:mod reference target not found: lino.utils.dumpy
+The current stable release is :doc:`0.0.2`.
+We're currently working on :doc:`coming`.
+:1: WARNING: unknown document: 0.0.2
+T:\hgwork\site\docs\usage.rst:10: WARNING: py:class reference target not found: Site
+T:\hgwork\site\docs\usage.rst:21: WARNING: setting reference target not found: SITE
