@@ -60,10 +60,6 @@ A Site has attributes like
     The "short" user-visible name
 :attr:`Site.version`
     The version
-:attr:`Site.author` and :attr:`Site.author_email`
-    Name and email address of the author
-:attr:`Site.description`
-    short description
     
 >>> from django.conf import settings
 >>> print settings.SITE.welcome_text()

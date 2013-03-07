@@ -8,13 +8,6 @@ initdb
     :members:
     :show-inheritance:
 
-initdb_demo
------------
-
-.. automodule:: djangosite.management.commands.initdb_demo
-    :members:
-    :show-inheritance:
-
 run
 ---
 

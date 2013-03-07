@@ -27,11 +27,11 @@ from decimal import Decimal
 
 execfile(os.path.join(os.path.dirname(__file__),'version.py'))
 
-__author__ = "Luc Saffre <luc.saffre@gmx.net>"
+#~ __author__ = "Luc Saffre <luc.saffre@gmx.net>"
 
 #~ __url__ = "http://lino.saffre-rumma.net"
 #~ __url__ = "http://code.google.com/p/lino/"
-__url__ = "http://www.lino-framework.org"
+#~ __url__ = "http://www.lino-framework.org"
 
 
 __copyright__ = """\
@@ -56,36 +56,29 @@ class Site(object):
     See :doc:`/usage`.
     """
     
-    make_missing_dirs = True
-    """
-    Set this to False if you don't want Lino to automatically 
-    create missing dirs when needed 
-    (but to raise an exception in these cases, asking you to create it yourself)
-    """
-    
     short_name = None # "Unnamed Lino Application"
     """
     Used as display name to end-users at different places.
     """
     
-    author = None
-    author_email = None
+    #~ author = None
+    #~ author_email = None
     version = None
     """
     """
     
-    url = None
-    """
-    """
+    #~ url = None
+    #~ """
+    #~ """
     
-    description = """
-    yet another <a href="%s">Django-Sites</a> application.""" % __url__
-    """
-    A short single-sentence description.
-    It should start with a lowercase letter because the beginning 
-    of the sentence will be generated from other class attributes 
-    like :attr:`short_name` and :attr:`version`.
-    """
+    #~ description = """
+    #~ yet another <a href="%s">Django-Sites</a> application.""" % __url__
+    #~ """
+    #~ A short single-sentence description.
+    #~ It should start with a lowercase letter because the beginning 
+    #~ of the sentence will be generated from other class attributes 
+    #~ like :attr:`short_name` and :attr:`version`.
+    #~ """
     
     is_local_project_dir = False
     """
@@ -94,6 +87,13 @@ class Site(object):
     Contains `True` if this is a "local" project.
     For local projects, Lino checks for local fixtures and config directories
     and adds them to the default settings.
+    """
+    
+    make_missing_dirs = True
+    """
+    Set this to False if you don't want Lino to automatically 
+    create missing dirs when needed 
+    (but to raise an exception in these cases, asking you to create it yourself)
     """
     
     
@@ -117,7 +117,7 @@ class Site(object):
     """
     Read-only.
     Full path to your local project directory. 
-    Local Lino subclasses should not override this variable.
+    Local subclasses should not override this variable.
     
     The local project directory is where 
     local configuration files are stored:
@@ -130,7 +130,7 @@ class Site(object):
     
     site_config = None
     """
-    ui.Site overrides this to hold a SiteConfig instance.
+    ui.Site overrides this to hold a `SiteConfig` instance.
     """
     
     modules = AttrDict()
@@ -141,18 +141,11 @@ class Site(object):
     
     django_settings = None
     """
-    This is where Lino stores the `globals()` dictionary of your
+    This is where Site stores the `globals()` dictionary of your
     :xfile:`settings.py` file (the one you provided when 
-    calling :meth:`Lino.__init__`.
+    calling :meth:`Site.__init__`.
     """
     
-    
-    demo_fixtures = ['std','demo']
-    """
-    The list of fixtures to be loaded by the 
-    `initdb_demo <lino.management.commands.initdb_demo>`
-    command.
-    """
     
     startup_time = None
     """
