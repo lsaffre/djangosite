@@ -222,7 +222,7 @@ class Py2rstDirective(InsertInputDirective):
         
 class TextImageDirective(InsertInputDirective):
     """
-    See :doc:`/blog/2013/0116` for documentation.
+    See Blog entry 2013/0116 for documentation.
     """
     required_arguments = 1
     final_argument_whitespace = True
@@ -275,7 +275,7 @@ class ComplexTableDirective(InsertInputDirective):
         B2
         
         
-    See :doc:`/blog/2013/0116` for documentation.
+    See Blog entry 2013/0116 for documentation.
     """
     required_arguments = 0
     final_argument_whitespace = True

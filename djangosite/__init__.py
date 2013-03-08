@@ -25,7 +25,9 @@ import datetime
 from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
 
-execfile(os.path.join(os.path.dirname(__file__),'version.py'))
+execfile(os.path.join(os.path.dirname(__file__),'setup_info.py'))
+__version__ = SETUP_INFO['version'] # 
+
 
 #~ __author__ = "Luc Saffre <luc.saffre@gmx.net>"
 
@@ -40,11 +42,10 @@ This software comes with ABSOLUTELY NO WARRANTY and is
 distributed under the terms of the GNU General Public License.
 See file COPYING.txt for more information."""
 
-NOT_FOUND_MSG = '(not installed)'
-
-from .utils import AttrDict
+from .utils import AttrDict, ispure
     
   
+#~ class BaseSite(object):
 class Site(object):
     """
     Base class for the Site instance to be stored in :setting:`SITE`.
@@ -55,8 +56,13 @@ class Site(object):
     
     See :doc:`/usage`.
     """
+    #~ """
+    #~ When extending the :class:`Site` you'll may 
+    #~ prefer to base it on the :class:`BaseSite` class
+    #~ which doesn't call :meth:`run_djangosite_local`.
+    #~ """
     
-    short_name = None # "Unnamed Lino Application"
+    verbose_name = None # "Unnamed Lino Application"
     """
     Used as display name to end-users at different places.
     """
@@ -77,7 +83,7 @@ class Site(object):
     #~ A short single-sentence description.
     #~ It should start with a lowercase letter because the beginning 
     #~ of the sentence will be generated from other class attributes 
-    #~ like :attr:`short_name` and :attr:`version`.
+    #~ like :attr:`verbose_name` and :attr:`version`.
     #~ """
     
     is_local_project_dir = False
@@ -139,6 +145,10 @@ class Site(object):
     Read-only. Applications should not set this. 
     """
     
+    not_found_msg = '(not installed)'
+
+    
+    
     django_settings = None
     """
     This is where Site stores the `globals()` dictionary of your
@@ -154,8 +164,15 @@ class Site(object):
     iaw the startup time of this Django process.
     """
     
+    def __init__(self,*args,**kwargs):
+        self.init_nolocal(*args)
+        self.run_djangosite_local(**kwargs)
     
-    def __init__(self,project_file,django_settings,*installed_apps,**kwargs):
+    def init_nolocal(self,project_file,django_settings,*installed_apps):
+            
+        #~ memory_db = kwargs.pop('memory_db',False)
+        #~ nolocal = kwargs.pop('nolocal',False)
+            
         #~ if django_settings.has_key('LINO'):
             #~ raise Exception("Oops: rename settings.LINO to settings.SITE")
         #~ if django_settings.has_key('Lino'):
@@ -173,19 +190,47 @@ class Site(object):
         
         self.startup_time = datetime.datetime.now()
         
-        django_settings.update(DATABASES= {
+        dbname  = join(self.project_dir,'default.db')
+        #~ if memory_db:
+            #~ dbname  = ':memory:'
+        django_settings.update(DATABASES = {
               'default': {
                   'ENGINE': 'django.db.backends.sqlite3',
-                  'NAME': join(self.project_dir,'default.db')
+                  'NAME': dbname
               }
             })
-        django_settings.update(INSTALLED_APPS=tuple(installed_apps+('djangosite',)))
+        django_settings.update(INSTALLED_APPS =
+            tuple(installed_apps+('djangosite',)))
         
+            
+          
+    def run_djangosite_local(self,**kwargs):
+        """
+        See :doc:`/djangosite_local`
+        """
+        #~ kwargs.pop('nolocal',None)
+        try:
+            from djangosite_local import setup_site
+        except ImportError:
+            pass
+        else:
+            setup_site(self)
+            
+        self.override_defaults(**kwargs)
+        
+    def override_defaults(self,**kwargs):
         for k,v in kwargs.items():
             if not hasattr(self,k):
                 raise Exception("%s has no attribute %s" % (self.__class__,k))
             setattr(self,k,v)
-            
+        
+    def update_settings(self,**kw):  
+        """
+        This may be called from within a 
+        :doc:`djangosite_local.setup_site </djangosite_local>` 
+        function.
+        """
+        self.django_settings.update(**kw)
         
     def startup(self):
         """
@@ -315,20 +360,17 @@ class Site(object):
         Yields a list of (name, version, url) tuples
         describing the software used on this site.
         
-        The first tuple describes the application itself.
+        The first tuple NO LONGER describes the application itself.
         
-        This function is used by 
-        :meth:`welcome_text`,
-        :meth:`welcome_html`
-        and
-        :meth:`site_version`.
+        This function is used by :meth:`using_text`
+        which is used  by :meth:`welcome_text`.
         
         """
-        from .utils import ispure
-        assert ispure(self.short_name)
+        #~ from .utils import ispure
+        #~ assert ispure(self.verbose_name)
         
-        if self.short_name and self.version and self.url:
-            yield (self.short_name, self.version, self.url)
+        #~ if self.verbose_name and self.version and self.url:
+            #~ yield (self.verbose_name, self.version, self.url)
         
         import sys
         version = "%d.%d.%d" % sys.version_info[:3]
@@ -337,29 +379,74 @@ class Site(object):
         import django
         yield ("Django",django.get_version(),"http://www.djangoproject.com")
         
-        yield ("django-site",__version__,"http://site.lino-framework.org")
+        #~ yield ("django-site",__version__,"http://site.lino-framework.org")
+        yield (SETUP_INFO['name'],SETUP_INFO['version'],SETUP_INFO['url'])
         
 
     def welcome_text(self):
         """
         Text to display in a console window when Lino starts.
         """
-        return "Using %s." % (', '.join(["%s %s" % (n,v) for n,v,u in self.using()]))
+        #~ return "Using %s." % (', '.join(["%s %s" % (n,v) for n,v,u in self.using()]))
+        return "This is %s using %s." % (self.site_version(),self.using_text())
+          
+
+    def using_text(self):
+        """
+        Text to display in a console window when Lino starts.
+        """
+        return ', '.join(["%s %s" % (n,v) for n,v,u in self.using()])
 
     def site_version(self):
         """
         Used in footnote or header of certain printed documents.
         """
-        name,version,url = self.using().next()
+        #~ from .utils import ispure
+        
+        #~ if self.verbose_name and self.version and self.url:
+        if self.verbose_name:
+            assert ispure(self.verbose_name)
+            #~ return self.verbose_name, self.version, self.url)
+            if self.version:
+                return self.verbose_name + ' ' + self.version
+            return self.verbose_name
+        
+        #~ name,version,url = self.using().next()
         #~ name,version,url = self.get_application_info()
-        #~ if self.short_name
+        #~ if self.verbose_name
         #~ if self.version is None:
-            #~ return self.short_name + ' (Lino %s)' % __version__
-        #~ return self.short_name + ' ' + self.version
-        return name + ' ' + version
+            #~ return self.verbose_name + ' (Lino %s)' % __version__
+        #~ return self.verbose_name + ' ' + self.version
+        #~ return name + ' ' + version
         #~ return "Lino " + __version__
 
+#~ class Site(BaseSite):
+    #~ """
+    #~ Base class for the Site instance to be stored in :setting:`SITE`.
+    
+    #~ A :class:`Site` describes and represents the 
+    #~ :doc:`software application </application>` 
+    #~ running on a given site (aka "project" in Django jargon).
+    
+    #~ See :doc:`/usage`.
+    #~ """
+    
+    #~ def __init__(self,*args,**kwargs):
+        #~ super(Site,self).__init__(*args,**kwargs)
 
+        #~ self.run_djangosite_local(**kwargs)
+        
+class NoLocalSite(Site):
+    """
+    A Site that doesn't try to load :doc:`/djangosite_local`.
+    Used e.g. in docs/settings.py
+    """
+    def __init__(self,*args,**kwargs):
+        self.init_nolocal(*args)
+        self.override_defaults(**kwargs)
+
+
+__all__ = ['Site']
 
 def _test():
     import doctest

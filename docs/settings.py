@@ -1,3 +1,3 @@
 # pro-forma settings file.
-from djangosite import Site
+from djangosite import NoLocalSite as Site
 SITE = Site(__file__,globals())

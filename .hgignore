@@ -7,4 +7,5 @@ djangosite.egg-info
 */default.db
 htmlcov
 .coverage
+.coveragerc
 .build

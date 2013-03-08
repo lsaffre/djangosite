@@ -36,3 +36,5 @@ The base class will modify the following Django settings
   :setting:`DATABASES`
   :setting:`INSTALLED_APPS`
 
+
+See also :doc:`djangosite_local`

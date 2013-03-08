@@ -15,7 +15,8 @@ import sys, os
 import djangosite
 from unipath import Path
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'djangosite.docs_settings'
+#~ os.environ['DJANGO_SETTINGS_MODULE'] = 'djangosite.docs_settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 #~ """
 #~ Trigger loading of Djangos model cache in order to avoid side effects that 
 #~ would occur when this happens later while importing one of the models modules.

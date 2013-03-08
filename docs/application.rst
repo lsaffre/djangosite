@@ -61,12 +61,10 @@ A Site has attributes like
 :attr:`Site.version`
     The version
     
->>> from django.conf import settings
->>> print settings.SITE.welcome_text()
-Using Python 2.7.3, Django 1.4.5, django-site 0.0.2.
+:meth:`Site.using`
+:meth:`Site.welcome_text`
 
 A Site is usually meant to work for a given set of Django apps. 
-Each Lino application defines its 
 
 A Site usually also defines a Django app, but not always:
 it can consist of just a settings file 

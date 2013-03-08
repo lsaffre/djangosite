@@ -9,20 +9,17 @@ This command REMOVES *all existing tables* from the database
 (not only Django tables), then runs Django's `syncdb` 
 and `loaddata` commands to load the specified fixtures for all applications.
 
-That may sound dangerous, but that's what we want when we have a 
-:doc:`python dump </topics/dumpy>` to restore our database. You know that you 
-should rather not let Lino and some other application share the same database!
+That may sound dangerous, but that's what you want when you ask to 
+restore the factory settings of a Django application.
 
 Django's `reset` command may fail after an upgrade if the new Lino 
 version defines new tables. In that case, flush sends a DROP TABLE 
 which fails because that table doesn't exist. 
 
-Lino's `initdb` reimplements a simplified version of Django's `reset` command, 
+This reimplements a simplified version of Django's `reset` command, 
 without the possibility of deleting only *some* data (the thing which 
 caused so big problems that Django 1.3. decided to `deprecate this command
 <https://docs.djangoproject.com/en/dev/releases/1.3/#reset-and-sqlreset-management-commands>`__.
-
-See also ticket :doc:`/tickets/50`.
 
 """
 
