@@ -424,6 +424,10 @@ class Site(object):
         #~ return self.verbose_name + ' ' + self.version
         #~ return name + ' ' + version
         #~ return "Lino " + __version__
+    
+    def call_command(self,*args,**options):
+        from django.core.management import call_command
+        call_command(*args,**options)
 
 #~ class Site(BaseSite):
     #~ """

@@ -1,3 +1,5 @@
+.. _djangosite_local:
+
 The `djangosite_local.py` file
 ==============================
 

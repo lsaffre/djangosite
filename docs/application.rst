@@ -5,25 +5,20 @@ What is a software application?
 An application is not an app
 ----------------------------
 
-Note that "application" here has nothing to do with 
-Django's rather special use of the word "app" (as in :setting:`INSTALLED_APPS`).
-
+Django comes with a rather special use of the word "app".
 Daniel and Audrey (`Two scoops of Django <https://django.2scoops.org/>`_) 
 say it in a diplomatic way:
 
   "It’s not uncommon for new Django developers to become understandably 
   confused by Django’s usage of the word ‘app’."
 
-The cruel truth here is that Django is wrong. 
+If you ask me: Django is simply wrong here. 
 Django says "app" where it should say "plugin".
 An application is a standalone piece of software.
-For example `django.contrib.contenttypes` is not an application, 
-it is a plugin.
+`django.contrib.contenttypes` is not an application, it is a plugin.
 
-It's a pity because it leaves Django users
-with no word  left for what a `Software application 
-<http://en.wikipedia.org/wiki/Software_application>`_ 
-really is.
+The problem with this is that it leaves Django users
+with no word  left for what a Software application really is.
 
 Many Django people are probably aware of that problem,
 but it would be really much work to fix it
@@ -37,13 +32,13 @@ We have to live with it and forgive Django its oddness.
 In fact Django is such a great product that 
 we forgive even more oddnesses than this one.
 
-But that's why we have to speak 
-about a :class:`djangosite.Site` class and a `SITE` setting 
+That's why we have to speak 
+about a :class:`Site <djangosite.Site>` class and a `SITE` setting 
 rather than an `Application` class and an `APP` setting.
 
 
-What is a Site?
-===============
+So what then is a Site really? 
+==============================
 
 .. currentmodule:: djangosite
 
@@ -51,32 +46,41 @@ A :class:`Site` defines a `software application
 <http://en.wikipedia.org/wiki/Software_application>`_,
 that is, a piece of software which is perceived as an 
 entity by end-users.
-(Where *end users* are not *system administrators*,
-they don't know e.g. about Django's :setting:`INSTALLED_APPS` setting.)
 
-A Site has attributes like
+The base :class:`Site <djangosite.Site>` class 
+doesn't do very much on its own.
+It has attributes like
+:attr:`Site.verbose_name` (the "short" user-visible name)
+and the :attr:`Site.version` which are used by the method
+:meth:`Site.welcome_text`.
+And of course the 
+:meth:`Site.startup` method and signal which is the 
+concrete reason why you might want a bare
+:class:`Site <djangosite.Site>`.
 
-:attr:`Site.short_name`
-    The "short" user-visible name
-:attr:`Site.version`
-    The version
-    
-:meth:`Site.using`
-:meth:`Site.welcome_text`
-
-A Site is usually meant to work for a given set of Django apps. 
-
-A Site usually also defines a Django app, but not always:
-it can consist of just a settings file 
-(e.g. :mod:`lino.projects.min1`).
-
-The :class:`Site <djangosite.Site>` is first defined in :mod:`djangosite`, 
-subclassed by :mod:`lino` and by :mod:`lino.ui`, 
-then usually subclassed by the application developer
-(e.g. :mod:`lino.projects.cosi.Site`),
-then imported into your local :xfile:`settings.py`,
-where you may subclass it another time before 
-finally instantiating it, and assigning it to 
+But then it is designed to be subclassed.
+It is subclassed by :mod:`north`,
+which is subclassed by :mod:`lino`,
+which is subclassed by :mod:`lino.ui`,
+then subclassed by the application developer
+(e.g. :mod:`lino.projects.cosi`),
+then imported into a local :xfile:`settings.py`,
+where the system administrator may subclass it another time 
+before finally instantiating it, and assigning it to 
 the :setting:`SITE` variable.
 
+Such a Site instance would then be a "project" for Django.
+
+This brings an additional level of encapsulation to Django.
+A `Site` is "something between an app and a project",
+it is a kind of "master app" or "project template".
+
+A Site is usually meant to work for a given set of Django apps. 
+There are different mechanisms to define "automatic" ways 
+of building the content of :setting:`INSTALLED_APPS` setting.
+(TODO: write more about it)
+
+A Site can itself define a Django app, but this is not a requirement.
+It can consist of just a settings file (e.g. :mod:`lino.projects.min1`).
+But even the settings file isn't necessary.
 
