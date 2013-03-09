@@ -2,8 +2,8 @@
 import os
 
 SETUP_INFO = dict(
-  #~ name = 'django-site', # old name, no longer used
-  name = 'DjangoSite',
+  name = 'django-site', 
+  #~ name = 'DjangoSite', # no longer used. see blog 20130309
   version = '0.0.2',
   description = "An extensible SITE object for Django",
   license = 'Free BSD',

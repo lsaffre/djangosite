@@ -1,5 +1,5 @@
 ==========================
-DjangoSite README
+django-site README
 ==========================
 
 An extensible SITE object for Django
