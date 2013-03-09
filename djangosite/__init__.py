@@ -25,7 +25,7 @@ import datetime
 from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
 
-execfile(os.path.join(os.path.dirname(__file__),'setup_info.py'))
+execfile(os.path.join(os.path.dirname(__file__),'..','setup_info.py'))
 __version__ = SETUP_INFO['version'] # 
 
 
@@ -136,7 +136,12 @@ class Site(object):
     
     site_config = None
     """
-    ui.Site overrides this to hold a `SiteConfig` instance.
+    See :attr:`lino.ui.Site.config_site`.
+    """
+    
+    languages = None
+    """
+    See :attr:`north.Site.languages`.
     """
     
     modules = AttrDict()
@@ -160,7 +165,7 @@ class Site(object):
     startup_time = None
     """
     Don't modify this. 
-    It contains the time when this this Lino has been instantiated,
+    It contains the time when this this Site has been instantiated,
     iaw the startup time of this Django process.
     """
     

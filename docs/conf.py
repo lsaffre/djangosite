@@ -12,9 +12,11 @@
 # serve to show the default.
 
 import sys, os
-import djangosite
 from unipath import Path
+DOCSDIR = Path(__file__).parent.absolute()
+sys.path.append(DOCSDIR)
 
+import djangosite
 #~ os.environ['DJANGO_SETTINGS_MODULE'] = 'djangosite.docs_settings'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 #~ """
@@ -22,17 +24,6 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 #~ would occur when this happens later while importing one of the models modules.
 #~ """
 #~ from django.conf import settings
-
-DOCSDIR = Path(__file__).parent.absolute()
-HGWORK = DOCSDIR.ancestor(2)
-
-sys.path.append(DOCSDIR)
-
-#~ print sys.path
-
-#~ from djangosite import utils
-#~ raise Exception("djangosite.utils.__file__ is: %s" % utils.__file__)
-from djangosite.utils.sphinxconf import setup
 
 
 # General configuration
@@ -47,7 +38,7 @@ extensions = [
   'sphinx.ext.todo',
   'sphinx.ext.extlinks',
   'sphinx.ext.graphviz',
-  #~ 'sphinx.ext.intersphinx',
+  'sphinx.ext.intersphinx',
   'sphinx.ext.doctest',
 ]
 
@@ -277,12 +268,26 @@ gettext_compact = True
 
 
 
+HGWORK = DOCSDIR.ancestor(2)
+intersphinx_mapping = dict()
+intersphinx_mapping.update(site=(
+    'http://site.lino-framework.org',
+    Path(HGWORK,'site','docs','.build','objects.inv')))
+intersphinx_mapping.update(north=(
+    'http://north.lino-framework.org',
+    Path(HGWORK,'north','docs','.build','objects.inv')))
+intersphinx_mapping.update(lino=(
+    'http://www.lino-framework.org',
+    Path(HGWORK,'lino','docs','.build','objects.inv')))
+intersphinx_mapping.update(welfare=(
+    'http://welfare.lino-framework.org',
+    Path(HGWORK,'welfare','docs','.build','objects.inv')))
 
-#~ from lino.utils.sphinxconf import setup
-#~ from lino.utils.sphinxconf import setup as stdsetup
-#~ from djangosite import djangodoctest
+from djangosite.utils.sphinxconf import setup
+
 #~ def setup(app):
     #~ stdsetup(app)
     #~ djangodoctest.setup(app)
     #~ app.add_stylesheet('dialog.css')
     #~ app.add_stylesheet('scrollwide.css')
+
