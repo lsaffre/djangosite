@@ -154,7 +154,8 @@ class Command(BaseCommand):
         
         call_command('syncdb',load_initial_data=False,**options)
         
-        call_command('loaddata',*args,**options)
+        if len(args):
+            call_command('loaddata',*args,**options)
         
         #~ dblogger.info("Lino initdb done %s on database %s.", args, dbname)
 

@@ -45,10 +45,15 @@ class DjangoDocTester(object):
             return 
         #~ loading.cache.__dict__ = loading.cache.__shared_state
         loading.cache._get_models_cache.clear()
+        loading.cache.app_store.clear()
+        loading.cache.app_labels.clear()
+        loading.cache.app_errors.clear()
+        loading.cache.handled.clear()
         loading.cache.loaded = False
-        loading.cache.handled = {}
+        #~ loading.cache.handled = {}
         loading.cache.postponed = []
         loading.cache.nesting_level = 0
+        #~ loading.cache._populate()
 
 
     def setup(self,settings_module_name):
@@ -89,6 +94,9 @@ class DjangoDoctestDirective(TestDirective):
         settings_module = self.arguments[0]
         models_module = '.'.join(settings_module.split('.')[:-1])+'.models'
         setup_code = """\
+from django.conf import settings
+from six import print_
+from django.core.management import call_command
 from djangosite.utils.doctest import tester
 tester.setup('%s')
 from %s import *

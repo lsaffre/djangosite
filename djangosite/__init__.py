@@ -172,7 +172,7 @@ class Site(object):
         self.init_nolocal(*args)
         self.run_djangosite_local(**kwargs)
     
-    def init_nolocal(self,project_file,django_settings,*installed_apps):
+    def init_nolocal(self,project_file,django_settings,*user_apps):
             
         #~ memory_db = kwargs.pop('memory_db',False)
         #~ nolocal = kwargs.pop('nolocal',False)
@@ -181,7 +181,7 @@ class Site(object):
             #~ raise Exception("Oops: rename settings.LINO to settings.SITE")
         #~ if django_settings.has_key('Lino'):
             #~ raise Exception("Oops: rename settings.Lino to settings.Site")
-            
+        self.user_apps = user_apps
         self.project_dir = normpath(dirname(project_file))
         self.project_name = os.path.split(self.project_dir)[-1]
         
@@ -204,7 +204,7 @@ class Site(object):
               }
             })
         django_settings.update(INSTALLED_APPS =
-            tuple(installed_apps+('djangosite',)))
+            tuple(user_apps+('djangosite',)))
         
         django_settings.update(FORMAT_MODULE_PATH = 'djangosite.formats')
         #~ django_settings.update(LONG_DATE_FORMAT = "l, j F Y")
@@ -470,9 +470,9 @@ class Site(object):
         #~ return name + ' ' + version
         #~ return "Lino " + __version__
     
-    def call_command(self,*args,**options):
-        from django.core.management import call_command
-        call_command(*args,**options)
+    #~ def call_command(self,*args,**options):
+        #~ from django.core.management import call_command
+        #~ call_command(*args,**options)
 
 #~ class Site(BaseSite):
     #~ """
