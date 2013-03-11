@@ -18,10 +18,8 @@
 
 from __future__ import unicode_literals
 
-
 import logging
 logger = logging.getLogger(__name__)
-
 
 import os
 import sys
@@ -33,6 +31,8 @@ from django.conf import settings
 from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models import loading
+#~ from django.utils.formats import get_format
+from django.utils.formats import date_format
 
 from django.core.validators import validate_email, ValidationError, URLValidator
 validate_url = URLValidator()
@@ -157,5 +157,25 @@ def range_filter(v,f1,f2):
     q1 = Q(**{f1+'__isnull':True}) | Q(**{f1+'__lte':v})
     q2 = Q(**{f2+'__isnull':True}) | Q(**{f2+'__gte':v})
     return Q(q1,q2)
+
+
+def dtos(d):
+    """
+    Return the specified date as a localized short string of type '15.06.2011'.
+    See also :doc:`/date_format`.
+    """
+    if d is None: return ''  
+    return date_format(d,'SHORT_DATE_FORMAT')
+  
+def dtosl(d):
+    """
+    Return the specified date as a localized long string of type 'Wednesday, May 4, 2011'.
+    See also :doc:`/date_format`.
+    """
+    if d is None: return ''  
+    from north import babel
+    #~ logger.info("20130311 dtosl with %s",babel.get_language())
+    return date_format(d,'LONG_DATE_FORMAT')
+  
 
 

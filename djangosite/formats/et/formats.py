@@ -1,0 +1,1 @@
+LONG_DATE_FORMAT = r"l, j. F Y.\a."

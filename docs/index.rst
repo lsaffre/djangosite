@@ -55,6 +55,7 @@ Sitemap
    extending
    djangosite_local
    releases/index
-   autodoc/index
+   API <api/djangosite>
    tested/index
+   date_format
 

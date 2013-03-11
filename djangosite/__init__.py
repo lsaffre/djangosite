@@ -139,10 +139,9 @@ class Site(object):
     See :attr:`lino.ui.Site.config_site`.
     """
     
-    languages = None
-    """
-    See :attr:`north.Site.languages`.
-    """
+    
+    _languages = None # used by languages property
+    
     
     modules = AttrDict()
     """
@@ -207,6 +206,52 @@ class Site(object):
         django_settings.update(INSTALLED_APPS =
             tuple(installed_apps+('djangosite',)))
         
+        django_settings.update(FORMAT_MODULE_PATH = 'djangosite.formats')
+        #~ django_settings.update(LONG_DATE_FORMAT = "l, j F Y")
+        django_settings.update(LONG_DATE_FORMAT = "l, F j, Y")
+        
+    @property
+    def languages(self):
+        """
+        The language distribution used on this site.
+        
+        This must be either `None` or an iterable of language codes.
+        Examples::
+        
+          languages = "en de fr nl et".split()
+          languages = ['en']
+          
+        The first language in this list will be the site's 
+        default language.
+        
+        Changing this setting affects your database structure 
+        if your application uses babel fields,
+        and thus require a data migration.
+        
+        If this is not None, Site will 
+        set the Django settings :setting:`USE_L10N` 
+        and  :setting:`LANGUAGE_CODE`.
+        
+        See also :doc:`/date_format`.
+        
+        """
+        return self._languages
+        
+    @languages.setter
+    def languages(self, value):
+        if isinstance(value,basestring):
+            value = value.split()
+        self._languages = value
+        if value is not None:
+            #~ lc = [x for x in self.django_settings.get('LANGUAGES' if x[0] in languages]
+            #~ lc = language_choices(*self._languages)
+            #~ self.update_settings(LANGUAGES = lc)
+            #~ self.update_settings(LANGUAGE_CODE = lc[0][0])
+            self.update_settings(LANGUAGE_CODE = value[0])
+            self.update_settings(USE_L10N = True)
+        
+        
+    
             
           
     def run_djangosite_local(self,**kwargs):

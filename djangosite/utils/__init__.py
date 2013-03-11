@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+
 import types
 
 class AttrDict(dict):

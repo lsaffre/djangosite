@@ -1,0 +1,2 @@
+LONG_DATE_FORMAT = "l, j. F Y"
+SHORT_DATE_FORMAT = "d-m-Y"
