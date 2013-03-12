@@ -88,10 +88,12 @@ def iif(condition,true_value,false_value):
     "Inline If" : an ``if`` statement as a function.
     
     Examples:
+    
     >>> import six
     >>> from djangosite.utils import iif
     >>> six.print_("Hello, %s world!" % iif(1+1==2,"real","imaginary"))
     Hello, real world!
+    
     """
     if condition: return true
     return false_value
