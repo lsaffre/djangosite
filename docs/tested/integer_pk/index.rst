@@ -1,11 +1,12 @@
 Do not define IntegerField as explicit primary_key field
 ========================================================
 
-.. djangodoctest:: tested.integer_pk.settings
-
 Here are the models used for this test:
 
-.. literalinclude:: integer_pk/models.py
+.. literalinclude:: models.py
+
+..
+  >>> from tested.integer_pk.models import *
 
 If you define an IntegerField as explicit primary_key field, you'll 
 get unexpected behaviour:

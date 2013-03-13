@@ -562,6 +562,6 @@ def setup(app):
     #~ app.add_directive('screenshot', ScreenshotDirective)
     #~ app.add_config_value('screenshots_root', '/screenshots/', 'html')
 
-    from djangosite.utils import doctest
-    doctest.setup(app)
+    #~ from djangosite.utils import doctest
+    #~ doctest.setup(app)
     

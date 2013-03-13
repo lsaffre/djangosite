@@ -1,5 +1,9 @@
 # -*- coding: UTF-8 -*-
 ## Copyright 2013 Luc Saffre
+"""
+No longer used. It was naive to believe that it's possible 
+to reload Django's models cache inside a Python process...
+"""
 
 #~ import sys
 

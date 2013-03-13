@@ -8,4 +8,5 @@ which have been tested.
    :maxdepth: 2
    :glob:
    
-   *
+   integer_pk/index
+   float2decimal/index

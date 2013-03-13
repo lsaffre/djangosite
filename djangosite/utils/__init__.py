@@ -32,7 +32,7 @@ class AttrDict(dict):
     >>> a.define('foo',1)
     >>> a.define('bar','baz',2)
     >>> print a
-    {'foo': 1, 'bar': {'baz': 2}}
+    {u'foo': 1, u'bar': {u'baz': 2}}
     >>> print a.foo
     1
     >>> print a.bar.baz
@@ -40,7 +40,7 @@ class AttrDict(dict):
     >>> print a.resolve('bar.baz')
     2
     >>> print a.bar
-    {'baz': 2}
+    {u'baz': 2}
     
     """
   
@@ -95,7 +95,7 @@ def iif(condition,true_value,false_value):
     Hello, real world!
     
     """
-    if condition: return true
+    if condition: return true_value
     return false_value
     
 
@@ -142,10 +142,10 @@ def confirm(prompt=None):
 
 
 
-def _test():
-    import doctest
-    doctest.testmod()
+#~ def _test():
+    #~ import doctest
+    #~ doctest.testmod()
 
-if __name__ == "__main__":
-    _test()
+#~ if __name__ == "__main__":
+    #~ _test()
 

@@ -7,6 +7,12 @@ To be used by creating a `fabfile.py` with the following two line::
 
   from djangosite.utils.fablib import *
   setup_from_project()  
+  
+  
+New env keys:
+
+- django_databases : a list of directories where a manage.py exists
+  and for which initdb_demo should be executed.
 
 """
 import os
@@ -59,6 +65,8 @@ def setup_from_project():
     env.sdist_dir = Path(env.sdist_dir)
     env.django_doctests = []
     env.django_admin_tests = []
+    env.django_databases = []
+    env.simple_doctests = []
 
     #~ print env.project_name
 
@@ -92,6 +100,15 @@ def setup_from_project():
 def must_confirm(*args,**kw):
     if not confirm(*args,**kw):
         abort("Dann eben nicht...")
+        
+def must_exist(p):
+    if not p.exists():
+        abort("No such file: %s" % p.absolute())
+        
+def rmtree_after_confirm(p):
+    must_confirm("OK to remove %s and everything under it?" % p.absolute())
+    p.rmtree()
+    
 
 @task(alias='api')
 def build_api(*cmdline_args):
@@ -100,10 +117,13 @@ def build_api(*cmdline_args):
     """
     if len(env.SETUP_INFO['packages']) != 1:
         abort("env.SETUP_INFO['packages'] is %s" % env.SETUP_INFO['packages'])
+        
+    api_dir = env.DOCSDIR.child("api").absolute()        
+    rmtree_after_confirm(api_dir)
     args = ['sphinx-apidoc']
-    args += ['-f'] # force the overwrite of all files that it generates.
+    #~ args += ['-f'] # force the overwrite of all files that it generates.
     args += ['--no-toc'] # no modules.rst file
-    args += ['-o',env.DOCSDIR.child("api").absolute()]
+    args += ['-o',api_dir]
     args += list(env.SETUP_INFO['packages']) # packagedir 
     if False: # doesn't seem to work
         excluded = [env.ROOTDIR.child('lino','sandbox').absolute()]
@@ -159,8 +179,7 @@ def clean_html(*cmdline_args):
     """
     Delete all built Sphinx files.
     """
-    must_confirm("OK to remove %s and everything under it?" % env.BUILDDIR.absolute())
-    env.BUILDDIR.rmtree()
+    rmtree_after_confirm(env.BUILDDIR)
     
 @task(alias='pub')
 def publish_docs():
@@ -168,6 +187,7 @@ def publish_docs():
     Upload docs to public web server.
     """
     #~ from fabric.context_managers import cd
+    cwd = Path(os.getcwd())
     env.BUILDDIR.chdir()
     #~ with cd(env.BUILDDIR):
     #~ addr = env.user+'@'+REMOTE.lf
@@ -183,13 +203,49 @@ def publish_docs():
     puts("%s> %s" % (os.getcwd(), cmd))
     #~ confirm("yes")
     local(cmd)
-    Path(os.getcwd()).chdir()
+    cwd.chdir()
     #~ return subprocess.call(args)
     
+@task(alias="initdb")
+def initdb_demo():
+    """
+    Run initdb_demo on each Django database of this project (env.django_databases)
+    """
+    #~ for db in env.django_databases:
+        #~ args = ["django-admin"] 
+        #~ args += ["initdb_demo --settings=%s" % prj]
+        #~ args += [" --pythonpath=%s" % env.DOCSDIR]
+        #~ cmd = " ".join(args)
+        #~ local(cmd)
+        
+    #~ cwd = Path(os.getcwd())
+    #~ for db in env.django_databases:
+        #~ env.ROOTDIR.child(db).chdir()
+        #~ # cmd = 'python manage.py initdb --noinput'
+        #~ args = ["django-admin"] 
+        #~ args += ["initdb_demo --settings=settings"]
+        #~ args += [" --pythonpath=."]
+        #~ cmd = " ".join(args)
+        
+        #~ local(cmd)
+    #~ cwd.chdir()
+    
+    for db in env.django_databases:
+        p = env.ROOTDIR.child(db)
+        # cmd = 'python manage.py initdb --noinput'
+        args = ["django-admin"] 
+        args += ["initdb_demo --settings=settings"]
+        args += [" --pythonpath=%s" % p.absolute()]
+        cmd = " ".join(args)
+        local(cmd)
+    #~ cwd.chdir()
+        
 @task()
 def run_sphinx_doctest():
     """
-    Run Sphinx doctest tests. Not maintained
+    Run Sphinx doctest tests. 
+    Not maintained because i cannot prevent it from also trying to test 
+    the documents in `django_doctests` which must be tested separately.
     """
     #~ clean_sys_path()
     #~ if sys.path[0] == '':
@@ -200,8 +256,8 @@ def run_sphinx_doctest():
     onlythis = None
     #~ onlythis = 'docs/tutorials/human/index.rst'
     args = ['sphinx-build','-b','doctest']
-    #~ args += ['-a'] # all files, not only outdated
-    #~ args += ['-Q'] # no output
+    args += ['-a'] # all files, not only outdated
+    args += ['-Q'] # no output
     if not onlythis:
         args += ['-W'] # consider warnings as errors
     args += [env.DOCSDIR,env.BUILDDIR]
@@ -212,7 +268,17 @@ def run_sphinx_doctest():
     #~ env.DOCSDIR.chdir()
     #~ import os
     #~ print os.getcwd()
-    return sphinx.main(args)
+    exitcode = sphinx.main(args)
+    if exitcode != 0:
+        output = Path(env.BUILDDIR,'output.txt')
+        #~ if not output.exists():
+            #~ abort("Oops: no file %s" % output)
+        # six.print_("arguments to spxhinx.main() were",args)
+        abort("""
+=======================================
+Sphinx doctest failed with exit code %s
+=======================================
+%s""" % (exitcode,output.read_file()))
     
 @task(alias='sdist')
 def setup_sdist():
@@ -333,10 +399,31 @@ def run_django_admin_tests():
   
 @task(alias='t3')
 def run_django_doctests():
-    env.DOCSDIR.chdir()
+    """
+    run Django's `manage.py tests` in the `docs` 
+    dir for each `django_doctests`
+    """
+    #~ must_exist(env.DOCSDIR.child('manage.py'))
+    #~ env.DOCSDIR.chdir()
     for prj in env.django_doctests:
-        cmd = "manage.py test --settings=%s" % prj
+        args = ["django-admin"] 
+        args += ["test --settings=%s --failfast" % prj]
+        args += [" --verbosity=0"]
+        args += [" --pythonpath=%s" % env.DOCSDIR]
+        cmd = " ".join(args)
+        #~ cmd = "manage.py test --settings=%s --failfast" % prj
         #~ cmd = "python runtest.py %s" % prj
+        local(cmd)
+
+@task(alias='t4')
+def run_simple_doctests():
+    """
+    Run a normal doctest for files specified in `simple_doctests`.
+    """
+    os.environ['DJANGO_SETTINGS_MODULE']='lino.projects.std.settings'
+    for prj in env.simple_doctests:
+        cmd = "python -m doctest %s" % prj
+        #~ print cmd
         local(cmd)
 
 
@@ -345,9 +432,10 @@ def run_tests():
     """
     Run all tests
     """
-    run_sphinx_doctest()
-    run_django_doctests()
-    run_django_admin_tests()
+    #~ run_sphinx_doctest()
+    run_django_admin_tests() # t2
+    run_django_doctests() # t3
+    run_simple_doctests() # t4
 
 
 
