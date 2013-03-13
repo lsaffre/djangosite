@@ -25,7 +25,7 @@ import datetime
 from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
 
-execfile(os.path.join(os.path.dirname(__file__),'..','setup_info.py'))
+execfile(os.path.join(os.path.dirname(__file__),'setup_info.py'))
 __version__ = SETUP_INFO['version'] # 
 
 

@@ -1,5 +1,5 @@
 from djangosite.utils.fablib import *
-setup_from_project()  
+setup_from_project("djangosite")  
 
 env.django_doctests.append('tested.float2decimal.settings')
 env.django_doctests.append('tested.integer_pk.settings')

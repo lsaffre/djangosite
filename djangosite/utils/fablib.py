@@ -6,7 +6,9 @@ Use at your own risk.
 To be used by creating a `fabfile.py` with the following two line::
 
   from djangosite.utils.fablib import *
-  setup_from_project()  
+  setup_from_project("foobar")  
+  
+Where "foobar" is the name of your main package.
   
   
 New env keys:
@@ -47,7 +49,7 @@ from fabric.contrib.console import confirm
 #~ LONG_DATE_FORMAT = 
 
 
-def setup_from_project():
+def setup_from_project(main_package):
   
     #~ env.docs_rsync_dest = 'luc@lino-framework.org'
     #~ env.sdist_dir = '../lino/docs/dl'
@@ -67,6 +69,8 @@ def setup_from_project():
     env.django_admin_tests = []
     env.django_databases = []
     env.simple_doctests = []
+    env.main_package = main_package
+
 
     #~ print env.project_name
 
@@ -77,8 +81,9 @@ def setup_from_project():
         raise Exception("You must call 'fab' from a project's root directory.")
         
         
-    execfile(env.ROOTDIR.child('setup_info.py'),globals()) # will set SETUP_INFO 
+    execfile(env.ROOTDIR.child(env.main_package,'setup_info.py'),globals()) # will set SETUP_INFO 
     env.SETUP_INFO = SETUP_INFO
+    
 
 
 #~ def confirm(msg,default='y',others='n',**override_callbacks):
@@ -124,7 +129,7 @@ def build_api(*cmdline_args):
     #~ args += ['-f'] # force the overwrite of all files that it generates.
     args += ['--no-toc'] # no modules.rst file
     args += ['-o',api_dir]
-    args += list(env.SETUP_INFO['packages'][0]) # packagedir 
+    args += [env.main_package] # packagedir 
     if False: # doesn't seem to work
         excluded = [env.ROOTDIR.child('lino','sandbox').absolute()]
         args += excluded # pathnames to be ignored
