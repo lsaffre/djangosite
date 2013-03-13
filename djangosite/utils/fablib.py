@@ -375,7 +375,6 @@ def checkin():
     #~ confirm(cmd)
     local(cmd)
     local("hg push %s" % env.project_name)
-    setup_register()
     
 @task()
 def write_readme():
@@ -404,7 +403,7 @@ Read more on %(url)s
     readme.write_file(txt)
     cmd = "touch " + env.DOCSDIR.child('index.rst')
     local(cmd)
-    
+    setup_register()
 
 @task(alias='t2')
 def run_django_admin_tests():
