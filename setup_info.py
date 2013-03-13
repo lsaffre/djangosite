@@ -1,13 +1,24 @@
-#~ __version__ = '0.0.2'
 import os
+
+PACKAGES = [n for n in """
+djangosite
+djangosite.management
+djangosite.management.commands
+djangosite.utils
+djangosite.formats
+djangosite.formats.fr
+djangosite.formats.de
+djangosite.formats.nl
+djangosite.formats.et
+""".splitlines() if n]
+
 
 SETUP_INFO = dict(
   name = 'django-site', 
-  #~ name = 'DjangoSite', # no longer used. see blog 20130309
-  version = '0.0.3',
+  version = '0.0.4',
   description = "An extensible SITE object for Django",
   license = 'Free BSD',
-  packages = ['djangosite'],
+  packages = PACKAGES,
   author = 'Luc Saffre',
   author_email = 'luc.saffre@gmail.com',
   requires = ['Django','six','sphinx'],
@@ -37,7 +48,7 @@ An immediate benefit of `django-site` is to implement a
 `North <http://north.lino-framework.org>`__
 and the `Lino framework <http://www.lino-framework.org>`__.""",
   #~ test_suite = 'tests.suite',
-  test_suite = 'fabfile.suite',
+  #~ test_suite = 'fabfile.suite',
   classifiers="""\
   Programming Language :: Python
   Programming Language :: Python :: 2.6

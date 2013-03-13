@@ -115,8 +115,8 @@ def build_api(*cmdline_args):
     """
     Generate .rst files in `docs/api`.
     """
-    if len(env.SETUP_INFO['packages']) != 1:
-        abort("env.SETUP_INFO['packages'] is %s" % env.SETUP_INFO['packages'])
+    #~ if len(env.SETUP_INFO['packages']) != 1:
+        #~ abort("env.SETUP_INFO['packages'] is %s" % env.SETUP_INFO['packages'])
         
     api_dir = env.DOCSDIR.child("api").absolute()        
     rmtree_after_confirm(api_dir)
@@ -124,7 +124,7 @@ def build_api(*cmdline_args):
     #~ args += ['-f'] # force the overwrite of all files that it generates.
     args += ['--no-toc'] # no modules.rst file
     args += ['-o',api_dir]
-    args += list(env.SETUP_INFO['packages']) # packagedir 
+    args += list(env.SETUP_INFO['packages'][0]) # packagedir 
     if False: # doesn't seem to work
         excluded = [env.ROOTDIR.child('lino','sandbox').absolute()]
         args += excluded # pathnames to be ignored
@@ -404,7 +404,7 @@ Read more on %(url)s
 @task(alias='t2')
 def run_django_admin_tests():
     for prj in env.django_admin_tests:
-        cmd = "django-admin test --settings=%s --verbosity=2 --traceback" % prj
+        cmd = "django-admin test --settings=%s --verbosity=0 --traceback" % prj
         local(cmd)
   
 @task(alias='t3')
@@ -453,7 +453,11 @@ def run_tests():
     run_django_databases_tests() # t5
     
 
-
+#~ @task(alias='listpkg')
+#~ def list_subpackages():
+    #~ # lst = list(env.ROOTDIR.walk("__init__.py"))
+    #~ for fn in env.ROOTDIR.child('lino').walk('*.py'):
+        #~ print fn
 
 @task(alias='cov')
 def run_tests_coverage():
