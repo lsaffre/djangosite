@@ -205,7 +205,20 @@ def publish_docs():
     local(cmd)
     cwd.chdir()
     #~ return subprocess.call(args)
-    
+
+def run_in_django_databases(admin_cmd,*more):
+    for db in env.django_databases:
+        p = env.ROOTDIR.child(db)
+        # cmd = 'python manage.py initdb --noinput'
+        args = ["django-admin"] 
+        args += [admin_cmd]
+        args += more
+        #~ args += ["--noinput"]
+        args += ["--settings=settings"]
+        args += [" --pythonpath=%s" % p.absolute()]
+        cmd = " ".join(args)
+        local(cmd)
+  
 @task(alias="initdb")
 def initdb_demo():
     """
@@ -230,15 +243,12 @@ def initdb_demo():
         #~ local(cmd)
     #~ cwd.chdir()
     
-    for db in env.django_databases:
-        p = env.ROOTDIR.child(db)
-        # cmd = 'python manage.py initdb --noinput'
-        args = ["django-admin"] 
-        args += ["initdb_demo --settings=settings"]
-        args += [" --pythonpath=%s" % p.absolute()]
-        cmd = " ".join(args)
-        local(cmd)
-    #~ cwd.chdir()
+    run_in_django_databases('initdb_demo',"--noinput")
+
+@task()
+def runserver():
+    run_in_django_databases('runserver')
+    
         
 @task()
 def run_sphinx_doctest():
@@ -426,6 +436,10 @@ def run_simple_doctests():
         #~ print cmd
         local(cmd)
 
+@task(alias='t5')
+def run_django_databases_tests():    
+    run_in_django_databases('test',"--noinput")
+
 
 @task(alias='test')
 def run_tests():
@@ -436,6 +450,8 @@ def run_tests():
     run_django_admin_tests() # t2
     run_django_doctests() # t3
     run_simple_doctests() # t4
+    run_django_databases_tests() # t5
+    
 
 
 

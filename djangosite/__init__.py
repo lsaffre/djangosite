@@ -192,7 +192,8 @@ class Site(object):
     
     def __init__(self,*args,**kwargs):
         self.init_nolocal(*args)
-        self.run_djangosite_local(**kwargs)
+        self.run_djangosite_local()
+        self.override_defaults(**kwargs)
         self.apply_languages()
     
     def init_nolocal(self,project_file,django_settings,*user_apps):
@@ -235,7 +236,7 @@ class Site(object):
         
             
           
-    def run_djangosite_local(self,**kwargs):
+    def run_djangosite_local(self):
         """
         See :doc:`/djangosite_local`
         """
@@ -247,8 +248,6 @@ class Site(object):
         else:
             setup_site(self)
             
-        self.override_defaults(**kwargs)
-        
     def override_defaults(self,**kwargs):
         for k,v in kwargs.items():
             if not hasattr(self,k):
@@ -280,6 +279,26 @@ class Site(object):
         function.
         """
         self.django_settings.update(**kw)
+        
+    def define_settings(self,**kwargs):
+        """
+        Same as :meth:`update_settings`,        
+        but raises an exception if a setting already exists.
+        
+        TODO: Currently this test is deactivated.
+        
+        Because it doesn't work as expected. 
+        For some reason it raises a false exception when 
+        :meth:`lino.ui.Site.override_defaults` 
+        tries to use it `MIDDLEWARE_CLASSES`.
+        Maybe because settings is being imported twice on a devserver...
+        
+        """
+        if False:
+            for name in kwargs.keys():
+                if self.django_settings.has_key(name):
+                    raise Exception("Tried to define existing Django setting %s" % name)
+        self.django_settings.update(kwargs)
         
     def startup(self):
         """

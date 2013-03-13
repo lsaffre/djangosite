@@ -4,7 +4,7 @@ import os
 SETUP_INFO = dict(
   name = 'django-site', 
   #~ name = 'DjangoSite', # no longer used. see blog 20130309
-  version = '0.0.2',
+  version = '0.0.3',
   description = "An extensible SITE object for Django",
   license = 'Free BSD',
   packages = ['djangosite'],
