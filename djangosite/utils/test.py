@@ -36,7 +36,7 @@ class TestCase(DjangoTestCase):
 
       from django.test import TestCase
       class DemoTest(TestCase):
-          fixtures = 'std few_countries few_languages props demo'.split()
+          fixtures = 'std props demo'.split()
                   
           def test01(self):
              ...
@@ -44,11 +44,11 @@ class TestCase(DjangoTestCase):
           def test02(self):
              ...
          
-    Using `lino.utils.test`::
+    Using `djangosite.utils.test`::
     
-      from lino.utils.test import TestCase
+      from djangosite.utils.test import TestCase
       class DemoTest(TestCase):
-          fixtures = 'std few_countries few_languages props demo'.split()
+          fixtures = 'std props demo'.split()
                   
       def test01(self):
          ...
@@ -57,7 +57,7 @@ class TestCase(DjangoTestCase):
          ...
           
     
-    If you instantiate a `lino.utils.test.TestCase` in your test module, 
+    If you instantiate a `djangosite.utils.test.TestCase` in your test module, 
     it will automatically inspect the globel namespace of your module and 
     add all callables whose name begins with "test" to it's test suite.
     
@@ -71,7 +71,8 @@ class TestCase(DjangoTestCase):
     never_build_site_cache = True
     """
     Test cases usually don't need the site cache, so this is switched off.
-    But e.g. :mod:`lino.modlib.cbss.tests.cbss_tests` switches it on because there it is needed.
+    But e.g. :mod:`lino_welfare.modlib.cbss.tests.cbss_tests` switches 
+    it on because there it is needed.
     """
     
     defining_module = None

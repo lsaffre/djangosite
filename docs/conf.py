@@ -267,21 +267,13 @@ todo_include_todos = True
 gettext_compact = True
 
 
-
 HGWORK = DOCSDIR.ancestor(2)
 intersphinx_mapping = dict()
-intersphinx_mapping.update(site=(
-    'http://site.lino-framework.org',
-    Path(HGWORK,'site','docs','.build','objects.inv')))
-intersphinx_mapping.update(north=(
-    'http://north.lino-framework.org',
-    Path(HGWORK,'north','docs','.build','objects.inv')))
-intersphinx_mapping.update(lino=(
-    'http://www.lino-framework.org',
-    Path(HGWORK,'lino','docs','.build','objects.inv')))
-intersphinx_mapping.update(welfare=(
-    'http://welfare.lino-framework.org',
-    Path(HGWORK,'welfare','docs','.build','objects.inv')))
+for n in ('site','north','lino','welfare'):
+    p = Path(HGWORK,n,'docs','.build','objects.inv')
+    if p.exists():
+        intersphinx_mapping[n] = ('http://%s.lino-framework.org' % n,p)
+    
 
 from djangosite.utils.sphinxconf import setup
 

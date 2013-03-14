@@ -519,6 +519,48 @@ def docname_to_day(year,s):
         #~ for item in self.content:
             #~ entries = env.changed_items.setdefault(item,dict())
             #~ entries.setdefault(env.docname)
+            
+def configure(filename,globals_dict):
+    """
+    This contains the things that all my Sphinx docs configuration 
+    files have in common.
+    
+    """
+    DOCSDIR = Path(filename).parent.absolute()
+    sys.path.append(DOCSDIR)
+
+    HGWORK = DOCSDIR.ancestor(2)
+    intersphinx_mapping = dict()
+    for n in ('site','north','lino','welfare'):
+        p = Path(HGWORK,n,'docs','.build','objects.inv')
+        if p.exists():
+            intersphinx_mapping[n] = ('http://%s.lino-framework.org' % n,p)
+    intersphinx_mapping.update(django = (
+        'http://docs.djangoproject.com/en/dev/', 
+        'http://docs.djangoproject.com/en/dev/_objects/'))
+    globals_dict.update(intersphinx_mapping=intersphinx_mapping)
+    
+    globals_dict.update(extensions = [
+      'sphinx.ext.autodoc',
+      #~ 'sphinx.ext.autosummary',
+      'sphinx.ext.inheritance_diagram',
+      'sphinx.ext.todo',
+      'sphinx.ext.extlinks',
+      'sphinx.ext.graphviz',
+      'sphinx.ext.intersphinx',
+      'sphinx.ext.doctest',
+    ])
+    
+    #~ os.environ['DJANGO_SETTINGS_MODULE'] = 'north.docs_settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+    """
+    Trigger loading of Djangos model cache in order to avoid side effects that 
+    would occur when this happens later while importing one of the models modules.
+    """
+    from django.conf import settings
+    settings.SITE.startup()
+    globals_dict.update(setup=setup)
+
         
 
 def setup2(app):

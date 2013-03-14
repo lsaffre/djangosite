@@ -1,18 +1,17 @@
 import os
 
-PACKAGES = [n for n in """
+PACKAGES = [str(n) for n in """
 djangosite
 djangosite.management
-djangosite.management.commands
 djangosite.utils
 djangosite.formats
+djangosite.management.commands
 djangosite.formats.fr
 djangosite.formats.de
 djangosite.formats.nl
 djangosite.formats.et
 """.splitlines() if n]
-
-
+  
 SETUP_INFO = dict(
   name = 'django-site', 
   version = '0.0.4',

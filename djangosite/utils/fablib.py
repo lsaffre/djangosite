@@ -6,15 +6,18 @@ Use at your own risk.
 To be used by creating a `fabfile.py` with the following two line::
 
   from djangosite.utils.fablib import *
-  setup_from_project("foobar")  
+  setup_from_project("foobar")
+  env.django_databases.append(...)
+  env.django_admin_tests.append(...)
+  env.simple_doctests.append(...)
   
 Where "foobar" is the name of your main package.
   
-  
-New env keys:
+This fablib uses the following `env` keys:
 
-- django_databases : a list of directories where a manage.py exists
+- `django_databases` : a list of directories where a manage.py exists
   and for which initdb_demo should be executed.
+- (consult the source code)
 
 """
 import os
@@ -29,6 +32,7 @@ import sys
 import datetime
 import unittest
 #~ import subprocess
+from setuptools import find_packages
 from unipath import Path
 import sphinx
 import six
@@ -67,9 +71,11 @@ def setup_from_project(main_package):
     env.sdist_dir = Path(env.sdist_dir)
     env.django_doctests = []
     env.django_admin_tests = []
+    env.bash_tests = []
     env.django_databases = []
     env.simple_doctests = []
     env.main_package = main_package
+    env.tolerate_sphinx_warnings = False
 
 
     #~ print env.project_name
@@ -151,7 +157,8 @@ def build_html(): #~ def build_html(*cmdline_args):
     #~ args += ['-a'] # all files, not only outdated
     #~ args += ['-P'] # no postmortem
     #~ args += ['-Q'] # no output
-    #~ args += ['-W'] # consider warnings as errors
+    if not env.tolerate_sphinx_warnings:
+        args += ['-W'] # consider warnings as errors
     #~ args += ['-w'+Path(env.ROOTDIR,'sphinx_doctest_warnings.txt')]
     args += ['-w',env.DOCSDIR.child('warnings.txt')]
     args += [env.DOCSDIR,env.BUILDDIR]
@@ -172,8 +179,8 @@ def build_html(): #~ def build_html(*cmdline_args):
         #~ job.run(safely=True,noaction=True)
         #~ job.run(safely=True)
         job.run(safely=False)
-    else:
-        warn("%s is not a directory" % src)
+    #~ else:
+        #~ warn("%s is not a directory" % src)
     #~ cp -ru  $(TEMPDIR)\\html    
     return 
     
@@ -316,6 +323,18 @@ def setup_sdist_upload():
     local(' '.join(args))
     #~ run_setup('setup.py',args)
   
+#~ @task()
+#~ def check_packages():
+    #~ """
+    #~ Checks whether the `packages` list seems correct.
+    #~ """
+    #~ packages = find_packages()
+    #~ if packages == env.SETUP_INFO['packages']: 
+        #~ puts("%d packages okay" % len(packages))
+        #~ return
+    
+    
+  
 @task(alias='reg')
 def setup_register():
     args = ["python", "setup.py"]
@@ -411,11 +430,18 @@ def run_django_admin_tests():
         cmd = "django-admin test --settings=%s --verbosity=0 --traceback" % prj
         local(cmd)
   
+@task(alias='t7')
+def run_bash_tests():
+    """
+    Run the commands in `env.bash_tests`.
+    """
+    for cmd in env.bash_tests:
+        local(cmd)
+  
 @task(alias='t3')
 def run_django_doctests():
     """
-    run Django's `manage.py tests` in the `docs` 
-    dir for each `django_doctests`
+    run `django-admin test` in the `docs` dir for each `django_doctests`
     """
     #~ must_exist(env.DOCSDIR.child('manage.py'))
     #~ env.DOCSDIR.chdir()
@@ -444,6 +470,12 @@ def run_simple_doctests():
 def run_django_databases_tests():    
     run_in_django_databases('test',"--noinput")
 
+@task(alias='t6')
+def run_setup_tests():    
+    """
+    Runs certain tests related to packaging.
+    """
+    unittest.main(argv=['fab','SetupTest'],module=__name__)
 
 @task(alias='test')
 def run_tests():
@@ -455,6 +487,8 @@ def run_tests():
     run_django_doctests() # t3
     run_simple_doctests() # t4
     run_django_databases_tests() # t5
+    run_setup_tests() # t6
+    run_bash_tests() # t7
     
 
 #~ @task(alias='listpkg')
@@ -494,6 +528,21 @@ def run_tests_coverage():
 
 
 
+class SetupTest(unittest.TestCase):
+    """
+    Runs certain tests related to packaging.
+    """
+    maxDiff = None
+    def test_packages(self):
+        """
+        Checks whether the `packages` parameter to setup seems correct.
+        """
+        found_packages = find_packages()
+        setup_packages = env.SETUP_INFO['packages']
+        found_packages.sort()
+        setup_packages.sort()
+        self.assertEqual(found_packages,setup_packages)
+    
 #~ class MainTestCase(unittest.TestCase):
     #~ def test_sphinx_doctest(self):
         #~ exitcode = run_sphinx_doctest()
