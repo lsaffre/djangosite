@@ -13,14 +13,14 @@ djangosite.formats.et
 """.splitlines() if n]
   
 SETUP_INFO = dict(
-  name = 'django-site', 
+  name = 'djangosite', 
   version = '0.0.4',
-  description = "An extensible SITE object for Django",
+  description = "A server startup signal for Django",
   license = 'Free BSD',
   packages = PACKAGES,
   author = 'Luc Saffre',
   author_email = 'luc.saffre@gmail.com',
-  requires = ['Django','six','sphinx'],
+  install_requires = ['Django','six','Sphinx','unipath'],
   url = "http://site.lino-framework.org",
   #~ long_description=open(os.path.join('..','README.txt')).read(),
   long_description="""\

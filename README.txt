@@ -1,8 +1,8 @@
 ==========================
-django-site README
+djangosite README
 ==========================
 
-An extensible SITE object for Django
+A server startup signal for Django
 
 Description
 -----------
