@@ -60,12 +60,15 @@ def is_devserver():
     `How can I tell whether my Django application is running on development server or not?
     <http://stackoverflow.com/questions/1291755>`_
     
-    Added the `len(sys.argv) > 1` test because in a 
-    wsgi application the process is called without arguments.
+    My additions:
     
-    Not only for `runserver` but also for `testserver`.
+    - Added the `len(sys.argv) > 1` test because in a 
+      wsgi application the process is called without arguments.
+    - Not only for `runserver` but also for `testserver` and `test`.
+    
     """
-    return len(sys.argv) > 1 and sys.argv[1] in ('runserver','testserver')
+    #~ print 20130315, sys.argv[1]
+    return len(sys.argv) > 1 and sys.argv[1] in ('runserver','testserver','test')
 
 
 

@@ -10,6 +10,7 @@ To be used by creating a `fabfile.py` with the following two line::
   env.django_databases.append(...)
   env.django_admin_tests.append(...)
   env.simple_doctests.append(...)
+  env.tolerate_sphinx_warnings = True
   
 Where "foobar" is the name of your main package.
   
@@ -17,6 +18,8 @@ This fablib uses the following `env` keys:
 
 - `django_databases` : a list of directories where a manage.py exists
   and for which initdb_demo should be executed.
+- `tolerate_sphinx_warnings` : whether `sphinx-build html` should tolerate warnings.
+
 - (consult the source code)
 
 """
@@ -350,6 +353,9 @@ class RstFile(object):
         
       
 def get_blog_entry(today):
+    """
+    Return an RstFile object representing the blog entry for that date.
+    """
     local_root = env.work_root.child(env.blogger_project)
     parts = ('docs','blog',str(today.year),today.strftime("%m%d.rst"))
     #~ return blogdir.child(*parts)

@@ -37,11 +37,14 @@ from unipath import Path
 
 #~ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-from docutils import nodes
+from docutils import nodes, utils
 from docutils.parsers.rst import directives
+from docutils.parsers.rst import roles
 from sphinx.util.compat import Directive
+from sphinx.util.nodes import split_explicit_title
 
 from djangosite.utils import rstgen
+from djangosite.utils import i2d
 
 #~ class ScreenshotDirective(directives.images.Image):
     #~ """
@@ -196,11 +199,12 @@ class InsertInputDirective(Directive):
     def run(self):
         out = self.get_rst()
         env = self.state.document.settings.env
-        #~ print env.docname
-        #~ print '-' * 50
-        #~ print out
-        #~ print '-' * 50
-        #~ sys.exit()
+        if False:
+            print env.docname
+            print '-' * 50
+            print out
+            print '-' * 50
+            #~ sys.exit()
         self.state_machine.insert_input(out.splitlines(),out)
         return []
 
@@ -208,17 +212,41 @@ class InsertInputDirective(Directive):
 
 class Py2rstDirective(InsertInputDirective):
     """
-    This works, but is not used.
+    Run a Python code block and interpret the output as it it 
+    were rst source.
     """
     def get_rst(self):
         code = '\n'.join(self.content)
         old = sys.stdout
         buffer = StringIO()
         sys.stdout = buffer
-        exec(code,{})
+        context = dict()
+        from django.conf import settings
+        #~ context = dict(settings=settings)
+        context.update(settings.SITE.modules)
+        exec(code,context)
         sys.stdout = old
         return buffer.getvalue()
         
+#~ class DjangoTableDirective(InsertInputDirective):
+    #~ def get_rst(self):
+        #~ assert len(self.content) == 1
+        #~ code = '\n'.join(self.content)
+        
+        #~ from django.conf import settings    
+        #~ print .jobs.Candidatures.request(limit=5).to_rst()
+        
+        #~ code = """
+        #~ """
+        #~ old = sys.stdout
+        #~ buffer = StringIO()
+        #~ sys.stdout = buffer
+        #~ context = dict()
+        #~ context.update(settings.SITE.modules)
+        #~ context = dict(settings=settings)
+        #~ exec(code,context)
+        #~ sys.stdout = old
+        #~ return buffer.getvalue()
         
 class TextImageDirective(InsertInputDirective):
     """
@@ -520,6 +548,54 @@ def docname_to_day(year,s):
             #~ entries = env.changed_items.setdefault(item,dict())
             #~ entries.setdefault(env.docname)
             
+            
+
+def get_blog_url(today):
+    blogger_project = "lino"
+    url_root = "http://code.google.com/p/%s/source/browse/" % blogger_project
+    parts = ('docs','blog',str(today.year),today.strftime("%m%d.rst"))
+    url = url_root + "/".join(parts)
+    return url
+
+
+def blogref_role(name, rawtext, text, lineno, inliner,options={}, content=[]):
+    """
+    Inserts a reference to the blog entry of the specified date.
+    
+    Instead of writing ``:doc:`/blog/2011/0406` ``
+    it is better to write ``:blogref:`20110406` ``
+    because the latter works between Sphinx trees and also supportsd archived blog entries.
+    
+    """
+    # thanks to http://docutils.sourceforge.net/docs/howto/rst-roles.html
+    # this code originally from roles.pep_reference_role
+    #~ print 20130315, rawtext, text, utils.unescape(text)
+    has_explicit_title, title, target = split_explicit_title(text)
+    try:
+        date = i2d(int(target))
+    except ValueError:
+        msg = inliner.reporter.error(
+            'Invalid text %r: must be an integer date of style "20130315" .'
+            % text, line=lineno)
+        prb = inliner.problematic(rawtext, rawtext, msg)
+        return [prb], [msg]
+    #~ print repr(env)
+    #~ raise Exception(20130315)
+    #~ ref = inliner.document.settings.pep_base_url
+           #~ + inliner.document.settings.pep_file_url_template % date)
+    roles.set_classes(options)
+    #~ from django.conf import settings
+    #~ shown_text = settings.SITE.dtos(date)
+    env = inliner.document.settings.env        
+    if not has_explicit_title:
+        title = date.strftime(env.settings.get('today_fmt','%Y-%m-%d'))
+    title = utils.unescape(title)
+    return [nodes.reference(rawtext, title, 
+                            refuri=get_blog_url(date),
+                            **options)], []
+    
+    
+            
 def configure(filename,globals_dict):
     """
     This contains the things that all my Sphinx docs configuration 
@@ -600,6 +676,8 @@ def setup(app):
     app.add_directive('blogger_year', YearBlogIndexDirective)
     app.add_directive('blogger_index', MainBlogIndexDirective)
     app.add_directive('textimage', TextImageDirective)
+    roles.register_canonical_role('blogref', blogref_role)
+    
     setup2(app)
     #~ app.add_directive('screenshot', ScreenshotDirective)
     #~ app.add_config_value('screenshots_root', '/screenshots/', 'html')
@@ -607,3 +685,4 @@ def setup(app):
     #~ from djangosite.utils import doctest
     #~ doctest.setup(app)
     
+#~ print "OK"    
