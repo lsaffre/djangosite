@@ -25,6 +25,7 @@ This fablib uses the following `env` keys:
 """
 import os
 import sys
+import doctest
 #~ def clean_sys_path():
     #~ # print sys.path
     #~ if sys.path[0] == '':
@@ -51,7 +52,7 @@ from timtools.tools.synchronizer import Synchronizer
 from fabric.api import env, local, task, prompt
 from fabric.utils import abort, fastprint, puts, warn
 from fabric.contrib.console import confirm
-
+from fabric.api import lcd
 
 #~ LONG_DATE_FORMAT = 
 
@@ -203,22 +204,23 @@ def publish_docs():
     """
     #~ from fabric.context_managers import cd
     cwd = Path(os.getcwd())
-    env.BUILDDIR.chdir()
-    #~ with cd(env.BUILDDIR):
-    #~ addr = env.user+'@'+REMOTE.lf
-    args = ['rsync','-r']
-    args += ['--verbose'] 
-    args += ['--progress'] # show progress
-    args += ['--delete'] # delete files in dest
-    args += ['--times'] # preserve timestamps
-    args += ['--exclude','.doctrees'] 
-    args += ['./'] # source
-    args += [env.docs_rsync_dest+':~/public_html/'+env.project_name] # dest
-    cmd = ' '.join(args)
-    puts("%s> %s" % (os.getcwd(), cmd))
-    #~ confirm("yes")
-    local(cmd)
-    cwd.chdir()
+    with lcd(env.BUILDDIR):
+        #~ env.BUILDDIR.chdir()
+        #~ with cd(env.BUILDDIR):
+        #~ addr = env.user+'@'+REMOTE.lf
+        args = ['rsync','-r']
+        args += ['--verbose'] 
+        args += ['--progress'] # show progress
+        args += ['--delete'] # delete files in dest
+        args += ['--times'] # preserve timestamps
+        args += ['--exclude','.doctrees'] 
+        args += ['./'] # source
+        args += [env.docs_rsync_dest+':~/public_html/'+env.project_name] # dest
+        cmd = ' '.join(args)
+        puts("%s> %s" % (os.getcwd(), cmd))
+        #~ confirm("yes")
+        local(cmd)
+        #~ cwd.chdir()
     #~ return subprocess.call(args)
 
 def run_in_django_databases(admin_cmd,*more):
@@ -433,15 +435,7 @@ Read more on %(url)s
 @task(alias='t2')
 def run_django_admin_tests():
     for prj in env.django_admin_tests:
-        cmd = "django-admin test --settings=%s --verbosity=0 --traceback" % prj
-        local(cmd)
-  
-@task(alias='t7')
-def run_bash_tests():
-    """
-    Run the commands in `env.bash_tests`.
-    """
-    for cmd in env.bash_tests:
+        cmd = "django-admin test --settings=%s --verbosity=0 --failfast --traceback" % prj
         local(cmd)
   
 @task(alias='t3')
@@ -467,10 +461,11 @@ def run_simple_doctests():
     Run a normal doctest for files specified in `simple_doctests`.
     """
     os.environ['DJANGO_SETTINGS_MODULE']='lino.projects.std.settings'
-    for prj in env.simple_doctests:
-        cmd = "python -m doctest %s" % prj
+    for filename in env.simple_doctests:
+        cmd = "python -m doctest %s" % filename
         #~ print cmd
         local(cmd)
+        #~ doctest.testfile(filename, module_relative=False,encoding='utf-8')
 
 @task(alias='t5')
 def run_django_databases_tests():    
@@ -479,10 +474,18 @@ def run_django_databases_tests():
 @task(alias='t6')
 def run_setup_tests():    
     """
-    Runs certain tests related to packaging.
+    Runs hardcoded tests related to packaging.
     """
     unittest.main(argv=['fab','SetupTest'],module=__name__)
 
+@task(alias='t7')
+def run_bash_tests():
+    """
+    Run the commands in `env.bash_tests`.
+    """
+    for cmd in env.bash_tests:
+        local(cmd)
+  
 @task(alias='test')
 def run_tests():
     """

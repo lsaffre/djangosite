@@ -449,7 +449,7 @@ class YearBlogIndexDirective(InsertInputDirective):
     
       
     def get_rst(self):
-        from north import babel
+        from north import dbutils
   
         #~ year = self.arguments[0]
         env = self.state.document.settings.env
@@ -470,7 +470,7 @@ class YearBlogIndexDirective(InsertInputDirective):
             
             text += """        
             
-.. |M%02d| replace::  **%s**""" % (month,babel.monthname(month))
+.. |M%02d| replace::  **%s**""" % (month,dbutils.monthname(month))
             
             weeknum = None
             #~ text += "\n  |br| Mo Tu We Th Fr Sa Su "
@@ -562,9 +562,9 @@ def blogref_role(name, rawtext, text, lineno, inliner,options={}, content=[]):
     """
     Inserts a reference to the blog entry of the specified date.
     
-    Instead of writing ``:doc:`/blog/2011/0406` ``
-    it is better to write ``:blogref:`20110406` ``
-    because the latter works between Sphinx trees and also supportsd archived blog entries.
+    Instead of writing ``:doc:`/blog/2011/0406```
+    it is better to write ``:blogref:`20110406```
+    because the latter works between Sphinx trees and also supports archived blog entries.
     
     """
     # thanks to http://docutils.sourceforge.net/docs/howto/rst-roles.html
@@ -598,6 +598,7 @@ def blogref_role(name, rawtext, text, lineno, inliner,options={}, content=[]):
             
 def configure(filename,globals_dict):
     """
+    To be callsed from inside the Sphinx `conf.py`.
     This contains the things that all my Sphinx docs configuration 
     files have in common.
     
@@ -634,7 +635,8 @@ def configure(filename,globals_dict):
     would occur when this happens later while importing one of the models modules.
     """
     from django.conf import settings
-    settings.SITE.startup()
+    settings.SITE # must at least access some variable in the settings
+    #~ settings.SITE.startup()
     globals_dict.update(setup=setup)
 
         

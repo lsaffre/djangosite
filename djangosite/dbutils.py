@@ -162,23 +162,22 @@ def range_filter(v,f1,f2):
     return Q(q1,q2)
 
 
-def dtos(d):
-    """
-    Return the specified date as a localized short string of type '15.06.2011'.
-    See also :doc:`/date_format`.
-    """
-    if d is None: return ''  
-    return date_format(d,'SHORT_DATE_FORMAT')
+#~ def dtos(d):
+    #~ """
+    #~ Return the specified date as a localized short string of type '15.06.2011'.
+    #~ See also :doc:`/date_format`.
+    #~ """
+    #~ if d is None: return ''  
+    #~ return date_format(d,'SHORT_DATE_FORMAT')
   
-def dtosl(d):
-    """
-    Return the specified date as a localized long string of type 'Wednesday, May 4, 2011'.
-    See also :doc:`/date_format`.
-    """
-    if d is None: return ''  
-    from north import babel
-    #~ logger.info("20130311 dtosl with %s",babel.get_language())
-    return date_format(d,'LONG_DATE_FORMAT')
+#~ def dtosl(d):
+    #~ """
+    #~ Return the specified date as a localized long string of type 'Wednesday, May 4, 2011'.
+    #~ See also :doc:`/date_format`.
+    #~ """
+    #~ if d is None: return ''  
+    #~ from north import babel
+    #~ return date_format(d,'LONG_DATE_FORMAT')
   
 
 

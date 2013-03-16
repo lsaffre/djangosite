@@ -4,12 +4,7 @@ PACKAGES = [str(n) for n in """
 djangosite
 djangosite.management
 djangosite.utils
-djangosite.formats
 djangosite.management.commands
-djangosite.formats.fr
-djangosite.formats.de
-djangosite.formats.nl
-djangosite.formats.et
 """.splitlines() if n]
   
 SETUP_INFO = dict(

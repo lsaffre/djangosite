@@ -1,6 +1,8 @@
 Adding a new date format
 ========================
 
+(This document is obsolete. See :blogref:`20130315`)
+
 Django knows two methods for formatting a date:
 
 ================== ============ ==============

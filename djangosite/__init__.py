@@ -73,6 +73,11 @@ class Site(object):
     """
     """
     
+    #~ languages = None
+    #~ """
+    #~ Will be overridden by :attr:`north.Site.languages`.
+    #~ """
+    
     #~ url = None
     #~ """
     #~ """
@@ -136,34 +141,9 @@ class Site(object):
     
     site_config = None
     """
-    See :attr:`lino.ui.Site.config_site`.
+    Overridden by :attr:`lino.ui.Site.config_site`.
     """
     
-    
-    languages = None 
-    """
-    The language distribution used on this site.
-    
-    This must be either `None` or an iterable of language codes.
-    Examples::
-    
-      languages = "en de fr nl et".split()
-      languages = ['en']
-      
-    The first language in this list will be the site's 
-    default language.
-    
-    Changing this setting affects your database structure 
-    if your application uses babel fields,
-    and thus require a data migration.
-    
-    If this is not None, Site will 
-    set the Django settings :setting:`USE_L10N` 
-    and  :setting:`LANGUAGE_CODE`.
-    
-    See also :doc:`/date_format`.
-    
-    """
     
     modules = AttrDict()
     """
@@ -192,9 +172,10 @@ class Site(object):
     
     def __init__(self,*args,**kwargs):
         self.init_nolocal(*args)
-        self.run_djangosite_local()
+        if not kwargs.pop('no_local',False):
+            self.run_djangosite_local()
         self.override_defaults(**kwargs)
-        self.apply_languages()
+        #~ self.apply_languages()
     
     def init_nolocal(self,project_file,django_settings,*user_apps):
             
@@ -254,20 +235,6 @@ class Site(object):
                 raise Exception("%s has no attribute %s" % (self.__class__,k))
             setattr(self,k,v)
             
-    def apply_languages(self):
-        """
-        """
-        #~ self.languages = value
-        if self.languages is not None:
-            if isinstance(self.languages,basestring):
-                self.languages = self.languages.split()
-            #~ lc = [x for x in self.django_settings.get('LANGUAGES' if x[0] in languages]
-            #~ lc = language_choices(*self._languages)
-            #~ self.update_settings(LANGUAGES = lc)
-            #~ self.update_settings(LANGUAGE_CODE = lc[0][0])
-            self.update_settings(LANGUAGE_CODE = self.languages[0])
-            self.update_settings(USE_L10N = True)
-        
         
     
             
@@ -508,23 +475,23 @@ class Site(object):
 
         #~ self.run_djangosite_local(**kwargs)
         
-class NoLocalSite(Site):
-    """
-    A Site that doesn't try to load :doc:`/djangosite_local`.
-    Used e.g. in docs/settings.py
-    """
-    def __init__(self,*args,**kwargs):
-        self.init_nolocal(*args)
-        self.override_defaults(**kwargs)
-        self.apply_languages()
+#~ class NoLocalSite(Site):
+    #~ """
+    #~ A Site that doesn't try to load :doc:`/djangosite_local`.
+    #~ Used e.g. in docs/settings.py
+    #~ """
+    #~ def __init__(self,*args,**kwargs):
+        #~ self.init_nolocal(*args)
+        #~ self.override_defaults(**kwargs)
+        #~ self.apply_languages()
 
 
 __all__ = ['Site']
 
-def _test():
-    import doctest
-    doctest.testmod()
+#~ def _test():
+    #~ import doctest
+    #~ doctest.testmod()
 
-if __name__ == "__main__":
-    _test()
+#~ if __name__ == "__main__":
+    #~ _test()
 
