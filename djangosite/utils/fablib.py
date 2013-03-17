@@ -29,6 +29,7 @@ import os
 import sys
 import doctest
 import pkg_resources
+import textwrap
 
 #~ def clean_sys_path():
     #~ # print sys.path
@@ -60,6 +61,11 @@ from fabric.api import lcd
 
 #~ LONG_DATE_FORMAT = 
 
+
+PROJECTS = []
+
+
+
 class RstFile(object):
     def __init__(self,local_root,url_root,parts):
         self.path = local_root.child(*parts)
@@ -75,13 +81,6 @@ class Project(object):
         self.dist = pkg_resources.get_distribution(name)
         self.module = __import__(name)
     
-    headers = ('index','python_name','location','version','installed')
-
-    def cells(self):
-        return (self.index,self.name,self.dist.location,
-            self.dist.version,
-            self.module.__version__)
-
 
 def setup_from_project(main_package):
   
@@ -91,6 +90,10 @@ def setup_from_project(main_package):
     #~ HOME = Path(os.path.expanduser("~"))
     #~ REMOTE = AttrDict(
       #~ lf='lino-framework.org')
+      
+    for i,prj in enumerate(env.projects.split()):
+        PROJECTS.append(Project(i,prj))
+      
     env.ROOTDIR = Path().absolute()
 
     env.project_name = env.ROOTDIR.absolute().name
@@ -151,13 +154,24 @@ def rmtree_after_confirm(p):
     p.rmtree()
     
 
-@task(alias='api')
+@task(alias='summary')
 def summary(*cmdline_args):
-    projects = []
-    for i,prj in enumerate(env.projects.split()):
-        projects.append(Project(i,prj))
+    headers = (
+      #~ '#','Location',
+      'Project','Old version','New version')
+
+    def cells(self):
+        desc = "`%s <%s>`__ -- %s" % (
+            self.name,
+            self.module.SETUP_INFO['url'],
+            self.module.SETUP_INFO['description'],
+            )        
+        return (
+            '\n'.join(textwrap.wrap(desc,40)),
+            self.dist.version,
+            self.module.__version__)
         
-    print rstgen.table(Project.headers,[p.cells() for p in projects])
+    print rstgen.table(headers,[cells(p) for p in PROJECTS])
         
   
 @task(alias='api')
@@ -233,13 +247,13 @@ def clean_html(*cmdline_args):
     """
     rmtree_after_confirm(env.BUILDDIR)
     
-@task(alias='pub')
-def publish_all():
-    """
-    Run `publish_docs` followed by `hg_push`.
-    """
-    publish_docs()
-    hg_push()
+#~ @task(alias='pub')
+#~ def publish_all():
+    #~ """
+    #~ Run `publish_docs` followed by `hg_push`.
+    #~ """
+    #~ publish_docs()
+    #~ hg_push()
     
     
 @task(alias='prep')
@@ -253,7 +267,7 @@ def prepare():
     
     
   
-@task(alias='pd')
+@task(alias='pub')
 def publish_docs():
     """
     Upload docs to public web server.
