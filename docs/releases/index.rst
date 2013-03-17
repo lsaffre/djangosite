@@ -1,20 +1,13 @@
 Releases
 ========
 
+
 .. py2rst::
 
+  from djangosite.utils.sphinxconf import version2rst
   import djangosite
-  v = djangosite.__version__
-  v = v.replace('+','')
-  print("The current stable release is :doc:`%s`." % v)
-  print("We're currently working on :doc:`coming`.")
-  
+  version2rst(self,djangosite)
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   coming
 
 
 Older releases
@@ -25,6 +18,7 @@ Older releases
    :glob:
 
    0.0.?
+   0.1.?
 
 
 

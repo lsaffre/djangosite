@@ -28,6 +28,8 @@ This fablib uses the following `env` keys:
 import os
 import sys
 import doctest
+import pkg_resources
+
 #~ def clean_sys_path():
     #~ # print sys.path
     #~ if sys.path[0] == '':
@@ -57,6 +59,28 @@ from fabric.contrib.console import confirm
 from fabric.api import lcd
 
 #~ LONG_DATE_FORMAT = 
+
+class RstFile(object):
+    def __init__(self,local_root,url_root,parts):
+        self.path = local_root.child(*parts)
+        self.url = url_root + "/".join(parts)
+        #~ self.parts = parts
+        
+      
+
+class Project(object):
+    def __init__(self,i,name):
+        self.index = i
+        self.name = name
+        self.dist = pkg_resources.get_distribution(name)
+        self.module = __import__(name)
+    
+    headers = ('index','python_name','location','version','installed')
+
+    def cells(self):
+        return (self.index,self.name,self.dist.location,
+            self.dist.version,
+            self.module.__version__)
 
 
 def setup_from_project(main_package):
@@ -128,6 +152,15 @@ def rmtree_after_confirm(p):
     
 
 @task(alias='api')
+def summary(*cmdline_args):
+    projects = []
+    for i,prj in enumerate(env.projects.split()):
+        projects.append(Project(i,prj))
+        
+    print rstgen.table(Project.headers,[p.cells() for p in projects])
+        
+  
+@task(alias='api')
 def build_api(*cmdline_args):
     """
     Generate .rst files in `docs/api`.
@@ -154,9 +187,10 @@ def build_api(*cmdline_args):
 @task(alias='html')
 def build_html(): #~ def build_html(*cmdline_args):
     """
-    Build sphinx docs.
+    write_readme + build sphinx html docs.
     """
     write_readme()
+    write_release_notes()
     #~ print cmdline_args
     args = ['sphinx-build','-b','html']
     #~ args += cmdline_args
@@ -200,6 +234,26 @@ def clean_html(*cmdline_args):
     rmtree_after_confirm(env.BUILDDIR)
     
 @task(alias='pub')
+def publish_all():
+    """
+    Run `publish_docs` followed by `hg_push`.
+    """
+    publish_docs()
+    hg_push()
+    
+    
+@task(alias='prep')
+def prepare():
+    """
+    Sames as `fab test html`.
+    """
+    run_tests()
+    build_html()
+    
+    
+    
+  
+@task(alias='pd')
 def publish_docs():
     """
     Upload docs to public web server.
@@ -227,16 +281,18 @@ def publish_docs():
 
 def run_in_django_databases(admin_cmd,*more):
     for db in env.django_databases:
-        p = env.ROOTDIR.child(db)
-        # cmd = 'python manage.py initdb --noinput'
-        args = ["django-admin"] 
-        args += [admin_cmd]
-        args += more
-        #~ args += ["--noinput"]
-        args += ["--settings=settings"]
-        args += [" --pythonpath=%s" % p.absolute()]
-        cmd = " ".join(args)
-        local(cmd)
+        p = env.ROOTDIR.child(*db.split('/'))
+        with lcd(p):
+            # cmd = 'python manage.py initdb --noinput'
+            #~ args = ["django-admin"] 
+            args = ["python manage.py"] 
+            args += [admin_cmd]
+            args += more
+            #~ args += ["--noinput"]
+            #~ args += ["--settings=settings"]
+            args += [" --pythonpath=%s" % p.absolute()]
+            cmd = " ".join(args)
+            local(cmd)
   
 @task(alias="initdb")
 def initdb_demo():
@@ -264,9 +320,9 @@ def initdb_demo():
     
     run_in_django_databases('initdb_demo',"--noinput")
 
-@task()
-def runserver():
-    run_in_django_databases('runserver')
+#~ @task()
+#~ def runserver():
+    #~ run_in_django_databases('runserver')
     
         
 @task()
@@ -312,8 +368,9 @@ Sphinx doctest failed with exit code %s
 @task(alias='sdist')
 def setup_sdist():
     """
-    Write source districution archive file.
+    Write source distribution archive file.
     """
+    pipy_register()
     #~ puts(env.sdist_dir)
     args = ["python", "setup.py"]
     args += [ "sdist", "--formats=gztar" ]
@@ -322,7 +379,11 @@ def setup_sdist():
     #~ run_setup('setup.py',args)
   
 @task(alias='upload')
-def setup_sdist_upload():
+def pypi_upload():
+    """
+    Upload sourcxe distribution to PyPI.
+    """
+    pipy_register()
     args = ["python", "setup.py"]
     args += ["sdist", "--formats=gztar" ]
     args += ["--dist-dir", env.sdist_dir.child(env.SETUP_INFO['name'])]
@@ -343,19 +404,15 @@ def setup_sdist_upload():
     
   
 @task(alias='reg')
-def setup_register():
+def pipy_register():
+    """
+    Register to PyPI.
+    """
     args = ["python", "setup.py"]
     args += ["register"]
     #~ run_setup('setup.py',args)
     local(' '.join(args))
 
-class RstFile(object):
-    def __init__(self,local_root,url_root,parts):
-        self.path = local_root.child(*parts)
-        self.url = url_root + "/".join(parts)
-        #~ self.parts = parts
-        
-      
 def get_blog_entry(today):
     """
     Return an RstFile object representing the blog entry for that date.
@@ -389,7 +446,6 @@ def checkin():
     """
     Checkin & push to repository, using today's blog entry as commit message.
     """
-    write_readme()
     entry = get_blog_entry(datetime.date.today())
     #~ entry = Path(env.ROOTDIR,'..',env.blogger_project,*parts)
     #~ print env.ROOTDIR.parent.absolute()
@@ -405,6 +461,52 @@ def checkin():
     #~ confirm(cmd)
     local(cmd)
     local("hg push %s" % env.project_name)
+    
+@task()
+def write_release_notes():
+    """
+    Generate docs/releases/x.y.z.rst file from setup_info.
+    """
+    notes = Path(env.ROOTDIR,'docs','releases','%s.rst' % env.SETUP_INFO['version'])
+    if notes.exists():
+        return
+    must_confirm("Create %s" % notes.absolute())
+    context = dict(date=datetime.date.today().strftime(env.long_date_format))
+    context.update(env.SETUP_INFO)
+    txt = """\
+==========================
+Version %(version)s
+==========================
+
+%(date)s
+
+I am pleased to announce the release of 
+version %(version)s of `%(name)s <%(url)s>`__.
+
+%(author)s
+
+List of changes
+===============
+
+New features
+------------
+
+Optimizations
+-------------
+
+Bugfixes
+--------
+
+Manual tasks after upgrade
+--------------------------
+
+
+""" % context
+    notes.write_file(txt)
+    notes.parent.child('index.rst').set_times()
+    args = [ env.editor ]
+    args += [notes.absolute()]
+    local(' '.join(args))
     
 @task()
 def write_readme():
@@ -428,15 +530,18 @@ Read more on %(url)s
 """ % env.SETUP_INFO
     if readme.read_file() == txt:
         return 
-    if not confirm("Overwrite %s" % readme.absolute()):
-        abort
+    must_confirm("Overwrite %s" % readme.absolute())
     readme.write_file(txt)
-    cmd = "touch " + env.DOCSDIR.child('index.rst')
-    local(cmd)
-    setup_register()
-
+    env.DOCSDIR.child('index.rst').set_times()
+    #~ cmd = "touch " + env.DOCSDIR.child('index.rst')
+    #~ local(cmd)
+    #~ pipy_register()
+    
 @task(alias='t2')
 def run_django_admin_tests():
+    """
+    Run `django-admin test` for each `env.django_admin_tests`.
+    """
     for prj in env.django_admin_tests:
         cmd = "django-admin test --settings=%s --verbosity=0 --failfast --traceback" % prj
         local(cmd)
@@ -444,7 +549,7 @@ def run_django_admin_tests():
 @task(alias='t3')
 def run_django_doctests():
     """
-    run `django-admin test` in the `docs` dir for each `django_doctests`
+    Run `django-admin test` in the `docs` dir for each `env.django_doctests`
     """
     #~ must_exist(env.DOCSDIR.child('manage.py'))
     #~ env.DOCSDIR.chdir()
@@ -461,7 +566,7 @@ def run_django_doctests():
 @task(alias='t4')
 def run_simple_doctests():
     """
-    Run a normal doctest for files specified in `simple_doctests`.
+    Run a simple doctest for files specified in `env.simple_doctests`.
     """
     os.environ['DJANGO_SETTINGS_MODULE']='lino.projects.std.settings'
     for filename in env.simple_doctests:
@@ -472,14 +577,17 @@ def run_simple_doctests():
 
 @task(alias='t5')
 def run_django_databases_tests():    
+    """
+    Run "manage.py test" for each `env.django_databases`.
+    """
     run_in_django_databases('test',"--noinput")
 
 @task(alias='t6')
 def run_setup_tests():    
     """
-    Runs hardcoded tests related to packaging.
+    Run hardcoded tests related to packaging.
     """
-    unittest.main(argv=['fab','SetupTest'],module=__name__)
+    unittest.main(argv=['fab','SetupTest'],module=__name__,exit=False)
 
 @task(alias='t7')
 def run_bash_tests():
@@ -501,6 +609,7 @@ def run_tests():
     run_django_databases_tests() # t5
     run_setup_tests() # t6
     run_bash_tests() # t7
+    print "run_tests() done"
     
 
 #~ @task(alias='listpkg')

@@ -9,13 +9,13 @@ djangosite.management.commands
   
 SETUP_INFO = dict(
   name = 'djangosite', 
-  version = '0.0.4',
+  version = '0.1.0',
+  install_requires = ['Django','six','Sphinx','unipath','python_dateutil'],
   description = "A server startup signal for Django",
   license = 'Free BSD',
   packages = PACKAGES,
   author = 'Luc Saffre',
   author_email = 'luc.saffre@gmail.com',
-  install_requires = ['Django','six','Sphinx','unipath','python_dateutil'],
   url = "http://site.lino-framework.org",
   #~ long_description=open(os.path.join('..','README.txt')).read(),
   long_description="""\
