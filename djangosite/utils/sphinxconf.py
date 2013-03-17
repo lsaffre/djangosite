@@ -193,13 +193,14 @@ class InsertInputDirective(Directive):
     to be forwarded to `state_machine.insert_input()`.
     """
     has_content = True
+    debug = False
     def get_rst(self):
         raise NotImplementedErrro()
         
     def run(self):
         out = self.get_rst()
         env = self.state.document.settings.env
-        if False:
+        if self.debug:
             print env.docname
             print '-' * 50
             print out
@@ -224,6 +225,8 @@ class Py2rstDirective(InsertInputDirective):
         from django.conf import settings
         #~ context = dict(settings=settings)
         context.update(settings.SITE.modules)
+        context.update(self=self)
+        context.update(env=self.state.document.settings.env)
         exec(code,context)
         sys.stdout = old
         return buffer.getvalue()
@@ -688,3 +691,18 @@ def setup(app):
     #~ doctest.setup(app)
     
 #~ print "OK"    
+
+
+def version2rst(self,m):
+    """
+    used in docs/released/index.rst
+    """
+    v = m.__version__
+    if v.endswith('+'):
+        v = v[:-1]
+        print "The current stable release is :doc:`%s`." % v 
+    elif v.endswith('pre'):
+        print "We're currently working on  :doc:`%s`." % v[:-3]
+    else:
+        print "The current stable release is :doc:`%s`." % v 
+        #~ print "We're currently working on :doc:`coming`."

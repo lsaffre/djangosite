@@ -20,6 +20,8 @@ This fablib uses the following `env` keys:
   and for which initdb_demo should be executed.
 - `tolerate_sphinx_warnings` : whether `sphinx-build html` should tolerate warnings.
 
+- env.editor : your preferred text editor
+
 - (consult the source code)
 
 """
@@ -377,7 +379,8 @@ def edit_blog_entry():
         if confirm("Create file %s?" % entry.path):
             txt = rstgen.header(1,today.strftime(env.long_date_format))
             entry.path.write_file(txt)
-    args = [env.editor]
+            entry.path.parent.child('index.rst').set_times() # touch it for Sphinx
+    args = [ env.editor ]
     args += [entry.path]
     local(' '.join(args))
   
