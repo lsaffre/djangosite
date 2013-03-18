@@ -64,8 +64,6 @@ from fabric.api import lcd
 
 PROJECTS = []
 
-
-
 class RstFile(object):
     def __init__(self,local_root,url_root,parts):
         self.path = local_root.child(*parts)
@@ -81,6 +79,12 @@ class Project(object):
         self.dist = pkg_resources.get_distribution(name)
         self.module = __import__(name)
     
+def load_projects():
+    if len(PROJECTS) > 0: 
+        return 
+    for i,prj in enumerate(env.projects.split()):
+        PROJECTS.append(Project(i,prj))
+      
 
 def setup_from_project(main_package):
   
@@ -90,9 +94,6 @@ def setup_from_project(main_package):
     #~ HOME = Path(os.path.expanduser("~"))
     #~ REMOTE = AttrDict(
       #~ lf='lino-framework.org')
-      
-    for i,prj in enumerate(env.projects.split()):
-        PROJECTS.append(Project(i,prj))
       
     env.ROOTDIR = Path().absolute()
 
@@ -156,16 +157,16 @@ def rmtree_after_confirm(p):
 
 @task(alias='summary')
 def summary(*cmdline_args):
+    load_projects()
     headers = (
       #~ '#','Location',
       'Project','Old version','New version')
 
     def cells(self):
+        url = self.module.SETUP_INFO['url']
         desc = "`%s <%s>`__ -- %s" % (
-            self.name,
-            self.module.SETUP_INFO['url'],
-            self.module.SETUP_INFO['description'],
-            )        
+            self.name,url,
+            self.module.SETUP_INFO['description'])
         return (
             '\n'.join(textwrap.wrap(desc,40)),
             self.dist.version,
@@ -481,7 +482,10 @@ def write_release_notes():
     """
     Generate docs/releases/x.y.z.rst file from setup_info.
     """
-    notes = Path(env.ROOTDIR,'docs','releases','%s.rst' % env.SETUP_INFO['version'])
+    v = env.SETUP_INFO['version']
+    if v.endswith('+'):
+        return
+    notes = Path(env.ROOTDIR,'docs','releases','%s.rst' % v)
     if notes.exists():
         return
     must_confirm("Create %s" % notes.absolute())

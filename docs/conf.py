@@ -12,13 +12,16 @@
 # serve to show the default.
 
 import sys, os
-from unipath import Path
-DOCSDIR = Path(__file__).parent.absolute()
-sys.path.append(DOCSDIR)
+from djangosite.utils.sphinxconf import configure
+configure(__file__,globals())
+
+#~ from unipath import Path
+#~ DOCSDIR = Path(__file__).parent.absolute()
+#~ sys.path.append(DOCSDIR)
 
 import djangosite
 #~ os.environ['DJANGO_SETTINGS_MODULE'] = 'djangosite.docs_settings'
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+#~ os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 #~ """
 #~ Trigger loading of Djangos model cache in order to avoid side effects that 
 #~ would occur when this happens later while importing one of the models modules.
@@ -31,16 +34,16 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = [
-  'sphinx.ext.autodoc',
-  #~ 'sphinx.ext.autosummary',
-  'sphinx.ext.inheritance_diagram',
-  'sphinx.ext.todo',
-  'sphinx.ext.extlinks',
-  'sphinx.ext.graphviz',
-  'sphinx.ext.intersphinx',
-  'sphinx.ext.doctest',
-]
+#~ extensions = [
+  #~ 'sphinx.ext.autodoc',
+  #~ # 'sphinx.ext.autosummary',
+  #~ 'sphinx.ext.inheritance_diagram',
+  #~ 'sphinx.ext.todo',
+  #~ 'sphinx.ext.extlinks',
+  #~ 'sphinx.ext.graphviz',
+  #~ 'sphinx.ext.intersphinx',
+  #~ 'sphinx.ext.doctest',
+#~ ]
 
 
 primary_domain = 'py'
@@ -267,15 +270,15 @@ todo_include_todos = True
 gettext_compact = True
 
 
-HGWORK = DOCSDIR.ancestor(2)
-intersphinx_mapping = dict()
-for n in ('site','north','lino','welfare'):
-    p = Path(HGWORK,n,'docs','.build','objects.inv')
-    if p.exists():
-        intersphinx_mapping[n] = ('http://%s.lino-framework.org' % n,p)
+#~ HGWORK = DOCSDIR.ancestor(2)
+#~ intersphinx_mapping = dict()
+#~ for n in ('site','north','lino','welfare'):
+    #~ p = Path(HGWORK,n,'docs','.build','objects.inv')
+    #~ if p.exists():
+        #~ intersphinx_mapping[n] = ('http://%s.lino-framework.org' % n,p)
     
 
-from djangosite.utils.sphinxconf import setup
+#~ from djangosite.utils.sphinxconf import setup
 
 #~ def setup(app):
     #~ stdsetup(app)

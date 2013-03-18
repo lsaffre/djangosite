@@ -612,12 +612,13 @@ def configure(filename,globals_dict):
     HGWORK = DOCSDIR.ancestor(2)
     intersphinx_mapping = dict()
     for n in ('site','north','lino','welfare'):
+    #~ for n in ('site','north','welfare'):
         p = Path(HGWORK,n,'docs','.build','objects.inv')
         if p.exists():
             intersphinx_mapping[n] = ('http://%s.lino-framework.org' % n,p)
-    intersphinx_mapping.update(django = (
-        'http://docs.djangoproject.com/en/dev/', 
-        'http://docs.djangoproject.com/en/dev/_objects/'))
+    #~ intersphinx_mapping.update(django = (
+        #~ 'http://docs.djangoproject.com/en/dev/', 
+        #~ 'http://docs.djangoproject.com/en/dev/_objects/'))
     globals_dict.update(intersphinx_mapping=intersphinx_mapping)
     
     globals_dict.update(extensions = [
@@ -628,7 +629,7 @@ def configure(filename,globals_dict):
       'sphinx.ext.extlinks',
       'sphinx.ext.graphviz',
       'sphinx.ext.intersphinx',
-      'sphinx.ext.doctest',
+      #~ 'sphinx.ext.doctest',
     ])
     
     #~ os.environ['DJANGO_SETTINGS_MODULE'] = 'north.docs_settings'
@@ -701,8 +702,9 @@ def version2rst(self,m):
     if v.endswith('+'):
         v = v[:-1]
         print "The current stable release is :doc:`%s`." % v 
+        print "We are working on a future version in the code repository."
     elif v.endswith('pre'):
-        print "We're currently working on  :doc:`%s`." % v[:-3]
+        print "We're currently working on :doc:`%s`." % v[:-3]
     else:
         print "The current stable release is :doc:`%s`." % v 
         #~ print "We're currently working on :doc:`coming`."

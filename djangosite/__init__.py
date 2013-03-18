@@ -12,9 +12,10 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Lino; if not, see <http://www.gnu.org/licenses/>.
 """
+This defines the :class:`Site` class.
 """
 
-from __future__ import unicode_literals
+#~ from __future__ import unicode_literals
 
 import os
 import sys
@@ -91,15 +92,6 @@ class Site(object):
     #~ like :attr:`verbose_name` and :attr:`version`.
     #~ """
     
-    is_local_project_dir = False
-    """
-    This is automatically set when a :class:`Lino` is instantiated. 
-    Don't override it.
-    Contains `True` if this is a "local" project.
-    For local projects, Lino checks for local fixtures and config directories
-    and adds them to the default settings.
-    """
-    
     make_missing_dirs = True
     """
     Set this to False if you don't want Lino to automatically 
@@ -171,14 +163,20 @@ class Site(object):
     """
     
     def __init__(self,*args,**kwargs):
-        self.init_nolocal(*args)
+        self.init_before_local(*args)
         if not kwargs.pop('no_local',False):
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
     
-    def init_nolocal(self,project_file,django_settings,*user_apps):
-            
+    def init_before_local(self,project_file,django_settings,*user_apps):
+        """
+        If your project_dir contains no :file:`models.py`, 
+        but *does* contain a `fixtures` subdir, 
+        then djangosite automatically adds this as "local fixtures directory" 
+        to Django's `FIXTURE_DIRS`.
+        """
+        
         #~ memory_db = kwargs.pop('memory_db',False)
         #~ nolocal = kwargs.pop('nolocal',False)
             
@@ -211,9 +209,11 @@ class Site(object):
         django_settings.update(INSTALLED_APPS =
             tuple(user_apps+('djangosite',)))
         
-        django_settings.update(FORMAT_MODULE_PATH = 'djangosite.formats')
+        #~ django_settings.update(FORMAT_MODULE_PATH = 'djangosite.formats')
         #~ django_settings.update(LONG_DATE_FORMAT = "l, j F Y")
-        django_settings.update(LONG_DATE_FORMAT = "l, F j, Y")
+        #~ django_settings.update(LONG_DATE_FORMAT = "l, F j, Y")
+        
+        
         
             
           
@@ -230,6 +230,8 @@ class Site(object):
             setup_site(self)
             
     def override_defaults(self,**kwargs):
+      
+      
         for k,v in kwargs.items():
             if not hasattr(self,k):
                 raise Exception("%s has no attribute %s" % (self.__class__,k))
@@ -299,6 +301,13 @@ class Site(object):
         of this site's project directory and it's inherited 
         project directories.
         """
+        
+        # if local settings.py doesn't subclass Site:
+        if self.project_dir != normpath(dirname(inspect.getfile(self.__class__))):
+            pth = join(self.project_dir,subdir_name)
+            if isdir(pth):
+                yield pth
+            
         for cl in self.__class__.__mro__:
             #~ logger.info("20130109 inspecting class %s",cl)
             if cl is not object and not inspect.isbuiltin(cl):
@@ -481,7 +490,7 @@ class Site(object):
     #~ Used e.g. in docs/settings.py
     #~ """
     #~ def __init__(self,*args,**kwargs):
-        #~ self.init_nolocal(*args)
+        #~ self.init_before_local(*args)
         #~ self.override_defaults(**kwargs)
         #~ self.apply_languages()
 
