@@ -1,4 +1,4 @@
-Extending `django-site`
+Extending `djangosite`
 =======================
 
 Another usage is to subclass the :class:`djangosite.Site` class::
@@ -12,6 +12,7 @@ Another usage is to subclass the :class:`djangosite.Site` class::
           
   SITE = MySite(__file__,globals())
 
-TODO: write more. Meanwhile you can look how North and Lino do it.
+TODO: write more. 
+Meanwhile you can look how North and Lino do it.
 
 

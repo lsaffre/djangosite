@@ -86,7 +86,7 @@ def load_projects():
         PROJECTS.append(Project(i,prj))
       
 
-def setup_from_project(main_package):
+def setup_from_project(main_package=None):
   
     #~ env.docs_rsync_dest = 'luc@lino-framework.org'
     #~ env.sdist_dir = '../lino/docs/dl'
@@ -120,9 +120,12 @@ def setup_from_project(main_package):
     if not env.DOCSDIR.exists():
         raise Exception("You must call 'fab' from a project's root directory.")
         
+    if env.main_package:
+        execfile(env.ROOTDIR.child(env.main_package,'setup_info.py'),globals()) # will set SETUP_INFO 
+        env.SETUP_INFO = SETUP_INFO
+    else:
+        env.SETUP_INFO = None
         
-    execfile(env.ROOTDIR.child(env.main_package,'setup_info.py'),globals()) # will set SETUP_INFO 
-    env.SETUP_INFO = SETUP_INFO
     
 
 
@@ -204,8 +207,9 @@ def build_html(): #~ def build_html(*cmdline_args):
     """
     write_readme + build sphinx html docs.
     """
-    write_readme()
-    write_release_notes()
+    if env.main_package:
+        write_readme()
+        write_release_notes()
     #~ print cmdline_args
     args = ['sphinx-build','-b','html']
     #~ args += cmdline_args

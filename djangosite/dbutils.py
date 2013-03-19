@@ -32,7 +32,8 @@ from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models import loading
 #~ from django.utils.formats import get_format
-from django.utils.formats import date_format
+#~ from django.utils.formats import date_format
+from django.template import defaultfilters
 
 from django.core.validators import validate_email, ValidationError, URLValidator
 validate_url = URLValidator()
@@ -179,5 +180,20 @@ def range_filter(v,f1,f2):
     #~ from north import babel
     #~ return date_format(d,'LONG_DATE_FORMAT')
   
+
+
+def monthname(n):
+    """
+    Return the monthname for month # n in current language.
+    """
+    d = datetime.date(2013,n,1)
+    return defaultfilters.date(d,'F')
+
+def dtomy(d):
+    """
+    "date to month/year" :
+    return the specified date as a localized string of type 'June 2011'."""
+    if d is None: return ''
+    return defaultfilters.date(d,'F Y')
 
 

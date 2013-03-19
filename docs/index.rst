@@ -1,6 +1,6 @@
-===========
-django-site
-===========
+==========
+djangosite
+==========
 
 .. py2rst::
 
@@ -14,13 +14,13 @@ Installation
 
 Installation is easy::
 
-    pip install django-site
+    pip install djangosite
 
 Usage
 -----
 
 The :mod:`djangosite` Python package is a small Django app which 
-does not define any models, it just provides a :class:`Site` class 
+does not define any models, it just provides a `Site` class 
 designed to be instantiated as ``settings.SITE``.
 
 Basic usage in your :xfile:`settings.py` file::
@@ -29,10 +29,9 @@ Basic usage in your :xfile:`settings.py` file::
   SITE = Site(__file__,globals())
   # ... your settings here
   INSTALLED_APPS = [..., "djangosite"]
-  # Note that "djangosite" must be the last item of your INSTALLED_APPS
+  # "djangosite" must be the last item of your INSTALLED_APPS
 
 See :doc:`/usage` for more.
-
 
 
 Changes
@@ -57,5 +56,4 @@ Sitemap
    releases/index
    API <api/djangosite>
    tested/index
-   date_format
 

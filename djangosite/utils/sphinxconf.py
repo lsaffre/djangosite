@@ -452,7 +452,7 @@ class YearBlogIndexDirective(InsertInputDirective):
     
       
     def get_rst(self):
-        from north import dbutils
+        from djangosite.dbutils import monthname
   
         #~ year = self.arguments[0]
         env = self.state.document.settings.env
@@ -473,7 +473,7 @@ class YearBlogIndexDirective(InsertInputDirective):
             
             text += """        
             
-.. |M%02d| replace::  **%s**""" % (month,dbutils.monthname(month))
+.. |M%02d| replace::  **%s**""" % (month,monthname(month))
             
             weeknum = None
             #~ text += "\n  |br| Mo Tu We Th Fr Sa Su "
@@ -629,6 +629,7 @@ def configure(filename,globals_dict):
       'sphinx.ext.extlinks',
       'sphinx.ext.graphviz',
       'sphinx.ext.intersphinx',
+      'sphinxcontrib.newsfeed', # no i18n, no discovery, only one entry per doc, 
       #~ 'sphinx.ext.doctest',
     ])
     

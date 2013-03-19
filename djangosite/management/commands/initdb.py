@@ -68,7 +68,7 @@ class Command(BaseCommand):
         #~ from lino.core.kernel import analyze_models
         #~ analyze_models()
       
-        from lino.utils import dblogger
+        #~ from lino.utils import dblogger
             
         #~ if not dblogger.logger.isEnabledFor(logging.INFO):
             #~ raise CommandError("System logger must be enabled for INFO")
