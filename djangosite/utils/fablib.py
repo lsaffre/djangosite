@@ -602,7 +602,7 @@ def run_django_databases_tests():
     """
     Run "manage.py test" for each `env.django_databases`.
     """
-    run_in_django_databases('test',"--noinput")
+    run_in_django_databases('test',"--noinput",'--failfast')
 
 @task(alias='t6')
 def run_setup_tests():    

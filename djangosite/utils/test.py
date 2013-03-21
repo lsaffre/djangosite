@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import os
-import six
+#~ import six
 
 import doctest
 from django.utils import unittest
@@ -19,6 +19,16 @@ from django.utils import simplejson
 from django.utils.importlib import import_module
 from django.test import TestCase as DjangoTestCase
 from django.db import connection, reset_queries
+
+from django.dispatch import Signal
+testcase_setup = Signal()
+"""
+Emitted each time `djangosite.utils.TestCase.setUp` is called.
+lino.ui.Site uses this signal to reset its SiteConfig cache.
+It is necessary because (afaics) the Django test runner doesn't 
+send a 'connected' signal when it restores the database to a 
+virgin state before running a new test case.
+"""
 
 class TestCase(DjangoTestCase):
     """
@@ -103,6 +113,7 @@ class TestCase(DjangoTestCase):
         settings.SITE.never_build_site_cache = self.never_build_site_cache
         #~ settings.SITE.remote_user_header = 'REMOTE_USER'
         super(TestCase,self).setUp()
+        testcase_setup.send(self)
         
     def test_them_all(self):
         """
@@ -117,18 +128,20 @@ class TestCase(DjangoTestCase):
                 if not getattr(v,'skip',False):
                     v(self)
                   
-    def check_json_result(self,response,expected_keys):
+    def check_json_result(self,response,expected_keys=None):
         """
         Checks the result of response which is expected to return 
         a JSON-encoded dictionary with the expected_keys.
         """
         #~ print "20110301 response is %r" % response.content
+        self.assertEqual(response.status_code,200)
         try:
             result = simplejson.loads(response.content)
         except ValueError,e:
             logger.warning("%s in %r",e,response.content)
             raise 
-        self.assertEqual(set(result.keys()),set(expected_keys.split()))
+        if expected_keys is not None:
+            self.assertEqual(set(result.keys()),set(expected_keys.split()))
         return result
         
     def assertEquivalent(self,a,b,report_plain=False):

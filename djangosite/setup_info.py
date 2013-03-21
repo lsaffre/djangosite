@@ -9,7 +9,7 @@ djangosite.management.commands
   
 SETUP_INFO = dict(
   name = 'djangosite', 
-  version = '0.1.0+',
+  version = '0.1.1',
   install_requires = ['Django','Sphinx','unipath','python_dateutil'],
   description = "A server startup signal for Django",
   license = 'Free BSD',
