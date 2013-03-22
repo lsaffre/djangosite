@@ -292,7 +292,7 @@ class Site(object):
         """
         This method is called during site startup
         """
-        from .signals import startup
+        from djangosite.signals import startup
         startup.send(self)
         
     def get_settings_subdirs(self,subdir_name):
