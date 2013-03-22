@@ -350,7 +350,22 @@ class Site(object):
                 raise Exception("Please create yourself directory %s" % dirname)
         
     
+    def add_site_attribute(self,name,default_value):
+        """
+        Must be called from global level of a models module.
         
+        Example::
+        
+          from django.conf import settings
+          settings.SITE.add_site_attribute('accounts_ref_length',20)
+        
+        """
+        if hasattr(self,name):
+            current = getattr(self,name)
+            if type(current) != type(default_value):
+                raise TypeError("Invalid type")
+        else:
+            setattr(self,name,default_value)
         
     def is_installed(self,app_label):
         """

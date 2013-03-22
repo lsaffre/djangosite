@@ -2,7 +2,7 @@
 Version 0.1.1
 ==========================
 
-20130321 (Thursday, 21 March 2013)
+Release process started :blogref:`20130321`
 
 List of changes
 ===============

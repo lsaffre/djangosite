@@ -15,7 +15,8 @@ import doctest
 from django.utils import unittest
 
 from django.conf import settings
-from django.utils import simplejson
+#~ from django.utils import simplejson
+import json
 from django.utils.importlib import import_module
 from django.test import TestCase as DjangoTestCase
 from django.db import connection, reset_queries
@@ -78,6 +79,8 @@ class TestCase(DjangoTestCase):
     
     """
     
+    longMessage = True # see unittest. used for check_json_result
+    
     never_build_site_cache = True
     """
     Test cases usually don't need the site cache, so this is switched off.
@@ -127,21 +130,22 @@ class TestCase(DjangoTestCase):
             if k.startswith('test') and callable(v):
                 if not getattr(v,'skip',False):
                     v(self)
+                    
                   
-    def check_json_result(self,response,expected_keys=None):
+    def check_json_result(self,response,expected_keys=None,msg=None):
         """
         Checks the result of response which is expected to return 
         a JSON-encoded dictionary with the expected_keys.
         """
         #~ print "20110301 response is %r" % response.content
-        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.status_code,200,msg)
         try:
-            result = simplejson.loads(response.content)
+            result = json.loads(response.content)
         except ValueError,e:
             logger.warning("%s in %r",e,response.content)
             raise 
         if expected_keys is not None:
-            self.assertEqual(set(result.keys()),set(expected_keys.split()))
+            self.assertEqual(set(result.keys()),set(expected_keys.split()),msg)
         return result
         
     def assertEquivalent(self,a,b,report_plain=False):
@@ -222,4 +226,22 @@ class TestCase(DjangoTestCase):
                 #~ res = doctest.testfile(f,module_relative=False,globs=g)
                 #~ if res.failed:
                     #~ self.fail("Failed doctest %s" % f)
+        
+        
+class RemoteAuthTestCase(TestCase):
+    #~ fixtures = [ 'std', 'few_countries', 'ee', 'be', 'demo', 'demo_ee']
+    #~ fixtures = 'few_countries few_languages demo_cities std demo demo_ee'.split()
+    #~ fixtures = 'std few_countries few_cities few_languages props demo'.split()
+    def __call__(self,*args,**kw):
+        # these tests use remote http authentication, so we override the run() 
+        # method to simulate 
+        #~ settings.SITE.remote_user_header = 'REMOTE_USER'
+        settings.SITE.override_defaults(remote_user_header='REMOTE_USER')
+        mysettings = dict()
+        for k in ('MIDDLEWARE_CLASSES',):
+            mysettings[k] = settings.SITE.django_settings.get(k)
+        #~ MIDDLEWARE_CLASSES = settings.SITE.django_settings.get('MIDDLEWARE_CLASSES')
+        with self.settings(**mysettings):
+            return super(RemoteAuthTestCase,self).__call__(*args,**kw)
+    
         

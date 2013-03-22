@@ -223,7 +223,7 @@ class Py2rstDirective(InsertInputDirective):
         sys.stdout = buffer
         context = dict()
         from django.conf import settings
-        #~ context = dict(settings=settings)
+        context = dict(settings=settings)
         context.update(settings.SITE.modules)
         context.update(self=self)
         context.update(env=self.state.document.settings.env)

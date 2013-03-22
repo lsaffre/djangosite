@@ -108,6 +108,7 @@ def setup_from_project(main_package=None):
     env.bash_tests = []
     env.django_databases = []
     env.simple_doctests = []
+    env.docs_doctests = []
     env.main_package = main_package
     env.tolerate_sphinx_warnings = False
 
@@ -493,19 +494,16 @@ def write_release_notes():
     if notes.exists():
         return
     must_confirm("Create %s" % notes.absolute())
-    context = dict(date=datetime.date.today().strftime(env.long_date_format))
+    #~ context = dict(date=datetime.date.today().strftime(env.long_date_format))
+    context = dict(date=datetime.date.today().strftime('%Y%m%d'))
     context.update(env.SETUP_INFO)
     txt = """\
 ==========================
 Version %(version)s
 ==========================
 
-%(date)s
+Release process started :blogref:`%(date)s`
 
-I am pleased to announce the release of 
-version %(version)s of `%(name)s <%(url)s>`__.
-
-%(author)s
 
 List of changes
 ===============
@@ -585,7 +583,7 @@ def run_django_doctests():
         #~ cmd = "python runtest.py %s" % prj
         local(cmd)
 
-@task(alias='t4')
+@task(alias='t1')
 def run_simple_doctests():
     """
     Run a simple doctest for files specified in `env.simple_doctests`.
@@ -596,6 +594,23 @@ def run_simple_doctests():
         #~ print cmd
         local(cmd)
         #~ doctest.testfile(filename, module_relative=False,encoding='utf-8')
+
+@task(alias='t4')
+def run_docs_doctests():
+    """
+    Run a simple doctest for files specified in `env.docs_doctests`.
+    """
+    os.environ['DJANGO_SETTINGS_MODULE']='settings'
+    #~ with lcd(env.DOCSDIR):
+    env.DOCSDIR.chdir()
+    sys.path.insert(0,'.')
+    for filename in env.docs_doctests:
+        #~ cmd = "python -m doctest %s" % filename
+        #~ print cmd
+        #~ local(cmd)
+        #~ fn = env.DOCSDIR.child(*filename.split('/'))
+        doctest.testfile(filename, module_relative=False,encoding='utf-8')
+    del sys.path[0]
 
 @task(alias='t5')
 def run_django_databases_tests():    
