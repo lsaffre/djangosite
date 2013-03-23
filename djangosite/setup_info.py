@@ -1,23 +1,12 @@
-import os
-
-PACKAGES = [str(n) for n in """
-djangosite
-djangosite.management
-djangosite.utils
-djangosite.management.commands
-""".splitlines() if n]
-  
 SETUP_INFO = dict(
   name = 'djangosite', 
   version = '0.1.1',
   install_requires = ['Django','Sphinx','unipath','python_dateutil'],
   description = "A server startup signal for Django",
   license = 'Free BSD',
-  packages = PACKAGES,
   author = 'Luc Saffre',
   author_email = 'luc.saffre@gmail.com',
   url = "http://site.lino-framework.org",
-  #~ long_description=open(os.path.join('..','README.txt')).read(),
   long_description="""\
 `django-site` adds to a Django project the concept of 
 "the application running on this site".
@@ -57,3 +46,12 @@ and the `Lino framework <http://www.lino-framework.org>`__.""",
   Operating System :: OS Independent
   Topic :: Database :: Front-Ends
   Topic :: Software Development :: Libraries :: Application Frameworks""".splitlines())
+
+SETUP_INFO.update(packages = [str(n) for n in """
+djangosite
+djangosite.management
+djangosite.utils
+djangosite.management.commands
+""".splitlines() if n])
+  
+

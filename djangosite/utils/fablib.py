@@ -112,7 +112,8 @@ def setup_from_project(main_package=None):
     env.main_package = main_package
     env.tolerate_sphinx_warnings = False
 
-
+    env.languages = None
+    
     #~ print env.project_name
 
     env.DOCSDIR = Path(env.ROOTDIR,'docs')
@@ -159,8 +160,81 @@ def rmtree_after_confirm(p):
     p.rmtree()
     
 
+
+def get_locale_dir():
+    if not env.main_package:
+        abort("No main_package")
+    p = env.ROOTDIR.child(env.main_package,"locale")
+    if not p.isdir():
+        abort("Directory %s does not exist." % p)
+    return p
+
+@task(alias='em')
+def extract_messages():
+    """Extract messages from source files to .pot file"""
+    locale_dir = get_locale_dir()
+    args = ["python", "setup.py"]
+    args += [ "extract_messages"]
+    args += [ "-o", locale_dir.child("django.pot")]
+    cmd = ' '.join(args)
+    #~ must_confirm(cmd)
+    local(cmd)
+
+@task(alias='um')
+def update_catalog():
+    """Update .po files from .pot file."""
+    locale_dir = get_locale_dir()
+    for loc in env.languages:
+        args = ["python", "setup.py"]
+        args += [ "update_catalog"]
+        args += [ "--domain django"]
+        args += [ "-d" , locale_dir ]
+        args += [ "-i", locale_dir.child("django.pot")]
+        args += [ "-l" , loc ]
+        cmd = ' '.join(args)
+        #~ must_confirm(cmd)
+        local(cmd)
+
+@task(alias='cm')
+def compile_catalog():
+    """Compile .po files to .mo files."""
+    locale_dir = get_locale_dir()
+    for loc in env.languages:
+        args = ["python", "setup.py"]
+        args += [ "compile_catalog"]
+        args += [ "--domain django"]
+        args += [ "-d" , locale_dir ]
+        args += [ "-l" , loc ]
+        cmd = ' '.join(args)
+        #~ must_confirm(cmd)
+        local(cmd)
+
+@task(alias='im')
+def init_catalog():
+    """Create .po files if necessary."""
+    locale_dir = get_locale_dir()
+    for loc in env.languages:
+        f = locale_dir.child(loc,'LC_MESSAGES','django.po')
+        if f.exists():
+            print "Skip %s because file exists." % f
+        else:
+            args = ["python", "setup.py"]
+            args += [ "init_catalog"]
+            args += [ "--domain django"]
+            args += [ "-d" , locale_dir ]
+            args += [ "-l" , loc ]
+            cmd = ' '.join(args)
+            must_confirm(cmd)
+            local(cmd)
+
+
+
+
+
+
 @task(alias='summary')
 def summary(*cmdline_args):
+    """Print a summary to stdout."""
     load_projects()
     headers = (
       #~ '#','Location',
