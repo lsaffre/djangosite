@@ -179,6 +179,49 @@ def extract_messages():
     cmd = ' '.join(args)
     #~ must_confirm(cmd)
     local(cmd)
+    
+@task(alias='emd')
+def extract_messages_docs(): 
+    """
+    Run the Sphinx gettext builder on docs.
+    """
+    args = ['sphinx-build','-b','gettext']
+    #~ args += cmdline_args
+    #~ args += ['-a'] # all files, not only outdated
+    #~ args += ['-P'] # no postmortem
+    #~ args += ['-Q'] # no output
+    if not env.tolerate_sphinx_warnings:
+        args += ['-W'] # consider warnings as errors
+    #~ args += ['-w',env.DOCSDIR.child('warnings.txt')]
+    args += [env.DOCSDIR]
+    args += [env.DOCSDIR.child("translations")]
+    #~ args += [env.DOCSDIR,env.BUILDDIR]
+    #~ sphinx.main(args)
+    #~ sphinx.main(args)
+    cmd = ' '.join(args)
+    local(cmd)
+    
+    
+
+@task(alias='im')
+def init_catalog():
+    """Create .po files if necessary."""
+    locale_dir = get_locale_dir()
+    for loc in env.languages:
+        f = locale_dir.child(loc,'LC_MESSAGES','django.po')
+        if f.exists():
+            print "Skip %s because file exists." % f
+        else:
+            args = ["python", "setup.py"]
+            args += [ "init_catalog"]
+            args += [ "--domain django"]
+            args += [ "-d" , locale_dir ]
+            args += [ "-l" , loc ]
+            cmd = ' '.join(args)
+            must_confirm(cmd)
+            local(cmd)
+
+
 
 @task(alias='um')
 def update_catalog():
@@ -208,26 +251,6 @@ def compile_catalog():
         cmd = ' '.join(args)
         #~ must_confirm(cmd)
         local(cmd)
-
-@task(alias='im')
-def init_catalog():
-    """Create .po files if necessary."""
-    locale_dir = get_locale_dir()
-    for loc in env.languages:
-        f = locale_dir.child(loc,'LC_MESSAGES','django.po')
-        if f.exists():
-            print "Skip %s because file exists." % f
-        else:
-            args = ["python", "setup.py"]
-            args += [ "init_catalog"]
-            args += [ "--domain django"]
-            args += [ "-d" , locale_dir ]
-            args += [ "-l" , loc ]
-            cmd = ' '.join(args)
-            must_confirm(cmd)
-            local(cmd)
-
-
 
 
 
@@ -277,6 +300,7 @@ def build_api(*cmdline_args):
     local(cmd)
     
   
+    
 @task(alias='html')
 def build_html(): #~ def build_html(*cmdline_args):
     """
