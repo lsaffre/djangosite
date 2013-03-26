@@ -183,9 +183,12 @@ def extract_messages():
 @task(alias='emd')
 def extract_messages_docs(): 
     """
-    Run the Sphinx gettext builder on docs.
+    Run the Sphinx gettext builder on userdocs.
     """
     args = ['sphinx-build','-b','gettext']
+    userdocs = env.ROOTDIR.child('userdocs')
+    if not userdocs.isdir():
+        abort("Directory %s does not exist." % userdocs)
     #~ args += cmdline_args
     #~ args += ['-a'] # all files, not only outdated
     #~ args += ['-P'] # no postmortem
@@ -193,8 +196,8 @@ def extract_messages_docs():
     if not env.tolerate_sphinx_warnings:
         args += ['-W'] # consider warnings as errors
     #~ args += ['-w',env.DOCSDIR.child('warnings.txt')]
-    args += [env.DOCSDIR]
-    args += [env.DOCSDIR.child("translations")]
+    args += [userdocs]
+    args += [userdocs.child("translations")]
     #~ args += [env.DOCSDIR,env.BUILDDIR]
     #~ sphinx.main(args)
     #~ sphinx.main(args)
