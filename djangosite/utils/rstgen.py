@@ -254,7 +254,8 @@ class Table(object):
         return '\n'.join(x)
         
     def write(self,fd,data):
-        assert len(data) > 0
+        if len(data) == 0:
+            raise Exception("No rows in %r" % data)
         rows = []
         for i,row in enumerate(data):
             assert len(row) == len(self.cols)
