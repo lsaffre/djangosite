@@ -286,7 +286,8 @@ def build_api(*cmdline_args):
     """
     #~ if len(env.SETUP_INFO['packages']) != 1:
         #~ abort("env.SETUP_INFO['packages'] is %s" % env.SETUP_INFO['packages'])
-        
+    
+    os.environ.update(SPHINX_APIDOC_OPTIONS="members,show-inheritance")
     api_dir = env.DOCSDIR.child("api").absolute()        
     rmtree_after_confirm(api_dir)
     args = ['sphinx-apidoc']
@@ -298,7 +299,7 @@ def build_api(*cmdline_args):
         excluded = [env.ROOTDIR.child('lino','sandbox').absolute()]
         args += excluded # pathnames to be ignored
     cmd = ' '.join(args)
-    puts("%s> %s" % (os.getcwd(), cmd))
+    #~ puts("%s> %s" % (os.getcwd(), cmd))
     #~ confirm("yes")
     local(cmd)
     
