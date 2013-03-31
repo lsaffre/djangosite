@@ -1,8 +1,10 @@
-## Copyright 2011-2013 Luc Saffre
 """
 Extensions to the `django.test` package:
 :class:`TestCase` for unit tests
 and :class:`DocTest` to be used for testing Sphinx docs.
+
+:copyright: Copyright 2011-2013 by Luc Saffre.
+:license: BSD, see LICENSE for more details.
 
 """
 import logging

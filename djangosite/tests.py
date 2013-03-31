@@ -1,3 +1,10 @@
+"""
+This defines the :class:`DocTest` class.
+
+:copyright: Copyright 2013 by Luc Saffre.
+:license: BSD, see LICENSE for more details.
+"""
+
 #~ from djangosite.utils.test import DocTest
 
 import os

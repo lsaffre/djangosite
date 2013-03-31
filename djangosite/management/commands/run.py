@@ -1,18 +1,5 @@
 # -*- coding: UTF-8 -*-
-## Copyright 2012 Luc Saffre
-## This file is part of the Lino project.
-## Lino is free software; you can redistribute it and/or modify
-## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 3 of the License, or
-## (at your option) any later version.
-## Lino is distributed in the hope that it will be useful, 
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-## GNU General Public License for more details.
-## You should have received a copy of the GNU General Public License
-## along with Lino; if not, see <http://www.gnu.org/licenses/>.
-
-u"""
+"""
 Execute a standalone Python script after having set up the Django 
 environment. Also modify `sys.args` and `__name__` so that 
 the invoked script sees them as if it had been called directly.
@@ -29,7 +16,7 @@ For example if you have a file `myscript.py` with the following content...
 
 ::
 
-  from lino.modlib.contacts.models import Partner
+  from myapp.models import Partner
   print Partner.objects.all()
 
 ... then you can run this script using::
@@ -38,11 +25,11 @@ For example if you have a file `myscript.py` with the following content...
   [<Partner: Rumma & Ko OÜ>, ...  <Partner: Charlier Ulrike>, 
   '...(remaining elements truncated)...']
   
-  
-
-See the source code at :srcref:`/lino/management/commands/run.py`.
-
+:copyright: Copyright 2012-2013 by Luc Saffre.
+:license: BSD, see LICENSE for more details.
 """
+
+from __future__ import unicode_literals
 
 import sys
 from django.core.management.base import BaseCommand, CommandError

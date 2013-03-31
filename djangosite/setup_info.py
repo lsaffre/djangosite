@@ -1,3 +1,10 @@
+"""
+This module is being execfile'd from `setup.py`, `djangosite/__init__.py`
+and possibly some external tools, too.
+
+:copyright: Copyright 2013 by Luc Saffre.
+:license: BSD, see LICENSE for more details.
+"""
 SETUP_INFO = dict(
   name = 'djangosite', 
   version = '0.1.1',

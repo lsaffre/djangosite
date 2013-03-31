@@ -53,7 +53,7 @@ Sitemap
    usage
    extending
    djangosite_local
-   releases/index
-   API <api/djangosite>
    tested/index
+   API <api/djangosite>
+   changes
 

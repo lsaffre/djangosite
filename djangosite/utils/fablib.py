@@ -24,6 +24,8 @@ This fablib uses the following `env` keys:
 
 - (consult the source code)
 
+:copyright: Copyright 2013 by Luc Saffre.
+:license: BSD, see LICENSE for more details.
 """
 import os
 import sys
@@ -312,7 +314,7 @@ def build_html(): #~ def build_html(*cmdline_args):
     """
     if env.main_package:
         write_readme()
-        write_release_notes()
+        #~ write_release_notes()
     #~ print cmdline_args
     args = ['sphinx-build','-b','html']
     #~ args += cmdline_args
@@ -633,7 +635,7 @@ Manual tasks after upgrade
 @task()
 def write_readme():
     """
-    Generate README.txt file from setup_info.
+    Generate README.txt file from setup_info (if necessary).
     """
     readme = Path(env.ROOTDIR,'README.txt')
     txt = """\

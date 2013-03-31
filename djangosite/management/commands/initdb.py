@@ -1,6 +1,4 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2009-2013 Luc Saffre
-
 """
 Performs an initialization of the database, replacing all data by default 
 data (according to the specified fixtures).
@@ -21,6 +19,8 @@ without the possibility of deleting only *some* data (the thing which
 caused so big problems that Django 1.3. decided to `deprecate this command
 <https://docs.djangoproject.com/en/dev/releases/1.3/#reset-and-sqlreset-management-commands>`__.
 
+:copyright: Copyright 2009-2013 by Luc Saffre.
+:license: BSD, see LICENSE for more details.
 """
 
 import logging
