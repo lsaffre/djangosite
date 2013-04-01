@@ -24,6 +24,9 @@ from django.db.models import loading
 #~ from django.utils.formats import get_format
 #~ from django.utils.formats import date_format
 from django.template import defaultfilters
+from django.utils import translation
+
+from djangosite import DJANGO_DEFAULT_LANGUAGE, assert_django_code
 
 from django.core.validators import validate_email, ValidationError, URLValidator
 validate_url = URLValidator()
@@ -186,4 +189,19 @@ def dtomy(d):
     if d is None: return ''
     return defaultfilters.date(d,'F Y')
 
+
+def set_language(lang=None):
+    """
+    Thin wrapper around `django.utils.translation`.
+    Activate the given language, or deactivate translations if 
+    the given language is `None` or `'en-us'`.
+    """
+    
+    if lang is None or lang == DJANGO_DEFAULT_LANGUAGE:
+        #~ locale.setlocale(locale.LC_ALL,'')
+        translation.deactivate()
+    else:
+        assert_django_code(lang)
+        translation.activate(lang)
+        
 

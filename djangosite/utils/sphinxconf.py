@@ -28,6 +28,7 @@ from unipath import Path
 #~ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from docutils import nodes, utils
+from docutils import statemachine
 from docutils.parsers.rst import directives
 from docutils.parsers.rst import roles
 from sphinx.util.compat import Directive
@@ -175,6 +176,9 @@ templates['calendar.rst'] = """
 JINJA_ENV = jinja2.Environment(
     #~ extensions=['jinja2.ext.i18n'],
     loader=jinja2.DictLoader(templates))
+    
+    
+    
 
 
 class InsertInputDirective(Directive):
@@ -198,20 +202,27 @@ class InsertInputDirective(Directive):
             #~ sys.exit()
         self.state_machine.insert_input(out.splitlines(),out)
         return []
+        
+    #~ class InsertTableDirective(InsertInputDirective):
 
-
-
-class Py2rstDirective(InsertInputDirective):
+class Py2rstDirective(Directive):
     """
-    Run a Python code block and interpret the output as it it 
+    Run a Python code block and interpret the output as if it 
     were rst source.
     """
-    def get_rst(self):
-        code = '\n'.join(self.content)
+    has_content = True
+    debug = False
+    #~ def get_rst(self):
+        #~ return self.output_from_exec('\n'.join(self.content))
+        
+    def output_from_exec(self,code):
         old = sys.stdout
         buffer = StringIO()
         sys.stdout = buffer
         context = dict()
+        lng = self.state.document.settings.env.config.language
+        from djangosite.dbutils import set_language
+        set_language(lng)
         from django.conf import settings
         context = dict(settings=settings)
         context.update(settings.SITE.modules)
@@ -219,7 +230,53 @@ class Py2rstDirective(InsertInputDirective):
         context.update(env=self.state.document.settings.env)
         exec(code,context)
         sys.stdout = old
-        return buffer.getvalue()
+        s = buffer.getvalue()
+        #~ print 20130331, type(s)
+        return s
+        
+
+    def run(self):
+        if not self.content:
+            warning = self.state_machine.reporter.warning(
+                'Content block expected for the "%s" directive; none found.'
+                % self.name, nodes.literal_block(
+                self.block_text, self.block_text), line=self.lineno)
+            return [warning]
+            
+        #~ raise Exception("20130331 %r" % self.content)
+        code = '\n'.join(self.content)
+        
+        output = self.output_from_exec(code)
+        #~ output = output.decode('utf-8')
+        
+        if self.debug:
+            print self.state.document.settings.env.docname
+            print '-' * 50
+            print output
+            print '-' * 50
+        
+        content = statemachine.StringList(output.splitlines())
+        
+        # following lines originally copied docutils.parsers.rst.directives.tables.RSTTable 
+        #~ title, messages = self.make_title()
+        node = nodes.Element()          # anonymous container for parsing
+        self.state.nested_parse(content, self.content_offset, node)
+        #~ if len(node) != 1 or not isinstance(node[0], nodes.table):
+            #~ error = self.state_machine.reporter.error(
+                #~ 'Error parsing content block for the "%s" directive: exactly '
+                #~ 'one table expected.' % self.name, nodes.literal_block(
+                #~ self.block_text, self.block_text), line=self.lineno)
+            #~ return [error]
+        #~ return [x for x in node]
+        return list(node)
+        
+        #~ table_node = node[0]
+        #~ table_node['classes'] += self.options.get('class', [])
+        #~ return [table_node] 
+
+
+
+        
         
 #~ class DjangoTableDirective(InsertInputDirective):
     #~ def get_rst(self):
@@ -589,9 +646,13 @@ def blogref_role(name, rawtext, text, lineno, inliner,options={}, content=[]):
     
     
             
-def configure(filename,globals_dict):
+def configure(filename,globals_dict,settings_module_name='settings'):
     """
-    To be callsed from inside the Sphinx `conf.py`.
+    To be callsed from inside the Sphinx `conf.py` as follows::
+    
+      from djangosite.utils.sphinxconf import configure
+      configure(__file__,globals())
+
     This contains the things that all my Sphinx docs configuration 
     files have in common.
     
@@ -624,14 +685,14 @@ def configure(filename,globals_dict):
     ])
     
     #~ os.environ['DJANGO_SETTINGS_MODULE'] = 'north.docs_settings'
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+    os.environ['DJANGO_SETTINGS_MODULE'] = settings_module_name
     """
     Trigger loading of Djangos model cache in order to avoid side effects that 
     would occur when this happens later while importing one of the models modules.
     """
     from django.conf import settings
-    settings.SITE # must at least access some variable in the settings
-    #~ settings.SITE.startup()
+    #~ settings.SITE # must at least access some variable in the settings
+    settings.SITE.startup()
     globals_dict.update(setup=setup)
 
         
@@ -640,6 +701,7 @@ def setup2(app):
     # also used by `vor/conf.py`
     app.add_directive('complextable', ComplexTableDirective)
     app.add_directive('py2rst', Py2rstDirective)
+    #~ app.add_directive('linotable', InsertTableDirective)
     
 def setup(app):
     """

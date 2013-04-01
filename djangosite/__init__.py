@@ -18,6 +18,9 @@ import datetime
 from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
 
+
+
+
 execfile(os.path.join(os.path.dirname(__file__),'setup_info.py'))
 __version__ = SETUP_INFO['version'] # 
 
@@ -31,6 +34,15 @@ __version__ = SETUP_INFO['version'] #
 __copyright__ = "Copyright (c) 2002-2013 Luc Saffre."
 
 from .utils import AttrDict, ispure
+
+DJANGO_DEFAULT_LANGUAGE = 'en-us'
+
+def assert_django_code(django_code):
+    if '_' in django_code:
+        raise Exception("Invalid language code %r. "
+            "Use values like 'en' or 'en-us'." % django_code)
+        
+
     
 
 #~ class BaseSite(object):

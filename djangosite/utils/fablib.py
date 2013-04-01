@@ -119,7 +119,7 @@ def setup_from_project(main_package=None):
     #~ print env.project_name
 
     env.DOCSDIR = Path(env.ROOTDIR,'docs')
-    env.BUILDDIR = Path(env.DOCSDIR,'.build')
+    #~ env.BUILDDIR = Path(env.DOCSDIR,'.build')
 
     if not env.DOCSDIR.exists():
         raise Exception("You must call 'fab' from a project's root directory.")
@@ -158,6 +158,7 @@ def must_exist(p):
         abort("No such file: %s" % p.absolute())
         
 def rmtree_after_confirm(p):
+    if not p.exists(): return
     must_confirm("OK to remove %s and everything under it?" % p.absolute())
     p.rmtree()
     
@@ -182,8 +183,8 @@ def extract_messages():
     #~ must_confirm(cmd)
     local(cmd)
     
-@task(alias='emd')
-def extract_messages_docs(): 
+@task(alias='emu')
+def extract_messages_userdocs(): 
     """
     Run the Sphinx gettext builder on userdocs.
     """
@@ -200,17 +201,57 @@ def extract_messages_docs():
     #~ args += ['-w',env.DOCSDIR.child('warnings.txt')]
     args += [userdocs]
     args += [userdocs.child("translations")]
-    #~ args += [env.DOCSDIR,env.BUILDDIR]
-    #~ sphinx.main(args)
-    #~ sphinx.main(args)
     cmd = ' '.join(args)
     local(cmd)
     
     
 
+def setup_babel_userdocs(babelcmd):
+    """Create userdocs .po files if necessary."""
+    userdocs = env.ROOTDIR.child('userdocs')
+    locale_dir = userdocs.child('translations')
+    for domain in locale_dir.listdir('*.pot',names_only=True):
+        domain = domain[:-4]
+        for loc in env.languages:
+            po_file = Path(locale_dir,loc,'LC_MESSAGES','%s.po' % domain)
+            mo_file = Path(locale_dir,loc,'LC_MESSAGES','%s.mo' % domain)
+            pot_file = Path(locale_dir,'%s.pot' % domain)
+            if babelcmd == 'init_catalog' and po_file.exists():
+                print "Skip %s because file exists." % po_file
+            #~ elif babelcmd == 'compile_catalog' and not mo_file.needs_update(po_file):
+                #~ print "Skip %s because newer than .po" % mo_file
+            else:
+                args = ["python", "setup.py"]
+                args += [ babelcmd ]
+                args += [ "-l" , loc ]
+                args += [ "--domain", domain]
+                args += [ "-d" , locale_dir ]
+                #~ args += [ "-o" , po_file ]
+                #~ if babelcmd == 'init_catalog':
+                if babelcmd == 'compile_catalog':
+                    args += [ "-i" , po_file ]
+                else:
+                    args += [ "-i" , pot_file ]
+                cmd = ' '.join(args)
+                #~ must_confirm(cmd)
+                local(cmd)
+
+@task(alias='imu')
+def init_catalog_userdocs():
+    setup_babel_userdocs('init_catalog')
+
+@task(alias='umu')
+def update_catalog_userdocs():
+    setup_babel_userdocs('update_catalog')
+
+@task(alias='cmu')
+def compile_catalog_userdocs():
+    setup_babel_userdocs('compile_catalog')
+
+
 @task(alias='im')
-def init_catalog():
-    """Create .po files if necessary."""
+def init_catalog_code():
+    """Create code .po files if necessary."""
     locale_dir = get_locale_dir()
     for loc in env.languages:
         f = locale_dir.child(loc,'LC_MESSAGES','django.po')
@@ -220,8 +261,10 @@ def init_catalog():
             args = ["python", "setup.py"]
             args += [ "init_catalog"]
             args += [ "--domain django"]
-            args += [ "-d" , locale_dir ]
             args += [ "-l" , loc ]
+            args += [ "-d" , locale_dir ]
+            #~ args += [ "-o" , f ]
+            args += [ "-i" , locale_dir.child('django.pot') ]
             cmd = ' '.join(args)
             must_confirm(cmd)
             local(cmd)
@@ -305,47 +348,56 @@ def build_api(*cmdline_args):
     #~ confirm("yes")
     local(cmd)
     
+
+def sphinx_build_html(docs_dir,language=None):
+    args = ['sphinx-build','-b','html']
+    #~ args += cmdline_args
+    #~ args += ['-a'] # all files, not only outdated
+    #~ args += ['-P'] # no postmortem
+    #~ args += ['-Q'] # no output
+    build_dir = docs_dir.child('.build')
+    if language:
+        args += ['-D', 'language=' + language] 
+        args += ['-A', 'language=' + language] # needed in select_lang.html template
+        build_dir = build_dir.child(language)
+    if not env.tolerate_sphinx_warnings:
+        args += ['-W'] # consider warnings as errors
+    #~ args += ['-w'+Path(env.ROOTDIR,'sphinx_doctest_warnings.txt')]
+    args += ['-w',docs_dir.child('warnings.txt')]
+    args += [docs_dir,build_dir]
+    cmd = ' '.join(args)
+    local(cmd)
+    
+    
+@task(alias='userdocs')
+def build_userdocs(): 
+    userdocs_dir = env.ROOTDIR.child('userdocs')
+    for loc in env.languages:
+        sphinx_build_html(userdocs_dir,loc)
+    dest = userdocs_dir.child('.build','index.html')
+    userdocs_dir.child('index.html').copy(dest)
   
     
-@task(alias='html')
-def build_html(): #~ def build_html(*cmdline_args):
+@task(alias='docs')
+def build_docs(): #~ def build_html(*cmdline_args):
     """
     write_readme + build sphinx html docs.
     """
     if env.main_package:
         write_readme()
         #~ write_release_notes()
-    #~ print cmdline_args
-    args = ['sphinx-build','-b','html']
-    #~ args += cmdline_args
-    #~ args += ['-a'] # all files, not only outdated
-    #~ args += ['-P'] # no postmortem
-    #~ args += ['-Q'] # no output
-    if not env.tolerate_sphinx_warnings:
-        args += ['-W'] # consider warnings as errors
-    #~ args += ['-w'+Path(env.ROOTDIR,'sphinx_doctest_warnings.txt')]
-    args += ['-w',env.DOCSDIR.child('warnings.txt')]
-    args += [env.DOCSDIR,env.BUILDDIR]
-    #~ sphinx.main(args)
-    #~ sphinx.main(args)
-    cmd = ' '.join(args)
-    local(cmd)
-    
+    sphinx_build_html(env.DOCSDIR)
+
     src = env.DOCSDIR.child('dl').absolute()
     if src.isdir():
-        #~ from timtools.scripts import sync
-        #~ sync.main(*args)
+        #~ build_dir = env.DOCSDIR.child('.build')
         job = Synchronizer()
         job.toolkit.configure(batch=True)
-        target = env.BUILDDIR.child('dl')
+        #~ target = build_dir.child('dl')
+        target = env.DOCSDIR.child('.build','dl')
         target.mkdir()
         job.addProject(src,target.absolute(),recurse=True)
-        #~ job.run(safely=True,noaction=True)
-        #~ job.run(safely=True)
         job.run(safely=False)
-    #~ else:
-        #~ warn("%s is not a directory" % src)
-    #~ cp -ru  $(TEMPDIR)\\html    
     return 
     
     
@@ -355,7 +407,12 @@ def clean_html(*cmdline_args):
     """
     Delete all built Sphinx files.
     """
-    rmtree_after_confirm(env.BUILDDIR)
+    build_dir = env.DOCSDIR.child('.build')
+    rmtree_after_confirm(build_dir)
+    if env.languages:
+        build_dir = env.ROOTDIR.child('userdocs','.build')
+        rmtree_after_confirm(build_dir)
+    
     
 #~ @task(alias='pub')
 #~ def publish_all():
@@ -372,19 +429,36 @@ def prepare():
     Sames as `fab test html`.
     """
     run_tests()
-    build_html()
+    build_docs()
     
     
     
   
 @task(alias='pub')
-def publish_docs():
+def publish():
     """
     Upload docs to public web server.
     """
+    build_dir = env.DOCSDIR.child('.build')
+    dest_url = env.docs_rsync_dest + ':~/public_html/' + env.project_name
+    publish_docs(build_dir,dest_url)
+    
+    build_dir = env.ROOTDIR.child('userdocs','.build')
+    dest_url = env.docs_rsync_dest + ':~/public_html/' + env.project_name + '-userdocs'
+    if build_dir.exists():
+        publish_docs(build_dir,dest_url)
+    #~ if env.languages:
+        #~ for lang in env.languages:
+    
+
+def publish_docs(build_dir,dest_url):
     #~ from fabric.context_managers import cd
-    cwd = Path(os.getcwd())
-    with lcd(env.BUILDDIR):
+    #~ cwd = Path(os.getcwd())
+    #~ if language:
+        #~ dest_url += '-userdocs/' + language
+        #~ build_dir = build_dir.child(language)
+        
+    with lcd(build_dir):
         #~ env.BUILDDIR.chdir()
         #~ with cd(env.BUILDDIR):
         #~ addr = env.user+'@'+REMOTE.lf
@@ -395,9 +469,9 @@ def publish_docs():
         args += ['--times'] # preserve timestamps
         args += ['--exclude','.doctrees'] 
         args += ['./'] # source
-        args += [env.docs_rsync_dest+':~/public_html/'+env.project_name] # dest
+        args += [ dest_url ] # dest
         cmd = ' '.join(args)
-        puts("%s> %s" % (os.getcwd(), cmd))
+        #~ must_confirm("%s> %s" % (build_dir, cmd))
         #~ confirm("yes")
         local(cmd)
         #~ cwd.chdir()
@@ -450,7 +524,7 @@ def initdb_demo():
     
         
 @task()
-def run_sphinx_doctest():
+def unused_run_sphinx_doctest():
     """
     Run Sphinx doctest tests. 
     Not maintained because i cannot prevent it from also trying to test 
@@ -469,7 +543,8 @@ def run_sphinx_doctest():
     args += ['-Q'] # no output
     if not onlythis:
         args += ['-W'] # consider warnings as errors
-    args += [env.DOCSDIR,env.BUILDDIR]
+    build_dir = env.DOCSDIR.child('.build')
+    args += [env.DOCSDIR,build_dir]
     if onlythis: # test only this document
         args += [ onlythis ] 
     #~ args = ['sphinx-build','-b','doctest',env.DOCSDIR,env.BUILDDIR]
@@ -479,7 +554,7 @@ def run_sphinx_doctest():
     #~ print os.getcwd()
     exitcode = sphinx.main(args)
     if exitcode != 0:
-        output = Path(env.BUILDDIR,'output.txt')
+        output = Path(build_dir,'output.txt')
         #~ if not output.exists():
             #~ abort("Oops: no file %s" % output)
         # six.print_("arguments to spxhinx.main() were",args)
@@ -743,7 +818,6 @@ def run_tests():
     """
     Run all tests
     """
-    #~ run_sphinx_doctest()
     run_django_admin_tests() # t2
     run_django_doctests() # t3
     run_simple_doctests() # t4
@@ -805,25 +879,4 @@ class SetupTest(unittest.TestCase):
         setup_packages.sort()
         self.assertEqual(found_packages,setup_packages)
     
-#~ class MainTestCase(unittest.TestCase):
-    #~ def test_sphinx_doctest(self):
-        #~ exitcode = run_sphinx_doctest()
-        #~ if exitcode != 0:
-            #~ # six.print_("arguments to spxhinx.main() were",args)
-            #~ self.fail("""
-#~ =======================================
-#~ Sphinx doctest failed with exit code %s
-#~ =======================================
-#~ %s""" % (exitcode,Path(env.BUILDDIR,'output.txt').read_file()))
-          
-
-#~ def suite():
-    #~ """
-    #~ This is invoked when ``python setup.py test``.
-    #~ """
-    #~ loader = unittest.TestLoader()
-    #~ suite = loader.loadTestsFromTestCase(MainTestCase)
-    #~ return suite
-
-
 

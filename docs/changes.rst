@@ -7,6 +7,12 @@ Changes in `djangosite`
 Version 0.1.2 (in development)
 ==============================
 
+- :mod:`djangosite.utils.fablib` now supports an optional 
+  internationalized "user manual" per project.
+  See :blogref:`20130401`.
+  
+- Changes in :mod:`djangosite.utils.sphinxconf`.
+
 - Adapted copyright headers. 
   Replaced the `/releases` directory by a single file `/changes.rst`.
   :mod:`djangosite.utils.fablib` no longer insists on calling `write_release_notes`.
