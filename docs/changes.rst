@@ -13,6 +13,9 @@ Version 0.1.2 (in development)
   
 - Changes in :mod:`djangosite.utils.sphinxconf`.
 
+- Moved the set_language function from north to djangosite because 
+  it is used in :mod:`djangosite.utils.sphinxconf`.
+
 - Adapted copyright headers. 
   Replaced the `/releases` directory by a single file `/changes.rst`.
   :mod:`djangosite.utils.fablib` no longer insists on calling `write_release_notes`.
