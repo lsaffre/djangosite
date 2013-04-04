@@ -7,6 +7,7 @@
 
 from __future__ import unicode_literals
 
+import sys
 import types
 import datetime
 from dateutil import parser as dateparser
@@ -176,10 +177,58 @@ def confirm(prompt=None):
 
 
 
-#~ def _test():
-    #~ import doctest
-    #~ doctest.testmod()
+def indentation(s):
+    r"""
+    Examples:
+    
+    >>> from djangosite.utils import indentation
+    >>> indentation("")
+    0
+    >>> indentation("foo")
+    0
+    >>> indentation(" foo")
+    1
+    
+    """
+    return len(s)-len(s.lstrip())
 
-#~ if __name__ == "__main__":
-    #~ _test()
 
+def unindent(s):
+    r"""
+    Reduces indentation of a docstring to the minimum.
+    Empty lines don't count.
+    
+    Examples:
+    
+    >>> from djangosite.utils import unindent
+    >>> unindent('')
+    u''
+    >>> print unindent('''
+    ...   foo
+    ...     foo
+    ... ''')
+    <BLANKLINE>
+    foo
+      foo
+    >>> print unindent('''
+    ... foo
+    ...     foo
+    ... ''')
+    <BLANKLINE>
+    foo
+        foo
+    """
+    lines = s.splitlines()
+    if len(lines) == 0: 
+        return s.lstrip()
+    mini = sys.maxint
+    for ln in lines:
+        ln = ln.rstrip()
+        if len(ln) > 0: 
+            mini = min(mini,indentation(ln))
+            if mini == 0:
+                break
+    if mini == sys.maxint: 
+        return s
+    return '\n'.join([ln[mini:] for ln in lines])
+    

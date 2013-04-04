@@ -57,8 +57,9 @@ and the `Lino framework <http://www.lino-framework.org>`__.""",
 SETUP_INFO.update(packages = [str(n) for n in """
 djangosite
 djangosite.management
-djangosite.utils
 djangosite.management.commands
+djangosite.utils
+djangosite.utils.sphinxconf
 """.splitlines() if n])
   
 

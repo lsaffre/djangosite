@@ -26,16 +26,16 @@ from unipath import Path
 #~ from django.conf import settings
 
 #~ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.utils.encoding import force_unicode
 
 from docutils import nodes, utils
 from docutils import statemachine
 from docutils.parsers.rst import directives
 from docutils.parsers.rst import roles
 from sphinx.util.compat import Directive
-from sphinx.util.nodes import split_explicit_title
+from sphinx.util.nodes import nested_parse_with_titles
 
 from djangosite.utils import rstgen
-from djangosite.utils import i2d
 
 #~ class ScreenshotDirective(directives.images.Image):
     #~ """
@@ -150,33 +150,7 @@ def autodoc_add_srcref(app,what,name,obj,options,lines):
             #~ lines.insert(0,'(We also recommend to read the source code at :srcref:`/%s.py`)' % name.replace('.','/'))
     
 
-import jinja2
 
-templates = dict()
-templates['calendar.rst'] = """
-====
-{{year}}
-====
-
-{{intro}}
-
-.. |br| raw:: html
-
-   <br />   
-
-.. |sp| raw:: html
-
-   <span style="color:white;">00</span>
-
-{{calendar}}
-
-
-"""
-
-JINJA_ENV = jinja2.Environment(
-    #~ extensions=['jinja2.ext.i18n'],
-    loader=jinja2.DictLoader(templates))
-    
     
     
 
@@ -186,67 +160,28 @@ class InsertInputDirective(Directive):
     Base class for directives that work by generating rst markup
     to be forwarded to `state_machine.insert_input()`.
     """
+    titles_allowed = False
     has_content = True
     debug = False
     def get_rst(self):
         raise NotImplementedErrro()
         
-    def run(self):
-        out = self.get_rst()
-        env = self.state.document.settings.env
-        if self.debug:
-            print env.docname
-            print '-' * 50
-            print out
-            print '-' * 50
-            #~ sys.exit()
-        self.state_machine.insert_input(out.splitlines(),out)
-        return []
+    #~ def run(self):
+        #~ out = self.get_rst()
+        #~ env = self.state.document.settings.env
+        #~ if self.debug:
+            #~ print env.docname
+            #~ print '-' * 50
+            #~ print out
+            #~ print '-' * 50
+        #~ self.state_machine.insert_input(out.splitlines(),out)
+        #~ return []
         
     #~ class InsertTableDirective(InsertInputDirective):
-
-class Py2rstDirective(Directive):
-    """
-    Run a Python code block and interpret the output as if it 
-    were rst source.
-    """
-    has_content = True
-    debug = False
-    #~ def get_rst(self):
-        #~ return self.output_from_exec('\n'.join(self.content))
-        
-    def output_from_exec(self,code):
-        old = sys.stdout
-        buffer = StringIO()
-        sys.stdout = buffer
-        context = dict()
-        lng = self.state.document.settings.env.config.language
-        from djangosite.dbutils import set_language
-        set_language(lng)
-        from django.conf import settings
-        context = dict(settings=settings)
-        context.update(settings.SITE.modules)
-        context.update(self=self)
-        context.update(env=self.state.document.settings.env)
-        exec(code,context)
-        sys.stdout = old
-        s = buffer.getvalue()
-        #~ print 20130331, type(s)
-        return s
-        
-
+    
     def run(self):
-        if not self.content:
-            warning = self.state_machine.reporter.warning(
-                'Content block expected for the "%s" directive; none found.'
-                % self.name, nodes.literal_block(
-                self.block_text, self.block_text), line=self.lineno)
-            return [warning]
-            
-        #~ raise Exception("20130331 %r" % self.content)
-        code = '\n'.join(self.content)
-        
-        output = self.output_from_exec(code)
+        self.env = self.state.document.settings.env
+        output = self.get_rst()
         #~ output = output.decode('utf-8')
         
         if self.debug:
@@ -257,10 +192,23 @@ class Py2rstDirective(Directive):
         
         content = statemachine.StringList(output.splitlines())
         
-        # following lines originally copied docutils.parsers.rst.directives.tables.RSTTable 
+        if self.titles_allowed:
+            node = nodes.section()
+            # necessary so that the child nodes get the right source/line set
+            node.document = self.state.document
+            nested_parse_with_titles(self.state, content, node)
+        else:
+            node = nodes.paragraph()
+            node.document = self.state.document
+            self.state.nested_parse(content, self.content_offset, node)
+
+
+        
+        # following lines originally copied from 
+        # docutils.parsers.rst.directives.tables.RSTTable 
         #~ title, messages = self.make_title()
-        node = nodes.Element()          # anonymous container for parsing
-        self.state.nested_parse(content, self.content_offset, node)
+        #~ node = nodes.Element()          # anonymous container for parsing
+        #~ self.state.nested_parse(content, self.content_offset, node)
         #~ if len(node) != 1 or not isinstance(node[0], nodes.table):
             #~ error = self.state_machine.reporter.error(
                 #~ 'Error parsing content block for the "%s" directive: exactly '
@@ -274,6 +222,50 @@ class Py2rstDirective(Directive):
         #~ table_node['classes'] += self.options.get('class', [])
         #~ return [table_node] 
 
+
+    
+
+class Py2rstDirective(InsertInputDirective):
+    """
+    Run a Python code block and interpret the output as if it 
+    were rst source.
+    """
+    has_content = True
+    debug = False
+    #~ def get_rst(self):
+        #~ return self.output_from_exec('\n'.join(self.content))
+        
+    def get_rst(self):
+        if not self.content:
+            warning = self.state_machine.reporter.warning(
+                'Content block expected for the "%s" directive; none found.'
+                % self.name, nodes.literal_block(
+                self.block_text, self.block_text), line=self.lineno)
+            return [warning]
+            
+        #~ raise Exception("20130331 %r" % self.content)
+        code = '\n'.join(self.content)
+        return self.output_from_exec(code)        
+        
+    def output_from_exec(self,code):
+        from djangosite.dbutils import set_language
+        from django.conf import settings
+        old = sys.stdout
+        buffer = StringIO()
+        sys.stdout = buffer
+        context = dict()
+        lng = self.state.document.settings.env.config.language
+        set_language(lng)
+        context = dict(settings=settings)
+        context.update(settings.SITE.modules)
+        context.update(self=self)
+        context.update(env=self.state.document.settings.env)
+        exec(code,context)
+        sys.stdout = old
+        s = buffer.getvalue()
+        #~ print 20130331, type(s)
+        return s
+        
 
 
         
@@ -390,261 +382,6 @@ class ComplexTableDirective(InsertInputDirective):
         return rstgen.table([""] * colcount,rows,show_headers=False)
 
 
-
-
-
-
-
-
-class Year(object):
-    """
-    A :class:`Year` instance is created for each 
-    `blogger_year` directive.
-    """
-    #~ _instances = dict()
-    #~ def __init__(self,env,blogname,starting_year):
-    #~ def __init__(self,env,blogname,year):
-    def __init__(self,env):
-        """
-        :docname: the name of the document containing the `main_blogindex` directive
-        :starting_year: all years before this year will be pruned
-        """
-        
-        blogname, year, index = env.docname.rsplit('/',3)
-        if index != 'index':
-            raise Exception("Allowed only in /<blogname>/<year>/index.rst files")
-        self.year = int(year)
-        
-        #~ print "20130113 Year.__init__", blogname, self.year
-        #~ self.blogname = blogname
-        self.days = set()
-        #~ self.years = set()
-        #~ self.starting_year = int(starting_year)
-        top = os.path.dirname(env.doc2path(env.docname))
-        #~ print top
-        for (dirpath, dirnames, filenames) in os.walk(top):
-            del dirnames[:] # don't descend another level
-            #~ unused, year = dirpath.rsplit(os.path.sep,2)
-            #~ year = int(year)
-            #~ assert year in self.years
-            for fn in filenames:
-                if len(fn) == 8 and fn.endswith('.rst'):
-                    d = docname_to_day(self.year,fn[:-4])
-                    self.days.add(d)
-                    #~ self.years.add(s)
-                        
-        #~ self.years = sorted(self.years)
-        if not hasattr(env,'blog_instances'):
-            env.blog_instances = dict()
-        years = env.blog_instances.setdefault(blogname,dict())
-        years[self.year] = self
-                        
-        
-        
-"""
-docs/conf.py
-docs/blog/index.rst --> contains a main_blogindex directive (hidden toctree)
-docs/blog/2013/index.rst --> contains a blogger_year directive (calendar)
-docs/blog/2013/0107.rst --> a blog entry
-docs/blog/2010/0107.rst
-
-"""
-        
-   
-    
-class MainBlogIndexDirective(InsertInputDirective):
-    """
-    Directive to insert a blog master archive page toctree
-    """
-    #~ required_arguments = 1
-  
-    def get_rst(self):
-        #~ print 'MainBlogIndexDirective.get_rst()'
-        env = self.state.document.settings.env
-        intro = '\n'.join(self.content)
-        #~ dn  = os.path.dirname(env.doc2path(env.docname))
-        #~ year = os.path.split(dn)[-1]
-        blogname, index = env.docname.rsplit('/',2)
-        if index != 'index':
-            raise Exception("Allowed only inside index.rst file")
-        #~ blog = Blog.get_or_create(env,blogname,self.arguments[0])
-        text = intro
-        text += """
-
-.. toctree::
-    :maxdepth: 2
-
-"""
-        years = list(env.blog_instances.get(blogname).values())
-        def f(a,b): 
-            return cmp(a.year,b.year)
-        years.sort(f)
-        for blogger_year in years:
-        #~ for year in blog.years:
-            text += """
-    %d/index""" % blogger_year.year
-  
-        text += "\n"
-        #~ print text
-        return text
-   
-   
-   
-
-class YearBlogIndexDirective(InsertInputDirective):
-    """
-    Directive to insert a year's calendar
-    """
-    #~ required_arguments = 1
-    
-      
-    def get_rst(self):
-        from djangosite.dbutils import monthname
-  
-        #~ year = self.arguments[0]
-        env = self.state.document.settings.env
-        today = datetime.date.today()
-        
-        #~ dn  = os.path.dirname(env.doc2path(env.docname))
-        #~ year = os.path.split(dn)[-1]
-        blogger_year = Year(env)
-        #~ blog = Blog.get_or_create(env,blogname)
-        
-        tpl = JINJA_ENV.get_template('calendar.rst')
-        
-        intro = '\n'.join(self.content)
-        cal = calendar.Calendar()
-        text = ''
-        
-        for month in range(1,13):
-            
-            text += """        
-            
-.. |M%02d| replace::  **%s**""" % (month,monthname(month))
-            
-            weeknum = None
-            #~ text += "\n  |br| Mo Tu We Th Fr Sa Su "
-            for day in cal.itermonthdates(blogger_year.year,month):
-                iso_year,iso_week,iso_day = day.isocalendar()
-                if iso_week != weeknum:
-                    text += "\n  |br|"
-                    weeknum = iso_week
-                if day.month == month:
-                    label = "%02d" % day.day
-                    docname = "%02d%02d" % (day.month,day.day)
-                    if blogger_year.year == iso_year and day in blogger_year.days:
-                        text += " :doc:`%s <%s>` " % (label,docname)
-                    elif day > today:
-                        text += ' |sp| '
-                    else:
-                        text += ' ' + label + ' '
-                else:
-                    text += ' |sp| '
-                
-            
-            
-        text += """
-        
-===== ===== =====
-|M01| |M02| |M03|
-|M04| |M05| |M06|
-|M07| |M08| |M09|
-|M10| |M11| |M12|
-===== ===== =====
-        
-        """
-        
-        text += """
-
-.. toctree::
-    :hidden:
-    :maxdepth: 2
-    
-"""
-        
-        days = sorted(blogger_year.days)
-        for day in days:
-            text += """
-    %02d%02d""" % (day.month,day.day)
-        
-        return tpl.render(
-            calendar=text,
-            intro=intro,
-            year=blogger_year.year,
-            days=blogger_year.days)
-        
-
-def docname_to_day(year,s):
-    #~ print fn
-    month = int(s[:2])
-    day = int(s[2:])
-    return datetime.date(year,month,day)
-  
-  
-#~ class ChangedDirective(InsertInputDirective):
-  
-    #~ def get_rst(self):
-        #~ env = self.state.document.settings.env
-        #~ blogname, year, monthday = env.docname.rsplit('/',3)
-        #~ # raise Exception("Allowed only in blog entries")
-        
-        #~ year = int(year)
-        #~ day = docname_to_day(year,monthname)
-        
-        #~ if not hasattr(env,'changed_items'):
-            #~ env.changed_items = dict()
-        #~ env.changed_items
-        #~ for item in self.content:
-            #~ entries = env.changed_items.setdefault(item,dict())
-            #~ entries.setdefault(env.docname)
-            
-            
-
-def get_blog_url(today):
-    blogger_project = "lino"
-    url_root = "http://code.google.com/p/%s/source/browse/" % blogger_project
-    parts = ('docs','blog',str(today.year),today.strftime("%m%d.rst"))
-    url = url_root + "/".join(parts)
-    return url
-
-
-def blogref_role(name, rawtext, text, lineno, inliner,options={}, content=[]):
-    """
-    Inserts a reference to the blog entry of the specified date.
-    
-    Instead of writing ``:doc:`/blog/2011/0406```
-    it is better to write ``:blogref:`20110406```
-    because the latter works between Sphinx trees and also supports archived blog entries.
-    
-    """
-    # thanks to http://docutils.sourceforge.net/docs/howto/rst-roles.html
-    # this code originally from roles.pep_reference_role
-    #~ print 20130315, rawtext, text, utils.unescape(text)
-    has_explicit_title, title, target = split_explicit_title(text)
-    try:
-        date = i2d(int(target))
-    except ValueError:
-        msg = inliner.reporter.error(
-            'Invalid text %r: must be an integer date of style "20130315" .'
-            % text, line=lineno)
-        prb = inliner.problematic(rawtext, rawtext, msg)
-        return [prb], [msg]
-    #~ print repr(env)
-    #~ raise Exception(20130315)
-    #~ ref = inliner.document.settings.pep_base_url
-           #~ + inliner.document.settings.pep_file_url_template % date)
-    roles.set_classes(options)
-    #~ from django.conf import settings
-    #~ shown_text = settings.SITE.dtos(date)
-    env = inliner.document.settings.env        
-    if not has_explicit_title:
-        title = date.strftime(env.settings.get('today_fmt','%Y-%m-%d'))
-    title = utils.unescape(title)
-    return [nodes.reference(rawtext, title, 
-                            refuri=get_blog_url(date),
-                            **options)], []
-    
-    
             
 def configure(filename,globals_dict,settings_module_name='settings'):
     """
@@ -716,27 +453,18 @@ def setup(app):
       #~ indextemplate='pair: %s; model')
     #~ app.add_object_type(directivename='field',rolename='field',
       #~ indextemplate='pair: %s; field')
-    app.add_object_type(directivename='table',rolename='table',
-      indextemplate='pair: %s; table')
     app.add_object_type(directivename='screenshot',rolename='screen',
       indextemplate='pair: %s; screenshot')
     app.add_object_type(directivename='modattr',rolename='modattr',
       indextemplate='pair: %s; model attribute')
-    app.add_object_type(directivename='model',rolename='model',
-      indextemplate='pair: %s; model')
+    app.add_object_type(directivename='model',rolename='model',indextemplate='pair: %s; model')
     #app.connect('build-finished', handle_finished)
     
     app.connect('autodoc-skip-member',autodoc_skip_member)
     app.connect('autodoc-process-docstring', autodoc_add_srcref)
-
-    #~ app.add_node(blogindex)
-    #~ app.add_node(blogindex,html=(visit_blogindex,depart_blogindex))
-    #~ app.add_directive('changed', ChangedDirective)
-    app.add_directive('blogger_year', YearBlogIndexDirective)
-    app.add_directive('blogger_index', MainBlogIndexDirective)
-    app.add_directive('textimage', TextImageDirective)
-    roles.register_canonical_role('blogref', blogref_role)
     
+    app.add_directive('textimage', TextImageDirective)
+
     setup2(app)
     #~ app.add_directive('screenshot', ScreenshotDirective)
     #~ app.add_config_value('screenshots_root', '/screenshots/', 'html')

@@ -109,6 +109,8 @@ class Site(object):
     
     #~ source_name = None  # os.path.split(source_dir)[-1]
     
+    userdocs_prefix = ''
+    
     project_name = None
     """
     Read-only.
