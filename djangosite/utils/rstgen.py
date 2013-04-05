@@ -304,6 +304,30 @@ def table(headers,rows,**kw):
     
     
     
+def ul(items):
+    r"""
+    >>> print ul([
+    ...   "A first item\nwith several lines of text.",
+    ...   "Another item with a nested paragraph:\n\n  Like this.\n\nWow."])
+    <BLANKLINE>
+    - A first item
+      with several lines of text.
+    <BLANKLINE>
+    - Another item with a nested paragraph:
+    <BLANKLINE>
+        Like this.
+    <BLANKLINE>
+      Wow.
+    <BLANKLINE>
+
+    """
+    s = ""
+    for i in items:
+        text = '\n  '.join(i.splitlines())
+        s += "\n- %s\n" % text
+    return s
+    
+    
     
 def _test():
     import doctest

@@ -34,8 +34,12 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst import roles
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
+from sphinx.util.nodes import split_explicit_title
 
 from djangosite.utils import rstgen
+
+from djangosite.utils import i2d
+
 
 #~ class ScreenshotDirective(directives.images.Image):
     #~ """
@@ -163,6 +167,8 @@ class InsertInputDirective(Directive):
     titles_allowed = False
     has_content = True
     debug = False
+    raw_insert = False
+    
     def get_rst(self):
         raise NotImplementedErrro()
         
@@ -191,6 +197,12 @@ class InsertInputDirective(Directive):
             print '-' * 50
         
         content = statemachine.StringList(output.splitlines())
+        
+        if self.raw_insert:
+          
+            self.state_machine.insert_input(content,output)
+            return []
+            
         
         if self.titles_allowed:
             node = nodes.section()
@@ -382,7 +394,62 @@ class ComplexTableDirective(InsertInputDirective):
         return rstgen.table([""] * colcount,rows,show_headers=False)
 
 
-            
+
+
+def get_blog_url(today):
+    blogger_project = "lino"
+    url_root = "http://code.google.com/p/%s/source/browse/" % blogger_project
+    parts = ('docs','blog',str(today.year),today.strftime("%m%d.rst"))
+    url = url_root + "/".join(parts)
+    return url
+
+
+def blogref_role(name, rawtext, text, lineno, inliner,options={}, content=[]):
+    """
+    Inserts a reference to the blog entry of the specified date.
+    
+    Instead of writing ``:doc:`/blog/2011/0406```
+    it is better to write ``:blogref:`20110406```
+    because the latter works between Sphinx trees and also supports archived blog entries.
+    
+    """
+    # thanks to http://docutils.sourceforge.net/docs/howto/rst-roles.html
+    # this code originally from roles.pep_reference_role
+    #~ print 20130315, rawtext, text, utils.unescape(text)
+    has_explicit_title, title, target = split_explicit_title(text)
+    try:
+        date = i2d(int(target))
+    except ValueError:
+        msg = inliner.reporter.error(
+            'Invalid text %r: must be an integer date of style "20130315" .'
+            % text, line=lineno)
+        prb = inliner.problematic(rawtext, rawtext, msg)
+        return [prb], [msg]
+    #~ print repr(env)
+    #~ raise Exception(20130315)
+    #~ ref = inliner.document.settings.pep_base_url
+           #~ + inliner.document.settings.pep_file_url_template % date)
+    roles.set_classes(options)
+    #~ from django.conf import settings
+    #~ shown_text = settings.SITE.dtos(date)
+    env = inliner.document.settings.env        
+    if not has_explicit_title:
+        title = date.strftime(env.settings.get('today_fmt','%Y-%m-%d'))
+    title = utils.unescape(title)
+    return [nodes.reference(rawtext, title, 
+                            refuri=get_blog_url(date),
+                            **options)], []
+    
+    
+
+
+
+
+
+
+
+
+
 def configure(filename,globals_dict,settings_module_name='settings'):
     """
     To be callsed from inside the Sphinx `conf.py` as follows::
@@ -400,10 +467,12 @@ def configure(filename,globals_dict,settings_module_name='settings'):
     HGWORK = DOCSDIR.ancestor(2)
     intersphinx_mapping = dict()
     for n in ('site','north','lino','welfare'):
-    #~ for n in ('site','north','welfare'):
         p = Path(HGWORK,n,'docs','.build','objects.inv')
         if p.exists():
             intersphinx_mapping[n] = ('http://%s.lino-framework.org' % n,p)
+    p = Path(HGWORK,'welfare','userdocs','.build','fr','objects.inv')
+    if p.exists():
+        intersphinx_mapping[n] = ('http://welfare-user.lino-framework.org',p)
     #~ intersphinx_mapping.update(django = (
         #~ 'http://docs.djangoproject.com/en/dev/', 
         #~ 'http://docs.djangoproject.com/en/dev/_objects/'))
@@ -465,6 +534,8 @@ def setup(app):
     
     app.add_directive('textimage', TextImageDirective)
 
+    roles.register_canonical_role('blogref', blogref_role)
+    
     setup2(app)
     #~ app.add_directive('screenshot', ScreenshotDirective)
     #~ app.add_config_value('screenshots_root', '/screenshots/', 'html')

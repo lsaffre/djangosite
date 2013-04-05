@@ -5,7 +5,7 @@ To use a Django Site, you do something like the following *at the beginning*
 of your :xfile:`settings.py` file::
 
   from djangosite import Site
-  SITE = Site(__file__,globals(),'myapp1','myapp2')
+  SITE = Site(globals(),'myapp1','myapp2')
   
 That is, you import the :class:`Site` class (or some subclass, see later), 
 then assign an instance of it to a setting variable whose 

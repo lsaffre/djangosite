@@ -2,7 +2,6 @@
 """
 This defines the :class:`Site` class.
 
-
 :copyright: Copyright 2002-2013 by Luc Saffre.
 :license: BSD, see LICENSE for more details.
 """
@@ -17,8 +16,6 @@ import datetime
 
 from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
-
-
 
 
 execfile(os.path.join(os.path.dirname(__file__),'setup_info.py'))
@@ -164,19 +161,37 @@ class Site(object):
     """
     
     def __init__(self,*args,**kwargs):
+        """
+        Every djangosite application calls this once it's 
+        :file:`settings.py` file.
+        See :doc:`/usage`.
+        """
+        #~ print "20130404 ok?"
         self.init_before_local(*args)
         if not kwargs.pop('no_local',False):
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
+        #~ print "20130404 ok"
     
-    def init_before_local(self,project_file,django_settings,*user_apps):
+    #~ def init_before_local(self,project_file,django_settings,*user_apps):
+    def init_before_local(self,settings_globals,*user_apps):
         """
-        If your project_dir contains no :file:`models.py`, 
+        If your `project_dir` contains no :file:`models.py`, 
         but *does* contain a `fixtures` subdir, 
         then djangosite automatically adds this as "local fixtures directory" 
         to Django's `FIXTURE_DIRS`.
         """
+        if not isinstance(settings_globals,dict):
+            raise Exception("""
+            Oops, the first argument when instantiating a %s 
+            must be your settings.py file's `globals()`
+            and not %r
+            """ % (self.__class__.__name__,settings_globals))
+        #~ self.django_settings = dict()
+        #~ self.django_settings.update(settings_globals)
+        self.django_settings = settings_globals
+        project_file = settings_globals['__file__']
         
         #~ memory_db = kwargs.pop('memory_db',False)
         #~ nolocal = kwargs.pop('nolocal',False)
@@ -194,20 +209,18 @@ class Site(object):
         #~ self._starting_up = False
         self._startup_done = False
         #~ self._response = None
-        self.django_settings = django_settings
-        
         self.startup_time = datetime.datetime.now()
         
         dbname  = join(self.project_dir,'default.db')
         #~ if memory_db:
             #~ dbname  = ':memory:'
-        django_settings.update(DATABASES = {
+        self.django_settings.update(DATABASES = {
               'default': {
                   'ENGINE': 'django.db.backends.sqlite3',
                   'NAME': dbname
               }
             })
-        django_settings.update(INSTALLED_APPS =
+        self.django_settings.update(INSTALLED_APPS =
             tuple(user_apps+('djangosite',)))
         
         #~ django_settings.update(FORMAT_MODULE_PATH = 'djangosite.formats')
@@ -240,7 +253,6 @@ class Site(object):
             
         
     
-            
         
     def update_settings(self,**kw):  
         """
@@ -255,13 +267,13 @@ class Site(object):
         Same as :meth:`update_settings`,        
         but raises an exception if a setting already exists.
         
-        TODO: Currently this test is deactivated.
-        
+        TODO: Currently this exception is deactivated.
         Because it doesn't work as expected. 
-        For some reason it raises a false exception when 
+        For some reason 
+        (maybe because settings is being imported twice on a devserver)
+        it raises a false exception when 
         :meth:`lino.ui.Site.override_defaults` 
-        tries to use it `MIDDLEWARE_CLASSES`.
-        Maybe because settings is being imported twice on a devserver...
+        tries to use it on `MIDDLEWARE_CLASSES`...
         
         """
         if False:
@@ -269,6 +281,10 @@ class Site(object):
                 if self.django_settings.has_key(name):
                     raise Exception("Tried to define existing Django setting %s" % name)
         self.django_settings.update(kwargs)
+        
+    def get_plugins(self):
+        "not yet used"
+        return []
         
     def startup(self):
         """
@@ -287,6 +303,15 @@ class Site(object):
             
         self._startup_done = True
         
+        try:
+            self.plugins = tuple(self.get_plugins())
+        except Exception,e:
+            import traceback
+            traceback.print_exc(e)
+        
+        for p in self.plugins:
+            p.before_site_startup(self)
+            
         self.do_site_startup()
         
     def do_site_startup(self):

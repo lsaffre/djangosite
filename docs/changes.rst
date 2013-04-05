@@ -7,6 +7,9 @@ Changes in `djangosite`
 Version 0.1.2 (in development)
 ==============================
 
+- Users must adapt their `settings.py` files.
+  See :blogref:`20130405`.
+
 - :mod:`djangosite.utils.fablib` now supports an optional 
   internationalized "user manual" per project.
   See :blogref:`20130401`.
