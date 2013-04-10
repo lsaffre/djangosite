@@ -7,7 +7,10 @@ Changes in `djangosite`
 Version 0.1.2 (in development)
 ==============================
 
-- Users must adapt their `settings.py` files.
+- Instantiating a `djangosite.Site` now sets a trivial default value 
+  for `SECRET_KEY`. See :blogref:`20130409`.
+
+- Existing instances must adapt their local `settings.py` files.
   See :blogref:`20130405`.
 
 - :mod:`djangosite.utils.fablib` now supports an optional 

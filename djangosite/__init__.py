@@ -30,7 +30,7 @@ __version__ = SETUP_INFO['version'] #
 
 __copyright__ = "Copyright (c) 2002-2013 Luc Saffre."
 
-from .utils import AttrDict, ispure
+from atelier.utils import AttrDict, ispure
 
 DJANGO_DEFAULT_LANGUAGE = 'en-us'
 
@@ -222,6 +222,10 @@ class Site(object):
             })
         self.django_settings.update(INSTALLED_APPS =
             tuple(user_apps+('djangosite',)))
+        
+        self.django_settings.update(SECRET_KEY="20227")
+        # see :djangoticket:`20227`
+
         
         #~ django_settings.update(FORMAT_MODULE_PATH = 'djangosite.formats')
         #~ django_settings.update(LONG_DATE_FORMAT = "l, j F Y")

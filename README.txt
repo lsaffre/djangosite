@@ -7,7 +7,7 @@ A server startup signal for Django
 Description
 -----------
 
-`django-site` adds to a Django project the concept of 
+`djangosite` adds to a Django project the concept of 
 "the application running on this site".
 It defines a `Site` class
 and expects an instance of it in ``settings.SITE``.
@@ -22,11 +22,11 @@ More about this vocabulary problem in
 `What is a software application? 
 <http://site.lino-framework.org/application.html>`__.
 
-An immediate benefit of `django-site` is to implement a
+An immediate benefit of `djangosite` is to implement a
 `server startup signal for Django 
 <http://site.lino-framework.org/startup_signal.html>`__
 
-`django-site` is also the foundation for projects like 
+`djangosite` is also the foundation for projects like 
 `North <http://north.lino-framework.org>`__
 and the `Lino framework <http://www.lino-framework.org>`__.
 

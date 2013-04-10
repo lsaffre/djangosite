@@ -12,8 +12,8 @@
 # serve to show the default.
 
 import sys, os
-from djangosite.utils.sphinxconf import configure
-configure(__file__,globals())
+from atelier.sphinxconf import configure
+configure(globals(),'settings')
 
 #~ from unipath import Path
 #~ DOCSDIR = Path(__file__).parent.absolute()

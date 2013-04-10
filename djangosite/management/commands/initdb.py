@@ -38,7 +38,7 @@ from django.db import models
 
 
 from djangosite.dbutils import app_labels
-from djangosite.utils import confirm
+from atelier.utils import confirm
 
 USE_SQLDELETE = True
 
