@@ -17,3 +17,6 @@ class BasicTests(BaseTestCase):
     def test_float2decimal(self): self.run_docs_django_tests('tested.float2decimal.settings')
     def test_integer_pk(self): self.run_docs_django_tests('tested.integer_pk.settings')
 
+class PackagesTests(BaseTestCase):
+    def test_packages(self): self.run_packages_test(SETUP_INFO['packages'])
+

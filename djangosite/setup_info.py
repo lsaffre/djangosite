@@ -60,7 +60,6 @@ djangosite
 djangosite.management
 djangosite.management.commands
 djangosite.utils
-djangosite.utils.sphinxconf
 """.splitlines() if n])
   
 
