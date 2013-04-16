@@ -1,7 +1,7 @@
 """
 Extensions to the `django.test` package:
 :class:`TestCase` for unit tests
-and :class:`DocTest` to be used for testing Sphinx docs.
+and :class:`AutoTestCase`.
 
 :copyright: Copyright 2011-2013 by Luc Saffre.
 :license: BSD, see LICENSE for more details.
@@ -28,61 +28,14 @@ from django.utils.importlib import import_module
 from django.test import TestCase as DjangoTestCase
 from django.db import connection, reset_queries
 
-from django.dispatch import Signal
-testcase_setup = Signal()
-"""
-Emitted each time `djangosite.utils.TestCase.setUp` is called.
-lino.ui.Site uses this signal to reset its SiteConfig cache.
-It is necessary because (afaics) the Django test runner doesn't 
-send a 'connected' signal when it restores the database to a 
-virgin state before running a new test case.
-"""
+from djangosite.utils import testcase_setup
 
+#~ from atelier.test import SubProcessTestCase
+
+#~ class TestCase(DjangoTestCase,SubProcessTestCase):
 class TestCase(DjangoTestCase):
     """
     Adds some extensions to the Django TestCase.
-    
-    This is to increase lisibility of your module 
-    when you want to group several separate tests into a 
-    single fixture load. 
-    You gain 4 leading spaces for every line.
-    
-    The Django testrunner creates and initializes a new database 
-    for every TestCase instance.
-    
-    Using `django.test`::
-
-      from django.test import TestCase
-      class DemoTest(TestCase):
-          fixtures = 'std props demo'.split()
-                  
-          def test01(self):
-             ...
-              
-          def test02(self):
-             ...
-         
-    Using `djangosite.utils.test`::
-    
-      from djangosite.utils.test import TestCase
-      class DemoTest(TestCase):
-          fixtures = 'std props demo'.split()
-                  
-      def test01(self):
-         ...
-          
-      def test02(self):
-         ...
-          
-    
-    If you instantiate a `djangosite.utils.test.TestCase` in your test module, 
-    it will automatically inspect the globel namespace of your module and 
-    add all callables whose name begins with "test" to it's test suite.
-    
-    Since all 'testXX' functions are run in a same database, their execution 
-    order may be important: keep in mind that they are executed in 
-    *alphabetical* order, and that database changes remain for the whole 
-    sequence.
     
     """
     
@@ -108,36 +61,13 @@ class TestCase(DjangoTestCase):
     
     """
     
-    #~ def runTest(self,*args,**kw):
-        #~ # super(TestCase,self).runTest(*args,**kw)
-        #~ m = import_module(self.__module__)
-        #~ for k,v in m.__dict__.items():
-            #~ if k.startswith('test') and callable(v):
-                #~ # print 20110301, k,v
-                #~ # self.__class__.__dict__[k] = v
-                #~ # setattr(self.__class__,k,v)
-                #~ if not getattr(v,'skip',False):
-                    #~ v(self)
                   
     def setUp(self):
         settings.SITE.never_build_site_cache = self.never_build_site_cache
         #~ settings.SITE.remote_user_header = 'REMOTE_USER'
-        super(TestCase,self).setUp()
         testcase_setup.send(self)
+        super(TestCase,self).setUp()
         
-    def test_them_all(self):
-        """
-        This method will be executed automatically since its 
-        name starts with ``test_``.
-        """
-        m = import_module(self.defining_module or self.__module__)
-        #~ for k,v in m.__dict__.items():
-        for k in sorted(m.__dict__.keys()):
-            v = m.__dict__.get(k)
-            if k.startswith('test') and callable(v):
-                if not getattr(v,'skip',False):
-                    v(self)
-                    
                   
     def check_json_result(self,response,expected_keys=None,msg=None):
         """
@@ -265,67 +195,81 @@ class NoAuthTestCase(TestCase):
             return super(NoAuthTestCase,self).__call__(*args,**kw)
     
         
-class SubProcessTestCase(unittest.TestCase):
-    default_environ = dict()
-    inheritable_envvars = ('VIRTUAL_ENV','PYTHONPATH','PATH')
-    maxDiff = None
-    
-    def run_packages_test(self,declared_packages):
-        """
-        Checks whether the `packages` parameter to setup seems correct.
-        """
-        found_packages = find_packages()
-        found_packages.remove('tests') # if it exists, remove it
-        found_packages.sort()
-        declared_packages.sort()
-        self.assertEqual(found_packages,declared_packages)
-        
-    def run_subprocess(self,args,**kw): 
-        env = dict(self.default_environ)
-        for k in self.inheritable_envvars:
-            v = os.environ.get(k,None)
-            if v is not None:
-                env[k] = v
-        kw.update(env=env)
-        subprocess.check_output(args,**kw)
-        
-    def run_simple_doctests(self,n,**kw): # env.simple_doctests
-        #~ cmd = "python -m doctest %s" % filename    
-        args = ["python"] 
-        args += ["-m"]
-        args += ["doctest"]
-        args += [n]
-        self.run_subprocess(args,**kw)
-        
-    def run_docs_django_tests(self,n,**kw): # django_doctests
-        args = ["django-admin.py"] 
-        args += ["test"]
-        args += ["--settings=%s" % n]
-        args += ["--failfast"]
-        args += ["--verbosity=0"]
-        args += ["--pythonpath=%s" % DOCSDIR]
-        self.run_subprocess(args,**kw)
 
-    def run_django_manage_test(self,db,**kw): # run_django_databases_tests
-        p = ROOTDIR.child(*db.split('/'))
-        args = ["python","manage.py"] 
-        args += ["test"]
-        #~ args += more
-        args += ["--noinput"]
-        args += ["--failfast"]
-        #~ args += ["--settings=settings"]
-        args += ["--pythonpath=%s" % p.absolute()]
-        kw.update(cwd=p)
-        self.run_subprocess(args,**kw)
-        
-    def run_django_admin_tests(self,settings_module,**kw): # django_admin_tests
-        args = ["django-admin.py"] 
-        args += ["test"]
-        args += ["--settings=%s" % settings_module]
-        args += ["--noinput"]
-        args += ["--failfast"]
-        args += ["--traceback"]
-        args += ["--verbosity=0"]
-        self.run_subprocess(args,**kw)
+class AutoTestCase(TestCase):
+    """
+    Deprecated. No longer recommended. 
+    This brings a very small advantage and some important disadvantages:
     
-        #~ cmd = "django-admin.py test --settings=%s --verbosity=0 --failfast --traceback" % prj
+    - more complexity leading to possible problems which are hard to debug
+    - cannot run a function separately.
+    
+    
+    This was to increase lisibility of your module 
+    when you want to group several separate tests into a 
+    single fixture load. 
+    You gain 4 leading spaces for every line.
+    
+    The Django testrunner creates and initializes a new database 
+    for every TestCase instance.
+    
+    Using `django.test`::
+
+      from django.test import TestCase
+      class DemoTest(TestCase):
+          fixtures = 'std props demo'.split()
+                  
+          def test01(self):
+             ...
+              
+          def test02(self):
+             ...
+         
+    Using `djangosite.utils.test`::
+    
+      from djangosite.utils.test import AutoTestCase
+      class DemoTest(AutoTestCase):
+          fixtures = 'std props demo'.split()
+                  
+      def test01(self):
+         ...
+          
+      def test02(self):
+         ...
+          
+    
+    If you instantiate a `djangosite.utils.test.TestCase` in your test module, 
+    it will automatically inspect the globel namespace of your module and 
+    add all callables whose name begins with "test" to it's test suite.
+    
+    Since all 'testXX' functions are run in a same database, their execution 
+    order may be important: keep in mind that they are executed in 
+    *alphabetical* order, and that database changes remain for the whole 
+    sequence.
+    
+    """
+    
+    #~ def runTest(self,*args,**kw):
+        #~ # super(TestCase,self).runTest(*args,**kw)
+        #~ m = import_module(self.__module__)
+        #~ for k,v in m.__dict__.items():
+            #~ if k.startswith('test') and callable(v):
+                #~ # print 20110301, k,v
+                #~ # self.__class__.__dict__[k] = v
+                #~ # setattr(self.__class__,k,v)
+                #~ if not getattr(v,'skip',False):
+                    #~ v(self)
+
+    def test_them_all(self):
+        """
+        This method will be executed automatically since its 
+        name starts with ``test_``.
+        """
+        m = import_module(self.defining_module or self.__module__)
+        #~ for k,v in m.__dict__.items():
+        for k in sorted(m.__dict__.keys()):
+            v = m.__dict__.get(k)
+            if k.startswith('test') and callable(v):
+                if not getattr(v,'skip',False):
+                    v(self)
+                    

@@ -60,6 +60,7 @@ djangosite
 djangosite.management
 djangosite.management.commands
 djangosite.utils
+djangosite.conf
 """.splitlines() if n])
   
 
