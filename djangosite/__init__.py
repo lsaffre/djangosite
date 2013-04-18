@@ -8,6 +8,7 @@ This defines the :class:`Site` class.
 
 #~ from __future__ import unicode_literals
 
+
 import os
 import sys
 import cgi
@@ -18,7 +19,7 @@ from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
 
 
-execfile(os.path.join(os.path.dirname(__file__),'setup_info.py'))
+execfile(join(dirname(__file__),'setup_info.py'))
 __version__ = SETUP_INFO['version'] # 
 
 #~ __author__ = "Luc Saffre <luc.saffre@gmx.net>"
@@ -38,8 +39,8 @@ def assert_django_code(django_code):
     if '_' in django_code:
         raise Exception("Invalid language code %r. "
             "Use values like 'en' or 'en-us'." % django_code)
-        
-
+            
+    
     
 
 #~ class BaseSite(object):
@@ -160,6 +161,8 @@ class Site(object):
     iaw the startup time of this Django process.
     """
     
+    _logger = None
+    
     def __init__(self,*args,**kwargs):
         """
         Every djangosite application calls this once it's 
@@ -172,7 +175,6 @@ class Site(object):
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
-        #~ print "20130404 ok"
     
     #~ def init_before_local(self,project_file,django_settings,*user_apps):
     def init_before_local(self,settings_globals,*user_apps):
@@ -302,7 +304,7 @@ class Site(object):
         
         """
         if self._startup_done:
-            #~ # logger.info("Lino startup already done")
+            #~ self.logger.info("Lino startup already done")
             return
             
         self._startup_done = True
@@ -317,11 +319,21 @@ class Site(object):
             p.before_site_startup(self)
             
         self.do_site_startup()
+        #~ self.logger.info("20130418 djangosite.Site.startup() ok")
         
+    @property
+    def logger(self):
+        if self._logger is None:
+            import logging
+            self._logger = logging.getLogger(__name__)
+        return self._logger
+
+            
     def do_site_startup(self):
         """
         This method is called during site startup
         """
+        #~ self.logger.info("20130418 djangosite.Site.do_site_startup() gonna send startup signal")
         from djangosite.signals import startup
         startup.send(self)
         
