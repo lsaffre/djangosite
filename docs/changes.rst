@@ -4,8 +4,11 @@
 Changes in `djangosite`
 =======================
 
-Version 0.1.2 (in development)
-==============================
+Version 0.1.3 (in development)
+============================================
+
+Version 0.1.2 (released :blogref:`20130422`)
+============================================
 
 - Instantiating a `djangosite.Site` now sets a trivial default value 
   for `SECRET_KEY`. See :blogref:`20130409`.
