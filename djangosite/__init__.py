@@ -473,15 +473,15 @@ class Site(object):
         #~ if self.verbose_name and self.version and self.url:
             #~ yield (self.verbose_name, self.version, self.url)
         
+        #~ yield ("django-site",__version__,"http://site.lino-framework.org")
+        yield (SETUP_INFO['name'],SETUP_INFO['version'],SETUP_INFO['url'])
+        
         import sys
         version = "%d.%d.%d" % sys.version_info[:3]
         yield ("Python",version,"http://www.python.org/")
         
         import django
         yield ("Django",django.get_version(),"http://www.djangoproject.com")
-        
-        #~ yield ("django-site",__version__,"http://site.lino-framework.org")
-        yield (SETUP_INFO['name'],SETUP_INFO['version'],SETUP_INFO['url'])
         
 
     def welcome_text(self):
