@@ -76,9 +76,11 @@ class Site(object):
     #~ Will be overridden by :attr:`north.Site.languages`.
     #~ """
     
-    #~ url = None
-    #~ """
-    #~ """
+    url = None
+    """
+    The URL of the website that describes this application.
+    Used e.g. in a :menuselection:`Site --> About` dialog bix.
+    """
     
     #~ description = """
     #~ yet another <a href="%s">Django-Sites</a> application.""" % __url__
