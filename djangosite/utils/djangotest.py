@@ -1,8 +1,7 @@
 """
-Extensions to the `django.test` package:
-:class:`TestCase` for unit tests
-and :class:`AutoTestCase`.
-
+An extended `django.test.TestCase` to be run using 
+Django's test runner (i.e. `manage.py test`).
+ 
 :copyright: Copyright 2011-2013 by Luc Saffre.
 :license: BSD, see LICENSE for more details.
 
@@ -30,9 +29,7 @@ from django.db import connection, reset_queries
 
 from djangosite.utils import testcase_setup
 
-#~ from atelier.test import SubProcessTestCase
 
-#~ class TestCase(DjangoTestCase,SubProcessTestCase):
 class TestCase(DjangoTestCase):
     """
     Adds some extensions to the Django TestCase.
@@ -225,9 +222,9 @@ class AutoTestCase(TestCase):
           def test02(self):
              ...
          
-    Using `djangosite.utils.test`::
+    Using `djangosite.utils.djangotest`::
     
-      from djangosite.utils.test import AutoTestCase
+      from djangosite.utils.djangotest import AutoTestCase
       class DemoTest(AutoTestCase):
           fixtures = 'std props demo'.split()
                   
@@ -238,7 +235,7 @@ class AutoTestCase(TestCase):
          ...
           
     
-    If you instantiate a `djangosite.utils.test.TestCase` in your test module, 
+    If you instantiate a `djangosite.utils.djangotest.TestCase` in your test module, 
     it will automatically inspect the globel namespace of your module and 
     add all callables whose name begins with "test" to it's test suite.
     

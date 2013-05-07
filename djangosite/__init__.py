@@ -225,7 +225,7 @@ class Site(object):
               }
             })
         self.django_settings.update(INSTALLED_APPS =
-            tuple(user_apps+('djangosite',)))
+            tuple([str(a) for a in user_apps])+('djangosite',))
         
         self.django_settings.update(SECRET_KEY="20227")
         # see :djangoticket:`20227`

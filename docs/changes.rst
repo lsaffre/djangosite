@@ -4,7 +4,13 @@
 Changes in `djangosite`
 =======================
 
-Version 0.1.3 (in development)
+Version 0.1.4 (in development)
+============================================
+
+- New module :mod:`djangosite.utils.pythontest`
+  contains code which was previously in :mod:`atelier.test`.
+
+Version 0.1.3 (released :blogref:`20130505`)
 ============================================
 
 Version 0.1.2 (released :blogref:`20130422`)

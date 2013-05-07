@@ -5,8 +5,6 @@ This defines the :class:`DocTest` class.
 :license: BSD, see LICENSE for more details.
 """
 
-#~ from djangosite.utils.test import DocTest
-
 import os
 import unittest
 import doctest

@@ -5,9 +5,9 @@ ROOTDIR = Path(__file__).parent.parent
 # load  SETUP_INFO:
 execfile(ROOTDIR.child('djangosite','setup_info.py'),globals())
 
-from atelier.test import SubProcessTestCase
+from djangosite.utils.pythontest import TestCase
 
-class BaseTestCase(SubProcessTestCase):
+class BaseTestCase(TestCase):
     project_root = ROOTDIR
     
 class BasicTests(BaseTestCase):
