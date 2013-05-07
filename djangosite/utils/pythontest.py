@@ -111,8 +111,12 @@ class TestCase(TestCase):
         except ImportError:
             pass # not everybody uses north
 
-        doctest.testfile(filename, module_relative=False,encoding='utf-8')
+        res = doctest.testfile(filename, module_relative=False,encoding='utf-8')
         
         del sys.path[0]
         #~ os.chdir(oldcwd)
 
+        #~ return res
+        if res.failed:
+            self.fail("doctest.testfile() failed. See earlier messages.")
+        
