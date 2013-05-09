@@ -320,8 +320,12 @@ class Site(object):
         for p in self.plugins:
             p.before_site_startup(self)
             
+        #~ self.logger.info("20130418 djangosite.Site.do_site_startup() gonna send startup signal")
+        from djangosite.signals import pre_startup, post_startup
+        pre_startup.send(self)
         self.do_site_startup()
         #~ self.logger.info("20130418 djangosite.Site.startup() ok")
+        post_startup.send(self)
         
     @property
     def logger(self):
@@ -335,9 +339,7 @@ class Site(object):
         """
         This method is called during site startup
         """
-        #~ self.logger.info("20130418 djangosite.Site.do_site_startup() gonna send startup signal")
-        from djangosite.signals import startup
-        startup.send(self)
+        pass
         
     def get_settings_subdirs(self,subdir_name):
         """

@@ -8,7 +8,9 @@ This defines the :attr:`startup` signal.
 from django.dispatch import Signal, receiver
 
 
-startup = Signal()
+pre_startup = Signal()
+post_startup = Signal()
+#~ startup = Signal()
 """
 Sent exactly once per process at site startup, 
 just before any application-specific startup actions.
