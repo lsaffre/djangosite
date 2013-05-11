@@ -83,9 +83,8 @@ class TestCase(TestCase):
         Run a simple doctest for specified file after importing the 
         docs `conf.py` (which causes the demo database to be activated).
         
-        This is used e.g. for testing pages like
-        :ref:`welfare.tested.debts` or
-        :ref:`welfare.tested.courses`.
+        This is used e.g. for testing pages like those below
+        :doc:`/tested/index`.
         
         These tests may fail for the simple reason that the demo database
         has not been initialized (in that case, run `fab initdb`).
