@@ -66,17 +66,18 @@ class TestCase(TestCase):
         kw.update(cwd=p)
         self.run_subprocess(args,**kw)
         
-    def run_django_admin_test(self,settings_module,**kw): 
+    def run_django_admin_test(self,settings_module,*args,**kw): 
+        return self.run_django_admin_command(settings_module,'test',"--verbosity=0",*args,**kw)
+        
+    def run_django_admin_command(self,settings_module,*cmdargs,**kw): 
         args = ["django-admin.py"] 
-        args += ["test"]
+        args += cmdargs
         args += ["--settings=%s" % settings_module]
         args += ["--noinput"]
         args += ["--failfast"]
         args += ["--traceback"]
-        args += ["--verbosity=0"]
         self.run_subprocess(args,**kw)
     
-        #~ cmd = "django-admin.py test --settings=%s --verbosity=0 --failfast --traceback" % prj
 
     def run_docs_doctests(self,filename):
         """
