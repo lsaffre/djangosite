@@ -62,7 +62,7 @@ def is_devserver():
     
     """
     #~ print 20130315, sys.argv[1]
-    return len(sys.argv) > 1 and sys.argv[1] in ('runserver','testserver','test')
+    return len(sys.argv) > 1 and sys.argv[1] in ('runserver','testserver','test',"makescreenshots")
 
 
 
