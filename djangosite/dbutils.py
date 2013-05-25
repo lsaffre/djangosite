@@ -144,16 +144,31 @@ def app_labels():
     return [a.__name__.split('.')[-2] for a in loading.get_apps()]
         
 
-def range_filter(v,f1,f2):
+def range_filter(value,f1,f2):
     """
-    Returns a Q object (to be added as a filter on a queryset)
-    to inlude only instances where v is contained within the range between f1 and f2.
-    `v` being a value and f1 and f2 being the names of fields of same data type as v.
+    Assuming a database model with two fields of same data type named 
+    `f1` and `f2`, return a Q object to select those rows
+    whose `f1` and `f2` encompass the given value `value`.
     """
     #~ filter = Q(**{f2+'__isnull':False}) | Q(**{f1+'__isnull':False})
-    q1 = Q(**{f1+'__isnull':True}) | Q(**{f1+'__lte':v})
-    q2 = Q(**{f2+'__isnull':True}) | Q(**{f2+'__gte':v})
+    q1 = Q(**{f1+'__isnull':True}) | Q(**{f1+'__lte':value})
+    q2 = Q(**{f2+'__isnull':True}) | Q(**{f2+'__gte':value})
     return Q(q1,q2)
+    
+def inrange_filter(fld,rng,**kw):
+    """
+    Assuming a database model with a field named  `fld`, 
+    return a Q object to select those rows
+    whose `fld` value is not null and within the given range `rng`.
+    `rng` must be a tuple of list with two items
+    """
+    assert rng[0] <= rng[1]
+    kw[fld+'__isnull']=False
+    kw[fld+'__gte'] = rng[0]
+    kw[fld+'__lte'] = rng[1]
+    return Q(**kw)
+
+    
 
 
 #~ def dtos(d):
