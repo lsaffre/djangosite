@@ -8,7 +8,7 @@ and possibly some external tools, too.
 SETUP_INFO = dict(
   name = 'djangosite', 
   version = '0.1.4',
-  install_requires = ['atelier==0.0.2','Django','Sphinx','unipath','python_dateutil'],
+  install_requires = ['atelier==0.0.2','Django>=1.5<1.6','Sphinx','unipath','python_dateutil'],
   description = "A server startup signal for Django",
   license = 'Free BSD',
   test_suite = 'tests',
