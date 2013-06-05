@@ -21,6 +21,7 @@ from decimal import Decimal
 
 execfile(join(dirname(__file__),'setup_info.py'))
 __version__ = SETUP_INFO['version'] # 
+intersphinx_url = "http://site.lino-framework.org"
 
 #~ __author__ = "Luc Saffre <luc.saffre@gmx.net>"
 
