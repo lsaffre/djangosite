@@ -328,6 +328,14 @@ class Site(object):
         #~ self.logger.info("20130418 djangosite.Site.startup() ok")
         post_startup.send(self)
         
+    #~ def shutdown(self):
+        #~ """
+        #~ used by test suite.
+        #~ """
+        #~ self._startup_done = False
+        #~ self.startup_time = None
+        
+        
     @property
     def logger(self):
         if self._logger is None:

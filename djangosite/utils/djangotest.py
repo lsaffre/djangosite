@@ -27,7 +27,7 @@ from django.utils.importlib import import_module
 from django.test import TestCase as DjangoTestCase
 from django.db import connection, reset_queries
 
-from djangosite.utils import testcase_setup
+from djangosite.signals import testcase_setup, database_ready
 
 
 class TestCase(DjangoTestCase):
@@ -58,12 +58,30 @@ class TestCase(DjangoTestCase):
     
     """
     
-                  
-    def setUp(self):
+    def __call__(self,*args,**kw):
+        """
+        Does some initialization and sends the 
+        :attr:`testcase_setup <djangosite.utils.testcase_setup>` 
+        signal, then calls super.
+        """
         settings.SITE.never_build_site_cache = self.never_build_site_cache
-        #~ settings.SITE.remote_user_header = 'REMOTE_USER'
         testcase_setup.send(self)
+        #~ database_ready.send(self)
+        return super(TestCase,self).__call__(*args,**kw)
+        
+    def tearDown(self):
+        #~ settings.SITE.shutdown()
+        super(TestCase,self).tearDown()
+        
+    def setUp(self):
+        #~ settings.SITE.never_build_site_cache = self.never_build_site_cache
+        #~ # settings.SITE.remote_user_header = 'REMOTE_USER'
+        #~ # raise Exception("20130704 logger.level is %s" % logger.level)
+        #~ # logger.info("20130704 fire testcase_setup in %s", settings.SITE.title)
+        #~ # print "20130704 send testcase_setup signal %s" % settings.SITE.title
+        #~ testcase_setup.send(self)
         super(TestCase,self).setUp()
+        database_ready.send(self)
         
                   
     def check_json_result(self,response,expected_keys=None,msg=None):
@@ -160,7 +178,6 @@ class TestCase(DjangoTestCase):
                 #~ res = doctest.testfile(f,module_relative=False,globs=g)
                 #~ if res.failed:
                     #~ self.fail("Failed doctest %s" % f)
-        
         
 class RemoteAuthTestCase(TestCase):
     #~ fixtures = [ 'std', 'few_countries', 'ee', 'be', 'demo', 'demo_ee']

@@ -36,7 +36,7 @@ class TestCase(TestCase):
     def setUp(self):
 
         if self.demo_settings_module:
-            from djangosite.utils import testcase_setup
+            from djangosite.signals import testcase_setup
             #~ from django.test.client import Client
             #~ self.client = Client()
             #~ settings.SITE.never_build_site_cache = self.never_build_site_cache
