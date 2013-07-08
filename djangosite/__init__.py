@@ -254,7 +254,6 @@ class Site(object):
             
     def override_defaults(self,**kwargs):
       
-      
         for k,v in kwargs.items():
             if not hasattr(self,k):
                 raise Exception("%s has no attribute %s" % (self.__class__,k))

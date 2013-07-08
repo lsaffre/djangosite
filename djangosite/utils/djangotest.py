@@ -38,12 +38,18 @@ class TestCase(DjangoTestCase):
     
     longMessage = True # see unittest. used for check_json_result
     
-    never_build_site_cache = True
+    override_djangosite_settings = dict()
     """
-    Test cases usually don't need the site cache, so this is switched off.
-    But e.g. :mod:`lino_welfare.modlib.cbss.tests.cbss_tests` switches 
-    it on because there it is needed.
+    If specified, this is a dict of :class:`Site <djangosite.Site>` 
+    attributes to override before running the test.
     """
+    
+    #~ never_build_site_cache = True
+    #~ """
+    #~ Test cases usually don't need the site cache, so this is switched off.
+    #~ But e.g. :mod:`lino_welfare.modlib.cbss.tests.cbss_tests` switches 
+    #~ it on because there it is needed.
+    #~ """
     
     defining_module = None
     """
@@ -64,7 +70,9 @@ class TestCase(DjangoTestCase):
         :attr:`testcase_setup <djangosite.utils.testcase_setup>` 
         signal, then calls super.
         """
-        settings.SITE.never_build_site_cache = self.never_build_site_cache
+        if self.override_djangosite_settings:
+            settings.SITE.override_defaults(**self.override_djangosite_settings)
+        #~ settings.SITE.never_build_site_cache = self.never_build_site_cache
         testcase_setup.send(self)
         #~ database_ready.send(self)
         return super(TestCase,self).__call__(*args,**kw)

@@ -4,6 +4,16 @@
 Changes in `djangosite`
 =======================
 
+Version 0.1.6 (not yet released)
+============================================
+
+- In :class:`djangosite.utils.djangotest.TestCase`, added 
+  new attribute 
+  :attr:`override_djangosite_settings <djangosite.utils.djangotest.TestCase.override_djangosite_settings>`
+  and removed 
+  attribute `never_build_site_cache` which is no longer relevant.
+
+
 Version 0.1.5 (released :blogref:`20130527`)
 ============================================
 
