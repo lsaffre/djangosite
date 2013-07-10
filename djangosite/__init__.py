@@ -397,7 +397,7 @@ class Site(object):
         """
         #~ if not os.path.exists(dirname):
             #~ os.makedirs(dirname)
-        if not os.path.isdir(dirname):
+        if not isdir(dirname):
             if self.make_missing_dirs:
                 os.makedirs(dirname)
             else:

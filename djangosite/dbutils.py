@@ -106,12 +106,12 @@ def obj2str(i,force_detailed=False):
         #~ if fld.name == 'language':
             #~ print 20120905, model, fld
         if isinstance(fld,models.ForeignKey):
-            v = getattr(i,fld.attname) 
+            v = getattr(i,fld.attname,None) # 20130709 Django 1.6b1
             #~ v = getattr(i,fld.name+"_id") 
             #~ if getattr(i,fld.name+"_id") is not None:
                 #~ v = getattr(i,fld.name)
         else:
-            v = getattr(i,fld.name)
+            v = getattr(i,fld.name,None) # 20130709 Django 1.6b1
         if v:
             pairs.append("%s=%s" % (fld.name,obj2str(v)))
     s = ','.join(pairs)
