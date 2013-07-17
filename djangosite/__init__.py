@@ -447,8 +447,8 @@ class Site(object):
         
     def on_each_app(self,methname,*args):
         """
-        Call the named method on each module in :setting:`INSTALLED_APPS`
-        that defines it.
+        Call the named method on the `models` module of each installed 
+        app. 
         """
         from django.db.models import loading
         for mod in loading.get_apps():
