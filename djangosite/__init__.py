@@ -139,12 +139,6 @@ class Site(object):
     """
     
     
-    modules = AttrDict()
-    """
-    A shortcut to access all installed models and actors.
-    Read-only. Applications should not set this. 
-    """
-    
     not_found_msg = '(not installed)'
 
     
