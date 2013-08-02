@@ -26,7 +26,7 @@ designed to be instantiated as ``settings.SITE``.
 Basic usage in your :xfile:`settings.py` file::
 
   from djangosite import Site
-  SITE = Site(__file__,globals())
+  SITE = Site(globals())
   # ... your settings here
   INSTALLED_APPS = [..., "djangosite"]
   # "djangosite" must be the last item of your INSTALLED_APPS
