@@ -7,7 +7,7 @@ and possibly some external tools, too.
 """
 SETUP_INFO = dict(
   name = 'djangosite', 
-  version = '0.1.7',
+  version = '0.1.7', # released 20130813
   #~ install_requires = ['atelier==0.0.2','Django>=1.5,<1.6','Sphinx','unipath','python_dateutil'],
   install_requires = ['atelier','Django','Sphinx','unipath','python_dateutil'],
   description = "A server startup signal for Django",
@@ -16,7 +16,12 @@ SETUP_INFO = dict(
   author = 'Luc Saffre',
   author_email = 'luc.saffre@gmail.com',
   url = "http://site.lino-framework.org",
-  long_description="""\
+  long_description="""Provides a Site class designed to be subclassed 
+and instantiated as `settings.SITE`. 
+The base class provides a startup method which runs after Django has 
+populated it's model cache. This method analyzes the installed apps 
+and emits different "site started" signals.  
+
 `djangosite` adds to a Django project the concept of 
 "the application running on this site".
 It defines a `Site` class
