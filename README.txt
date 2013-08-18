@@ -7,6 +7,12 @@ A server startup signal for Django
 Description
 -----------
 
+Provides a Site class designed to be subclassed 
+and instantiated as `settings.SITE`. 
+The base class provides a startup method which runs after Django has 
+populated it's model cache. This method analyzes the installed apps 
+and emits different "site started" signals.  
+
 `djangosite` adds to a Django project the concept of 
 "the application running on this site".
 It defines a `Site` class
