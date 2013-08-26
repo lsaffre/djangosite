@@ -197,13 +197,14 @@ def monthname(n):
     d = datetime.date(2013,n,1)
     return defaultfilters.date(d,'F')
 
-def dtomy(d):
+def fdmy(d):
     """
     "date to month/year" :
     return the specified date as a localized string of type 'June 2011'."""
     if d is None: return ''
     return defaultfilters.date(d,'F Y')
-
+    
+dtomy = fdmy # backward compat
 
 def set_language(lang=None):
     """
