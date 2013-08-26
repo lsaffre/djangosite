@@ -199,7 +199,7 @@ def monthname(n):
 
 def fdmy(d):
     """
-    "date to month/year" :
+    "format date as month and year" :
     return the specified date as a localized string of type 'June 2011'."""
     if d is None: return ''
     return defaultfilters.date(d,'F Y')
