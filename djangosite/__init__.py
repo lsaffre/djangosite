@@ -49,6 +49,11 @@ class Site(object):
     """
     Base class for the Site instance to be stored in :setting:`SITE`.
     
+    Note about the name:
+    A :class:`Site <djangosite.Site>` is 
+    rather an `application <http://en.wikipedia.org/wiki/Application_software>`_
+    than a `site <http://en.wikipedia.org/wiki/Website>`_. 
+    We chose "site" to avoid a name clash with Django's word "app".
     A :class:`Site` describes and represents the 
     :doc:`software application </application>` 
     running on a given site (aka "project" in Django jargon).

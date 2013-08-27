@@ -1,6 +1,11 @@
+.. _djangosite:
+
 ==========
 djangosite
 ==========
+
+Welcome to the :ref:`djangosite` project documentation.
+
 
 .. py2rst::
 
