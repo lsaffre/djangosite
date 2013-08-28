@@ -206,13 +206,12 @@ def fdmy(d):
     
 dtomy = fdmy # backward compat
 
-def set_language(lang=None):
+def unused_set_language(lang=None):
     """
     Thin wrapper around `django.utils.translation`.
     Activate the given language, or deactivate translations if 
     the given language is `None` or `'en-us'`.
     """
-    raise Exception(20130828)
     
     if lang is None or lang == DJANGO_DEFAULT_LANGUAGE:
         #~ locale.setlocale(locale.LC_ALL,'')
