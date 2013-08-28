@@ -1,3 +1,6 @@
+## Copyright 2013 by Luc Saffre.
+## License: BSD, see LICENSE for more details.
+
 """
 An extended `unittest.TestCase` to be run using `setup.py` 
 in the root of a project which may contain several Django projects.
@@ -7,8 +10,6 @@ because that's designed for unit tests within a particular Django project
 (run using `djange-admin test`).
 
 
-:copyright: Copyright 2013 by Luc Saffre.
-:license: BSD, see LICENSE for more details.
 
 """
 import sys
@@ -101,15 +102,17 @@ class TestCase(TestCase):
         sys.path.insert(0,'docs')
         import conf # trigger Django startup
         
-        try:
-            from north.dbutils import set_language
-            set_language() 
-            """
-            Each test case starts with the site's default language.
-            Test cases are not required to restore the language afterwards.
-            """
-        except ImportError:
-            pass # not everybody uses north
+        if False:
+            # 20130828 test cases *are* required to restore the language afterwards.
+            try:
+                from north.dbutils import set_language
+                set_language() 
+                """
+                Each test case starts with the site's default language.
+                Test cases are not required to restore the language afterwards.
+                """
+            except ImportError:
+                pass # not everybody uses north
 
         res = doctest.testfile(filename, module_relative=False,encoding='utf-8')
         

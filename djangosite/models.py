@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+## Copyright 2013 by Luc Saffre.
+## License: BSD, see LICENSE for more details.
 """
 This module is based on Ross McFarland idea to simply send 
 the server startup signal "at the end of your last app's models.py file"
@@ -14,8 +16,6 @@ Note that `loading.cache.postponed`
 contains all postponed imports even if they succeeded 
 at the second attempt.
 
-:copyright: Copyright 2013 by Luc Saffre.
-:license: BSD, see LICENSE for more details.
 """
 
 import sys
@@ -27,10 +27,13 @@ if len(loading.cache.postponed) > 0:
             loading.cache.postponed)
 
 from django.conf import settings
-try:
+if False:
     settings.SITE.startup()
-except ImportError as e:
-    import traceback
-    #~ traceback.print_exc(e)
-    #~ sys.exit(-1)
-    raise Exception("ImportError during startup: \n" + traceback.format_exc(e))
+else:
+    try:
+        settings.SITE.startup()
+    except ImportError as e:
+        import traceback
+        #~ traceback.print_exc(e)
+        #~ sys.exit(-1)
+        raise Exception("ImportError during startup:\n" + traceback.format_exc(e))

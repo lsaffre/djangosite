@@ -212,6 +212,7 @@ def set_language(lang=None):
     Activate the given language, or deactivate translations if 
     the given language is `None` or `'en-us'`.
     """
+    raise Exception(20130828)
     
     if lang is None or lang == DJANGO_DEFAULT_LANGUAGE:
         #~ locale.setlocale(locale.LC_ALL,'')
