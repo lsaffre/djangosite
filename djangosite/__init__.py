@@ -165,21 +165,21 @@ class Site(object):
     
     _logger = None
     
-    def __init__(self,*args,**kwargs):
+    def __init__(self,settings_globals,user_apps=[],**kwargs):
         """
         Every djangosite application calls this once it's 
         :file:`settings.py` file.
         See :doc:`/usage`.
         """
         #~ print "20130404 ok?"
-        self.init_before_local(*args)
+        self.init_before_local(settings_globals,user_apps)
         if not kwargs.pop('no_local',False):
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
     
     #~ def init_before_local(self,project_file,django_settings,*user_apps):
-    def init_before_local(self,settings_globals,*user_apps):
+    def init_before_local(self,settings_globals,user_apps):
         """
         If your `project_dir` contains no :file:`models.py`, 
         but *does* contain a `fixtures` subdir, 
@@ -192,6 +192,9 @@ class Site(object):
             must be your settings.py file's `globals()`
             and not %r
             """ % (self.__class__.__name__,settings_globals))
+            
+        if isinstance(user_apps,basestring):
+            user_apps = [user_apps]
         #~ self.django_settings = dict()
         #~ self.django_settings.update(settings_globals)
         self.django_settings = settings_globals
@@ -227,7 +230,7 @@ class Site(object):
         self.django_settings.update(INSTALLED_APPS =
             tuple([str(a) for a in user_apps])+('djangosite',))
         
-        self.django_settings.update(SECRET_KEY="20227")
+        #~ self.django_settings.update(SECRET_KEY="20227")
         # see :djangoticket:`20227`
 
         
@@ -257,8 +260,6 @@ class Site(object):
             if not hasattr(self,k):
                 raise Exception("%s has no attribute %s" % (self.__class__,k))
             setattr(self,k,v)
-            
-        
     
         
     def update_settings(self,**kw):  

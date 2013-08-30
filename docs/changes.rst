@@ -7,6 +7,16 @@ Changes in `djangosite`
 Version 0.1.6 (not yet released)
 ============================================
 
+- New instantiation signature: the optional `user_apps` are no 
+  longer to be specified as positional arguments but should be 
+  a list or tuple.
+  
+- Instantiating a `djangosite.Site` no longer sets a trivial 
+  default value for `SECRET_KEY`. 
+  Added :blogref:`20130409` but removed :blogref:`20130830`.
+
+  
+
 - In :class:`djangosite.utils.djangotest.TestCase`, added 
   new attribute 
   :attr:`override_djangosite_settings <djangosite.utils.djangotest.TestCase.override_djangosite_settings>`
