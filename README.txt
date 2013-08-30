@@ -28,7 +28,7 @@ The base class provides a startup method which runs after Django has
 populated it's model cache. This method analyzes the installed apps 
 and emits different "site started" signals.  
 
-Last but not least
+Last but not least:
 `djangosite` brings an additional level of encapsulation to Django
 and is used as the foundation for 
 `North <http://north.lino-framework.org>`__
