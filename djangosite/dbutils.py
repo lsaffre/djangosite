@@ -75,6 +75,8 @@ def full_model_name(model,sep='.'):
     
 def obj2unicode(i):
     """Returns a user-friendly unicode representation of a model instance."""
+    if not isinstance(i,models.Model): 
+        return unicode(i)
     return u'%s "%s"' % (i._meta.verbose_name,unicode(i))
     
 def obj2str(i,force_detailed=False):
