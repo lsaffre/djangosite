@@ -51,6 +51,7 @@ class TestCase(TestCase):
         args += ["test"]
         args += ["--settings=%s" % n]
         args += ["--failfast"]
+        args += ["--traceback"]
         args += ["--verbosity=0"]
         args += ["--pythonpath=%s" % self.project_root.child('docs')]
         self.run_subprocess(args,**kw)
