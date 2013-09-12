@@ -1,9 +1,10 @@
 # -*- coding: UTF-8 -*-
+# Copyright 2002-2013 by Luc Saffre.
+# License: BSD, see LICENSE for more details.
+
 """
 This defines the :class:`Site` class.
 
-:copyright: Copyright 2002-2013 by Luc Saffre.
-:license: BSD, see LICENSE for more details.
 """
 
 #~ from __future__ import unicode_literals
@@ -385,6 +386,8 @@ class Site(object):
         
         
     def is_installed_model_spec(self,model_spec):
+        if model_spec == 'self':
+            return True
         app_label, model_name = model_spec.split(".")
         return self.is_installed(app_label)
 
