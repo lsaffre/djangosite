@@ -1,7 +1,10 @@
 # -*- coding: UTF-8 -*-
-#~ Copyright 2012-2013 by Luc Saffre.
-#~ License: BSD, see LICENSE for more details.
+## Copyright 2012-2013 by Luc Saffre.
+## License: BSD, see LICENSE for more details.
 """
+
+.. management_command:: run
+
 Execute a standalone Python script after having set up the Django 
 environment. Also modify `sys.args`, `__file__` and `__name__` so that 
 the invoked script sees them as if it had been called directly.
