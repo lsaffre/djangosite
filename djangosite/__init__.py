@@ -20,7 +20,7 @@ from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
 
 
-execfile(join(dirname(__file__),'setup_info.py'))
+execfile(join(dirname(__file__),'project_info.py'))
 __version__ = SETUP_INFO['version'] # 
 intersphinx_url = "http://site.lino-framework.org"
 

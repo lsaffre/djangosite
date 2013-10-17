@@ -1,3 +1,3 @@
 from setuptools import setup
-execfile('djangosite/setup_info.py')
+execfile('djangosite/project_info.py')
 setup(**SETUP_INFO)
