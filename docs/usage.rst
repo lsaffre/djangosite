@@ -73,5 +73,4 @@ The base class will modify the following Django settings:
 - `INSTALLED_APPS
   <https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps>`_
   
-
-See also :doc:`djangosite_local`
+See also :ref:`djangosite_local.py <djangosite_local>`
