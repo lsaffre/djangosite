@@ -89,33 +89,18 @@ class TestCase(TestCase):
         This is used e.g. for testing pages like those below
         :doc:`/tested/index`.
         
+        
+        http://docs.python.org/2/library/doctest.html#doctest.REPORT_ONLY_FIRST_FAILURE
+        
         These tests may fail for the simple reason that the demo database
         has not been initialized (in that case, run `fab initdb`).
         """
         filename = 'docs/' + filename
-        #~ p = self.project_root.child(*filename.split('/')).parent
-        #~ os.environ['DJANGO_SETTINGS_MODULE']='settings'
-        #~ oldcwd = os.getcwd()
-        #~ self.project_root.child('docs').chdir()
-        #~ p.chdir()
-        #~ sys.path.insert(0,'.')
-        #~ print p
         sys.path.insert(0,'docs')
         import conf # trigger Django startup
         
-        if False:
-            # 20130828 test cases *are* required to restore the language afterwards.
-            try:
-                from north.dbutils import set_language
-                set_language() 
-                """
-                Each test case starts with the site's default language.
-                Test cases are not required to restore the language afterwards.
-                """
-            except ImportError:
-                pass # not everybody uses north
-
-        res = doctest.testfile(filename, module_relative=False,encoding='utf-8')
+        res = doctest.testfile(filename, module_relative=False,
+            encoding='utf-8',optionflags=doctest.REPORT_ONLY_FIRST_FAILURE)
         
         del sys.path[0]
         #~ os.chdir(oldcwd)

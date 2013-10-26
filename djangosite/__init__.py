@@ -15,6 +15,7 @@ import sys
 import cgi
 import inspect
 import datetime
+import warnings
 
 from os.path import join, abspath, dirname, normpath, isdir
 from decimal import Decimal
@@ -386,6 +387,16 @@ class Site(object):
         
         
     def is_installed_model_spec(self,model_spec):
+        """
+        Deprecated. This feature 
+        was a bit too automagic and caused bugs to pass silently. 
+        See e.g. :blogref:`20131025`.
+        
+        """
+        #~ raise DeprecationWarning
+        
+        warnings.warn("is_installed_model_spec is deprecated.",category=DeprecationWarning)
+        
         if model_spec == 'self':
             return True
         app_label, model_name = model_spec.split(".")

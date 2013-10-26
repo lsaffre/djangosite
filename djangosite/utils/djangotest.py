@@ -7,7 +7,7 @@ Django's test runner (i.e. `manage.py test`).
 
 """
 import os
-import unittest
+#~ import unittest
 import subprocess
 from setuptools import find_packages
 
@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 import os
 #~ import six
 
-import doctest
-from django.utils import unittest
+#~ import doctest
+#~ from django.utils import unittest
 
 from django.conf import settings
 #~ from django.utils import simplejson
