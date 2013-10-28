@@ -6,7 +6,7 @@ An extended `unittest.TestCase` to be run using `setup.py`
 in the root of a project which may contain several Django projects.
 
 We cannot import :mod:`djangosite.utils.djangotest` here
-because that's designed for unit tests within a particular Django project 
+because that's designed for unit tests *within a particular* Django project 
 (run using `djange-admin test`).
 
 
@@ -17,14 +17,16 @@ import doctest
 
 from atelier.test import TestCase
 
+
+
 class TestCase(TestCase):
     """
     """
     
     demo_settings_module = None
     """
-    The DJANGO_SETTINGS_MODULE which serves as the central demo
-    for this project.
+    The `DJANGO_SETTINGS_MODULE` to set for each subprocess 
+    launched by this test case.
     """
     
     
@@ -38,10 +40,6 @@ class TestCase(TestCase):
 
         if self.demo_settings_module:
             from djangosite.signals import testcase_setup
-            #~ from django.test.client import Client
-            #~ self.client = Client()
-            #~ settings.SITE.never_build_site_cache = self.never_build_site_cache
-            #~ settings.SITE.remote_user_header = 'REMOTE_USER'
             testcase_setup.send(self)
         super(TestCase,self).setUp()
         

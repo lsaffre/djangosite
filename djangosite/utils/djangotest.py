@@ -1,11 +1,14 @@
+# Copyright: Copyright 2011-2013 by Luc Saffre.
+# License: BSD, see LICENSE for more details.
+
 """
 An extended `django.test.TestCase` to be run using 
 Django's test runner (i.e. `manage.py test`).
  
-:copyright: Copyright 2011-2013 by Luc Saffre.
-:license: BSD, see LICENSE for more details.
-
 """
+
+from __future__ import print_function
+
 import os
 #~ import unittest
 import subprocess
@@ -16,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 import os
 #~ import six
+
+import unittest
 
 #~ import doctest
 #~ from django.utils import unittest
@@ -29,75 +34,37 @@ from django.db import connection, reset_queries
 
 from djangosite.signals import testcase_setup, database_ready
 
+def check_json_result(response,expected_keys=None,msg=None):
+    """
+    Checks the result of response which is expected to return 
+    a JSON-encoded dictionary with the expected_keys.
+    """
+    #~ print("20110301 response is %r" % response.content)
+    if response.status_code != 200:
+        raise Exception(msg)
+    try:
+        result = json.loads(response.content)
+    except ValueError,e:
+        logger.warning("%s in %r",e,response.content)
+        raise 
+    if expected_keys is not None:
+        if set(result.keys()) != set(expected_keys.split()):
+            raise Exception(msg)
+    return result
+        
 
-class TestCase(DjangoTestCase):
-    """
-    Adds some extensions to the Django TestCase.
-    
-    """
-    
-    longMessage = True # see unittest. used for check_json_result
-    
-    override_djangosite_settings = dict()
-    """
-    If specified, this is a dict of :class:`Site <djangosite.Site>` 
-    attributes to override before running the test.
-    """
-    
-    #~ never_build_site_cache = True
-    #~ """
-    #~ Test cases usually don't need the site cache, so this is switched off.
-    #~ But e.g. :mod:`lino_welfare.modlib.cbss.tests.cbss_tests` switches 
-    #~ it on because there it is needed.
-    #~ """
-    
-    defining_module = None
-    """
-    When you decorate your subclass of TestCase, you must also specify::
-    
-        defining_module = __name__
 
-    Because a decorator will change 
-    your class's  `__module__` attribute 
-    and :meth:`test_them_all` would search 
-    for test methods in the wrong module.
+class CommonTestCase(unittest.TestCase):
     
-    """
-    
-    def __call__(self,*args,**kw):
-        """
-        Does some initialization and sends the 
-        :attr:`testcase_setup <djangosite.utils.testcase_setup>` 
-        signal, then calls super.
-        """
-        if self.override_djangosite_settings:
-            settings.SITE.override_defaults(**self.override_djangosite_settings)
-        #~ settings.SITE.never_build_site_cache = self.never_build_site_cache
-        testcase_setup.send(self)
-        #~ database_ready.send(self)
-        return super(TestCase,self).__call__(*args,**kw)
+    def unused_check_json_result(self,*args,**kw):
+        return check_json_result(*args,**kw)
         
-    def tearDown(self):
-        #~ settings.SITE.shutdown()
-        super(TestCase,self).tearDown()
-        
-    def setUp(self):
-        #~ settings.SITE.never_build_site_cache = self.never_build_site_cache
-        #~ # settings.SITE.remote_user_header = 'REMOTE_USER'
-        #~ # raise Exception("20130704 logger.level is %s" % logger.level)
-        #~ # logger.info("20130704 fire testcase_setup in %s", settings.SITE.title)
-        #~ # print "20130704 send testcase_setup signal %s" % settings.SITE.title
-        #~ testcase_setup.send(self)
-        super(TestCase,self).setUp()
-        database_ready.send(self)
-        
-                  
     def check_json_result(self,response,expected_keys=None,msg=None):
         """
         Checks the result of response which is expected to return 
         a JSON-encoded dictionary with the expected_keys.
         """
-        #~ print "20110301 response is %r" % response.content
+        #~ print("20110301 response is %r" % response.content)
         self.assertEqual(response.status_code,200,msg)
         try:
             result = json.loads(response.content)
@@ -105,7 +72,7 @@ class TestCase(DjangoTestCase):
             logger.warning("%s in %r",e,response.content)
             raise 
         if expected_keys is not None:
-            self.assertEqual(set(result.keys()),set(expected_keys.split()),msg)
+            self.assertEqual(set(result.keys()),set(expected_keys.split()))
         return result
         
     def assertEquivalent(self,a,b,report_plain=False):
@@ -170,6 +137,70 @@ class TestCase(DjangoTestCase):
         except model.DoesNotExist:
             pass
 
+    
+    
+class DjangoManageTestCase(DjangoTestCase,CommonTestCase):
+    """
+    Adds some extensions to the Django TestCase.
+    
+    """
+    
+    longMessage = True # see unittest. used for check_json_result
+    
+    override_djangosite_settings = dict()
+    """
+    If specified, this is a dict of :class:`Site <djangosite.Site>` 
+    attributes to override before running the test.
+    """
+    
+    #~ never_build_site_cache = True
+    #~ """
+    #~ Test cases usually don't need the site cache, so this is switched off.
+    #~ But e.g. :mod:`lino_welfare.modlib.cbss.tests.cbss_tests` switches 
+    #~ it on because there it is needed.
+    #~ """
+    
+    defining_module = None
+    """
+    When you decorate your subclass of TestCase, you must also specify::
+    
+        defining_module = __name__
+
+    Because a decorator will change 
+    your class's  `__module__` attribute 
+    and :meth:`test_them_all` would search 
+    for test methods in the wrong module.
+    
+    """
+    
+    def __call__(self,*args,**kw):
+        """
+        Does some initialization and sends the 
+        :attr:`testcase_setup <djangosite.utils.testcase_setup>` 
+        signal, then calls super.
+        """
+        if self.override_djangosite_settings:
+            settings.SITE.override_defaults(**self.override_djangosite_settings)
+        #~ settings.SITE.never_build_site_cache = self.never_build_site_cache
+        testcase_setup.send(self)
+        #~ database_ready.send(self)
+        return super(DjangoManageTestCase,self).__call__(*args,**kw)
+        
+    def tearDown(self):
+        #~ settings.SITE.shutdown()
+        super(DjangoManageTestCase,self).tearDown()
+        
+    def setUp(self):
+        #~ settings.SITE.never_build_site_cache = self.never_build_site_cache
+        #~ # settings.SITE.remote_user_header = 'REMOTE_USER'
+        #~ # raise Exception("20130704 logger.level is %s" % logger.level)
+        #~ # logger.info("20130704 fire testcase_setup in %s", settings.SITE.title)
+        #~ # print("20130704 send testcase_setup signal %s" % settings.SITE.title)
+        #~ testcase_setup.send(self)
+        super(DjangoManageTestCase,self).setUp()
+        database_ready.send(self)
+        
+                  
 
 #~ class DocTest(unittest.TestCase):
     #~ """
@@ -182,12 +213,12 @@ class TestCase(DjangoTestCase):
         #~ for n in self.doctest_files:
             #~ f = os.path.join(settings.SITE.project_dir,n)
             #~ if os.path.exists(f):
-                #~ print f
+                #~ print(f)
                 #~ res = doctest.testfile(f,module_relative=False,globs=g)
                 #~ if res.failed:
                     #~ self.fail("Failed doctest %s" % f)
         
-class RemoteAuthTestCase(TestCase):
+class RemoteAuthTestCase(DjangoManageTestCase):
     #~ fixtures = [ 'std', 'few_countries', 'ee', 'be', 'demo', 'demo_ee']
     #~ fixtures = 'few_countries few_languages demo_cities std demo demo_ee'.split()
     #~ fixtures = 'std few_countries few_cities few_languages props demo'.split()
@@ -202,8 +233,10 @@ class RemoteAuthTestCase(TestCase):
         #~ MIDDLEWARE_CLASSES = settings.SITE.django_settings.get('MIDDLEWARE_CLASSES')
         with self.settings(**mysettings):
             return super(RemoteAuthTestCase,self).__call__(*args,**kw)
+            
+TestCase = RemoteAuthTestCase
     
-class NoAuthTestCase(TestCase):
+class NoAuthTestCase(DjangoManageTestCase):
     def __call__(self,*args,**kw):
         # these tests use remote http authentication, so we override the run() 
         # method to simulate 
@@ -216,9 +249,8 @@ class NoAuthTestCase(TestCase):
         with self.settings(**mysettings):
             return super(NoAuthTestCase,self).__call__(*args,**kw)
     
-        
 
-class AutoTestCase(TestCase):
+class AutoTestCase(DjangoManageTestCase):
     """
     Deprecated. No longer recommended. 
     This brings a very small advantage and some important disadvantages:
@@ -276,7 +308,7 @@ class AutoTestCase(TestCase):
         #~ m = import_module(self.__module__)
         #~ for k,v in m.__dict__.items():
             #~ if k.startswith('test') and callable(v):
-                #~ # print 20110301, k,v
+                #~ # print(20110301, k,v)
                 #~ # self.__class__.__dict__[k] = v
                 #~ # setattr(self.__class__,k,v)
                 #~ if not getattr(v,'skip',False):
@@ -295,3 +327,5 @@ class AutoTestCase(TestCase):
                 if not getattr(v,'skip',False):
                     v(self)
                     
+
+
