@@ -14,6 +14,7 @@ because that's designed for unit tests *within a particular* Django project
 """
 import sys
 import doctest
+import warnings
 
 from atelier.test import TestCase
 
@@ -45,6 +46,7 @@ class TestCase(TestCase):
         
     
     def run_docs_django_tests(self,n,**kw): 
+        warnings.warn("run_docs_django_tests is deprecated")
         args = ["django-admin.py"] 
         args += ["test"]
         args += ["--settings=%s" % n]
@@ -54,22 +56,41 @@ class TestCase(TestCase):
         args += ["--pythonpath=%s" % self.project_root.child('docs')]
         self.run_subprocess(args,**kw)
 
-    def run_django_manage_test(self,db,**kw): 
-        p = self.project_root.child(*db.split('/'))
+    def run_django_manage_test(self,cwd=None,**kw): 
+        #~ cwd = self.project_root.child(*cwd.split('/'))
         args = ["python","manage.py"] 
         args += ["test"]
         #~ args += more
         args += ["--noinput"]
         args += ["--failfast"]
         #~ args += ["--settings=settings"]
-        args += ["--pythonpath=%s" % p.absolute()]
-        kw.update(cwd=p)
+        #~ args += ["--pythonpath=%s" % cwd.absolute()]
+        if cwd is not None:
+            kw.update(cwd=cwd)
+        #~ kw.update(cwd=cwd.absolute())
+        self.run_subprocess(args,**kw)
+        
+    def run_django_admin_test_cd(self,cwd,**kw): 
+        kw.update(cwd=cwd)
+        args = ["django-admin.py"] 
+        args += ["test"]
+        args += ["--settings=settings"]
+        args += ["--verbosity=0"]
+        args += ["--noinput"]
+        args += ["--pythonpath=."]
+        args += ["--failfast"]
+        args += ["--traceback"]
         self.run_subprocess(args,**kw)
         
     def run_django_admin_test(self,settings_module,*args,**kw): 
-        return self.run_django_admin_command(settings_module,'test',"--verbosity=0",*args,**kw)
+        warnings.warn("run_django_admin_test is deprecated")
+        parts = settings_module.split('.')
+        assert parts[-1] == "settings"
+        cwd = '/'.join(parts[:-1])
+        return self.run_django_admin_test_cd(cwd,*args,**kw)
+        #~ return self.run_django_admin_command(settings_module,'test',"--verbosity=0",*args,**kw)
         
-    def run_django_admin_command(self,settings_module,*cmdargs,**kw): 
+    def run_django_admin_command(self,settings_module,*cmdargs,**kw):
         args = ["django-admin.py"] 
         args += cmdargs
         args += ["--settings=%s" % settings_module]

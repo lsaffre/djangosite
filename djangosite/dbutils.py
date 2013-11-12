@@ -1,9 +1,10 @@
 # -*- coding: UTF-8 -*-
+# Copyright 2013 by Luc Saffre.
+# License: BSD, see LICENSE for more details.
+
 """
 This defines some utilities which require Django settings to be importable.
 
-:copyright: Copyright 2013 by Luc Saffre.
-:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import unicode_literals
@@ -113,7 +114,10 @@ def obj2str(i,force_detailed=False):
             #~ if getattr(i,fld.name+"_id") is not None:
                 #~ v = getattr(i,fld.name)
         else:
-            v = getattr(i,fld.name,None) # 20130709 Django 1.6b1
+            try:
+                v = getattr(i,fld.name,None) # 20130709 Django 1.6b1
+            except Exception as e:
+                v = str(e)
         if v:
             pairs.append("%s=%s" % (fld.name,obj2str(v)))
     s = ','.join(pairs)
@@ -207,19 +211,4 @@ def fdmy(d):
     return defaultfilters.date(d,'F Y')
     
 dtomy = fdmy # backward compat
-
-def unused_set_language(lang=None):
-    """
-    Thin wrapper around `django.utils.translation`.
-    Activate the given language, or deactivate translations if 
-    the given language is `None` or `'en-us'`.
-    """
-    
-    if lang is None or lang == DJANGO_DEFAULT_LANGUAGE:
-        #~ locale.setlocale(locale.LC_ALL,'')
-        translation.deactivate()
-    else:
-        assert_django_code(lang)
-        translation.activate(lang)
-        
 
