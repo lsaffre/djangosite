@@ -23,6 +23,7 @@ Sitemap
    application
    startup_signal
    usage
+   settings
    extending
    djangosite_local
    tested/index
