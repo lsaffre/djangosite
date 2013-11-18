@@ -18,8 +18,11 @@ create missing directories when needed
 Yield the list of plugins to be installed on this site.
 Every item should be 
 
-- either an instance of some :class:`Plugin` subclass
-- or a **string** designating a full class name.
+- either an instance of some subclass of
+  :class:`Plugin <djangosite.djangosite_site.Plugin>`.
+
+- or a **string** designating the full class name of a subclass
+  of :class:`Plugin <djangosite.djangosite_site.Plugin>`.
   This class will then be imported and instantiated without any 
   arguments during :meth:`Site.startup`.
   
