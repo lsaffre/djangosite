@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 # Copyright 2009-2013 by Luc Saffre.
 # License: BSD, see LICENSE for more details.
 
@@ -6,29 +5,30 @@
 
 .. management_command:: initdb
 
-Performs an initialization of the database, replacing all data by default 
+Performs an initialization of the database, replacing all data by default
 data (according to the specified fixtures).
 
-This command REMOVES *all existing tables* from the database 
-(not only Django tables), then runs Django's `syncdb` 
+This command REMOVES *all existing tables* from the database
+(not only Django tables), then runs Django's `syncdb`
 and `loaddata` commands to load the specified fixtures for all applications.
 
-That may sound dangerous, but that's what you want when you ask to 
+That may sound dangerous, but that's what you want when you ask to
 restore the factory settings of a Django application.
 
-Django's `reset` command may fail after an upgrade if the new Lino 
-version defines new tables. In that case, flush sends a DROP TABLE 
-which fails because that table doesn't exist. 
+Django's `reset` command may fail after an upgrade if the new Lino
+version defines new tables. In that case, flush sends a DROP TABLE
+which fails because that table doesn't exist.
 
-This reimplements a simplified version of Django's `reset` command, 
-without the possibility of deleting only *some* data (the thing which 
+This reimplements a simplified version of Django's `reset` command,
+without the possibility of deleting only *some* data (the thing which
 caused so big problems that Django 1.3. decided to `deprecate this command
-<https://docs.djangoproject.com/en/dev/releases/1.3/#reset-and-sqlreset-management-commands>`__.
+<https://docs.djangoproject.com/en/dev/releases/1.3\
+/#reset-and-sqlreset-management-commands>`__.
 
 """
 
 import logging
-from optparse import make_option 
+from optparse import make_option
 
 from django.conf import settings
 from django.core.management import call_command
