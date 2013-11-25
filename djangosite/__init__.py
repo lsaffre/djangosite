@@ -9,8 +9,8 @@ import sys
 
 from os.path import join, abspath, dirname, normpath, isdir
 
-execfile(join(dirname(__file__),'project_info.py'))
-__version__ = SETUP_INFO['version'] # 
+execfile(join(dirname(__file__), 'project_info.py'))
+__version__ = SETUP_INFO['version']
 intersphinx_url = "http://site.lino-framework.org"
 
 #~ __author__ = "Luc Saffre <luc.saffre@gmx.net>"
@@ -24,13 +24,13 @@ __copyright__ = "Copyright (c) 2002-2013 Luc Saffre."
 
 DJANGO_DEFAULT_LANGUAGE = 'en-us'
 
+
 def assert_django_code(django_code):
     if '_' in django_code:
         raise Exception("Invalid language code %r. "
-            "Use values like 'en' or 'en-us'." % django_code)
-            
+                        "Use values like 'en' or 'en-us'." % django_code)
+
 from .djangosite_site import *
 
 
 __all__ = ['Site']
-

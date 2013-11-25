@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
-## Copyright 2013 by Luc Saffre.
-## License: BSD, see LICENSE for more details.
+# Copyright 2013 by Luc Saffre.
+# License: BSD, see LICENSE for more details.
 """
 This module is based on Ross McFarland idea to simply send 
 the server startup signal "at the end of your last app's models.py file"
@@ -22,9 +22,10 @@ import sys
 from django.db.models import loading
 
 if len(loading.cache.postponed) > 0:
-    if not 'djangosite' in loading.cache.postponed: # i.e. if this is the first time
-        raise ImportError("Waiting for postponed apps (%s) to import" % 
-            loading.cache.postponed)
+    # i.e. if this is the first time
+    if not 'djangosite' in loading.cache.postponed:
+        raise ImportError("Waiting for postponed apps (%s) to import" %
+                          loading.cache.postponed)
 
 from django.conf import settings
 if False:
@@ -36,4 +37,5 @@ else:
         import traceback
         #~ traceback.print_exc(e)
         #~ sys.exit(-1)
-        raise Exception("ImportError during startup:\n" + traceback.format_exc(e))
+        raise Exception("ImportError during startup:\n" +
+                        traceback.format_exc(e))

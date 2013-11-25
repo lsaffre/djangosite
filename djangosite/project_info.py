@@ -6,16 +6,17 @@ and possibly some external tools, too.
 :license: BSD, see LICENSE for more details.
 """
 SETUP_INFO = dict(
-  name = 'djangosite', 
-  version = '0.1.8', # released 20130911
-  #~ install_requires = ['atelier==0.0.2','Django>=1.5,<1.6','Sphinx','unipath','python_dateutil'],
-  install_requires = ['atelier','Django','Sphinx','unipath','python_dateutil'],
-  description = "A server startup signal for Django",
-  license = 'Free BSD',
-  test_suite = 'tests',
-  author = 'Luc Saffre',
-  author_email = 'luc.saffre@gmail.com',
-  url = "http://site.lino-framework.org",
+    name='djangosite',
+    version='0.1.8',  # released 20130911
+    #~ install_requires = ['atelier==0.0.2','Django>=1.5,<1.6','Sphinx','unipath','python_dateutil'],
+    install_requires=['atelier', 'Django',
+                      'Sphinx', 'unipath', 'python_dateutil'],
+    description="A server startup signal for Django",
+    license='Free BSD',
+    test_suite='tests',
+    author='Luc Saffre',
+    author_email='luc.saffre@gmail.com',
+    url="http://site.lino-framework.org",
   long_description="""`djangosite` adds to a Django project the concept of 
 "the application running on this site".
 It defines a ``Site`` class
@@ -44,8 +45,8 @@ and is used as the foundation for
 and `Lino <http://www.lino-framework.org>`__.
 
 """,
-  #~ test_suite = 'tests.suite',
-  #~ test_suite = 'fabfile.suite',
+    #~ test_suite = 'tests.suite',
+    #~ test_suite = 'fabfile.suite',
   classifiers="""\
   Programming Language :: Python
   Programming Language :: Python :: 2.6
@@ -61,12 +62,10 @@ and `Lino <http://www.lino-framework.org>`__.
   Topic :: Database :: Front-Ends
   Topic :: Software Development :: Libraries :: Application Frameworks""".splitlines())
 
-SETUP_INFO.update(packages = [str(n) for n in """
+SETUP_INFO.update(packages=[str(n) for n in """
 djangosite
 djangosite.management
 djangosite.management.commands
 djangosite.utils
 djangosite.conf
 """.splitlines() if n])
-  
-

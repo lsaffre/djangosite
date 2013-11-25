@@ -1,5 +1,5 @@
-## Copyright 2013 by Luc Saffre.
-## License: BSD, see LICENSE for more details.
+# Copyright 2013 by Luc Saffre.
+# License: BSD, see LICENSE for more details.
 
 """
 An extended `unittest.TestCase` to be run using `setup.py` 
@@ -19,46 +19,44 @@ import warnings
 from atelier.test import TestCase
 
 
-
 class TestCase(TestCase):
+
     """
     """
-    
+
     demo_settings_module = None
     """
     The `DJANGO_SETTINGS_MODULE` to set for each subprocess 
     launched by this test case.
     """
-    
-    
+
     def build_environment(self):
-        env = super(TestCase,self).build_environment()
+        env = super(TestCase, self).build_environment()
         if self.demo_settings_module:
             env.update(DJANGO_SETTINGS_MODULE=self.demo_settings_module)
         return env
-        
+
     def setUp(self):
 
         if self.demo_settings_module:
             from djangosite.signals import testcase_setup
             testcase_setup.send(self)
-        super(TestCase,self).setUp()
-        
-    
-    def run_docs_django_tests(self,n,**kw): 
+        super(TestCase, self).setUp()
+
+    def run_docs_django_tests(self, n, **kw):
         warnings.warn("run_docs_django_tests is deprecated")
-        args = ["django-admin.py"] 
+        args = ["django-admin.py"]
         args += ["test"]
         args += ["--settings=%s" % n]
         args += ["--failfast"]
         args += ["--traceback"]
         args += ["--verbosity=0"]
         args += ["--pythonpath=%s" % self.project_root.child('docs')]
-        self.run_subprocess(args,**kw)
+        self.run_subprocess(args, **kw)
 
-    def run_django_manage_test(self,cwd=None,**kw): 
+    def run_django_manage_test(self, cwd=None, **kw):
         #~ cwd = self.project_root.child(*cwd.split('/'))
-        args = ["python","manage.py"] 
+        args = ["python", "manage.py"]
         args += ["test"]
         #~ args += more
         args += ["--noinput"]
@@ -68,11 +66,11 @@ class TestCase(TestCase):
         if cwd is not None:
             kw.update(cwd=cwd)
         #~ kw.update(cwd=cwd.absolute())
-        self.run_subprocess(args,**kw)
-        
-    def run_django_admin_test_cd(self,cwd,**kw): 
+        self.run_subprocess(args, **kw)
+
+    def run_django_admin_test_cd(self, cwd, **kw):
         kw.update(cwd=cwd)
-        args = ["django-admin.py"] 
+        args = ["django-admin.py"]
         args += ["test"]
         args += ["--settings=settings"]
         args += ["--verbosity=0"]
@@ -80,27 +78,26 @@ class TestCase(TestCase):
         args += ["--pythonpath=."]
         args += ["--failfast"]
         args += ["--traceback"]
-        self.run_subprocess(args,**kw)
-        
-    def run_django_admin_test(self,settings_module,*args,**kw): 
+        self.run_subprocess(args, **kw)
+
+    def run_django_admin_test(self, settings_module, *args, **kw):
         warnings.warn("run_django_admin_test is deprecated")
         parts = settings_module.split('.')
         assert parts[-1] == "settings"
         cwd = '/'.join(parts[:-1])
-        return self.run_django_admin_test_cd(cwd,*args,**kw)
+        return self.run_django_admin_test_cd(cwd, *args, **kw)
         #~ return self.run_django_admin_command(settings_module,'test',"--verbosity=0",*args,**kw)
-        
-    def run_django_admin_command(self,settings_module,*cmdargs,**kw):
-        args = ["django-admin.py"] 
+
+    def run_django_admin_command(self, settings_module, *cmdargs, **kw):
+        args = ["django-admin.py"]
         args += cmdargs
         args += ["--settings=%s" % settings_module]
         args += ["--noinput"]
         args += ["--failfast"]
         args += ["--traceback"]
-        self.run_subprocess(args,**kw)
-    
+        self.run_subprocess(args, **kw)
 
-    def run_docs_doctests(self,filename):
+    def run_docs_doctests(self, filename):
         """
         Run a simple doctest for specified file after importing the 
         docs `conf.py` (which causes the demo database to be activated).
@@ -115,16 +112,15 @@ class TestCase(TestCase):
         has not been initialized (in that case, run `fab initdb`).
         """
         filename = 'docs/' + filename
-        sys.path.insert(0,'docs')
-        import conf # trigger Django startup
-        
+        sys.path.insert(0, 'docs')
+        import conf  # trigger Django startup
+
         res = doctest.testfile(filename, module_relative=False,
-            encoding='utf-8',optionflags=doctest.REPORT_ONLY_FIRST_FAILURE)
-        
+                               encoding='utf-8', optionflags=doctest.REPORT_ONLY_FIRST_FAILURE)
+
         del sys.path[0]
         #~ os.chdir(oldcwd)
 
         #~ return res
         if res.failed:
             self.fail("doctest.testfile() failed. See earlier messages.")
-        

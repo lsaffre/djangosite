@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
-## Copyright 2012-2013 by Luc Saffre.
-## License: BSD, see LICENSE for more details.
+# Copyright 2012-2013 by Luc Saffre.
+# License: BSD, see LICENSE for more details.
 """
 
 .. management_command:: run
@@ -38,10 +38,11 @@ from __future__ import unicode_literals
 import sys
 from django.core.management.base import BaseCommand, CommandError
 
+
 class Command(BaseCommand):
     help = __doc__
     args = "scriptname [args ...]"
-    
+
     def handle(self, *args, **options):
         if len(args) == 0:
             raise CommandError("I need at least one argument.")
@@ -49,6 +50,5 @@ class Command(BaseCommand):
         sys.argv = sys.argv[2:]
         globals()['__name__'] = '__main__'
         globals()['__file__'] = fn
-        execfile(fn,globals())
+        execfile(fn, globals())
         #~ execfile(fn,{})
-          
