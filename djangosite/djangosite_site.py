@@ -89,9 +89,11 @@ class Site(object):
     """
     Base class for the Site instance to be stored in :setting:`SITE`.
 
-    Discussion about the name in :ref:`application`.
-    
-    See :doc:`/usage`.
+    See also:
+
+    - :doc:`/usage`
+    - :doc:`/settings`
+    - :ref:`application`
     """
 
     verbose_name = None  # "Unnamed Lino Application"
@@ -157,17 +159,12 @@ class Site(object):
 
     site_config = None
     """
-    Overridden by :attr:`lino.ui.Site.config_site`.
+    Overridden by :attr:`lino.lino_site.Site.site_config`.
     """
 
     not_found_msg = '(not installed)'
 
     django_settings = None
-    """
-    This is where Site stores the `globals()` dictionary of your
-    :xfile:`settings.py` file (the one you provided when 
-    calling :meth:`Site.__init__`.
-    """
 
     startup_time = None
     """
@@ -176,11 +173,16 @@ class Site(object):
     iaw the startup time of this Django process.
     """
 
+    modules = AttrDict()
+    # this is explained in the polls tutorial
+    # cannot use autodoc for this attribute
+    # because autodoc shows the "default" value
+
     _logger = None
 
     def __init__(self, settings_globals, user_apps=[], **kwargs):
         """
-        Every djangosite application calls this once it's 
+        Every djangosite application calls this once it's
         :file:`settings.py` file.
         See :doc:`/usage`.
         """
@@ -191,14 +193,11 @@ class Site(object):
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
 
-
-
-    #~ def init_before_local(self,project_file,django_settings,*user_apps):
     def init_before_local(self, settings_globals, user_apps):
         """
-        If your `project_dir` contains no :file:`models.py`, 
-        but *does* contain a `fixtures` subdir, 
-        then djangosite automatically adds this as "local fixtures directory" 
+        If your `project_dir` contains no :file:`models.py`,
+        but *does* contain a `fixtures` subdir,
+        then djangosite automatically adds this as "local fixtures directory"
         to Django's `FIXTURE_DIRS`.
         """
         if not isinstance(settings_globals, dict):
@@ -242,8 +241,6 @@ class Site(object):
                 'NAME': dbname
             }
         })
-        self.django_settings.update(INSTALLED_APPS=
-                                    tuple([str(a) for a in user_apps]) + ('djangosite',))
 
         #~ self.django_settings.update(SECRET_KEY="20227")
         # see :djangoticket:`20227`
@@ -251,6 +248,7 @@ class Site(object):
         #~ django_settings.update(FORMAT_MODULE_PATH = 'djangosite.formats')
         #~ django_settings.update(LONG_DATE_FORMAT = "l, j F Y")
         #~ django_settings.update(LONG_DATE_FORMAT = "l, F j, Y")
+
     def run_djangosite_local(self):
         """
         See :doc:`/djangosite_local`
@@ -263,12 +261,59 @@ class Site(object):
         else:
             setup_site(self)
 
+    override_modlib_models = None
+
+    def is_abstract_model(self, name):
+        """
+        Return True if the named model ("myapp.MyModel") is declared in
+        :attr:`override_modlib_models`.
+        """
+        return name in self.override_modlib_models
+
     def override_defaults(self, **kwargs):
 
         for k, v in kwargs.items():
             if not hasattr(self, k):
                 raise Exception("%s has no attribute %s" % (self.__class__, k))
             setattr(self, k, v)
+
+        installed_apps = tuple(self.get_installed_apps()) + \
+            ('djangosite',)
+        installed_apps = tuple([str(x) for x in installed_apps])
+        self.update_settings(INSTALLED_APPS=installed_apps)
+
+        from django.utils.importlib import import_module
+
+        plugins = []
+        self.plugins = AttrDict()
+        for app_name in installed_apps:
+            app_mod = import_module(app_name)
+            app_class = getattr(app_mod, 'App', None)
+            if app_class is not None:
+                p = app_class()
+                plugins.append(p)
+                n = app_name.rsplit('.')[-1]
+                self.plugins.define(n, p)
+        self.installed_plugins = tuple(plugins)
+
+        if self.override_modlib_models is None:
+            self.override_modlib_models = set()
+            for p in self.installed_plugins:
+                    if p.extends_models is not None:
+                        for m in p.extends_models:
+                            self.override_modlib_models.add(m)
+
+            # from django.utils.importlib import import_module
+            # for n in installed_apps:
+            #     m = import_module(n)
+            #     app = getattr(m, 'App', None)
+            #     if app is not None:
+            #         if app.extends_models is not None:
+            #             for m in app.extends_models:
+            #                 self.override_modlib_models.add(m)
+
+    def get_installed_apps(self):
+        return self.user_apps
 
     def update_settings(self, **kw):
         """
