@@ -5,7 +5,6 @@
 """
 This defines the :class:`Site` class.
 
-
 """
 
 
@@ -64,10 +63,12 @@ class App(object):
     when :setting:`override_modlib_models` is set.
     """
 
-    #~ def __init__(self,site):
-        #~ pass
-
-    def setup_site(cls, site):
+    def __init__(self, site):
+        """
+        This is called when the Site object *instantiates*, i.e.
+        you may not yet import `django.conf.settings`.
+        But you get the `site` object which being instiantiated.
+        """
         pass
 
     def before_site_startup(cls, site):
@@ -81,6 +82,17 @@ class App(object):
 
     def get_head_lines(cls, site, request):
         return []
+
+    def configure(self, **kw):
+        """
+        Set the given parameters of this App instance,
+        raising an exception if caller specified invalid
+        attribute name.
+        """
+        for k, v in kw.items():
+            if not hasattr(self, k):
+                raise Exception("%s has no attribute %s" % (self, k))
+            setattr(self, k, v)
 
 
 #~ class BaseSite(object):
@@ -290,7 +302,7 @@ class Site(object):
             app_mod = import_module(app_name)
             app_class = getattr(app_mod, 'App', None)
             if app_class is not None:
-                p = app_class()
+                p = app_class(self)
                 plugins.append(p)
                 n = app_name.rsplit('.')[-1]
                 self.plugins.define(n, p)
@@ -344,7 +356,6 @@ class Site(object):
                         "Tried to define existing Django setting %s" % name)
         self.django_settings.update(kwargs)
 
-
     def startup(self):
         """
         Start the Lino instance (the object stored as :setting:`LINO` in
@@ -362,7 +373,6 @@ class Site(object):
             return
 
         self._startup_done = True
-
 
         #~ self.logger.info("20130418 djangosite.Site.do_site_startup() gonna send startup signal")
         from djangosite.signals import pre_startup, post_startup
@@ -392,7 +402,8 @@ class Site(object):
         """
 
         # if local settings.py doesn't subclass Site:
-        if self.project_dir != normpath(dirname(inspect.getfile(self.__class__))):
+        if self.project_dir != normpath(dirname(
+                inspect.getfile(self.__class__))):
             pth = join(self.project_dir, subdir_name)
             if isdir(pth):
                 yield pth
