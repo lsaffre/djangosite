@@ -22,13 +22,47 @@ import warnings
 from atelier.utils import AttrDict, ispure
 
 
-class Plugin(object):
+class App(object):
 
     """
     Base class for all plugins.
-    See :setting:`get_installed_plugins`
     """
+
     site_js_snippets = []
+    """
+    List of js snippets to be injected into the `lino_*.js` file.
+    """
+
+    extends = None
+    """
+    The full name of an app from which this app inherits.
+    They must have the same "app_label"
+    """
+
+    verbose_name = None
+    """
+    TODO: if this is not None, then Lino will automatically 
+    add a UserGroup.
+    """
+
+    depends = None
+    """
+    TODO: A list of names of apps that this app depends on.
+    Lino will automatically add these to your 
+    `INSTALLED_APPS` if necessary.
+    Note that Lino will add them *after* your app.
+    To have them *before* your app, specify them explicitly.
+    
+    """
+
+    extends_models = None
+    """
+    If specified, a list of modlib model names for which this
+    app provides a subclass.
+    
+    For backwards compatibility this has no effect
+    when :setting:`override_modlib_models` is set.
+    """
 
     #~ def __init__(self,site):
         #~ pass
@@ -54,23 +88,11 @@ class Site(object):
 
     """
     Base class for the Site instance to be stored in :setting:`SITE`.
-    
-    Note about the name:
-    A :class:`Site <djangosite.Site>` is 
-    rather an `application <http://en.wikipedia.org/wiki/Application_software>`_
-    than a `site <http://en.wikipedia.org/wiki/Website>`_. 
-    We chose "site" to avoid a name clash with Django's word "app".
-    A :class:`Site` describes and represents the 
-    :doc:`software application </application>` 
-    running on a given site (aka "project" in Django jargon).
+
+    Discussion about the name in :ref:`application`.
     
     See :doc:`/usage`.
     """
-    #~ """
-    #~ When extending the :class:`Site` you'll may
-    #~ prefer to base it on the :class:`BaseSite` class
-    #~ which doesn't call :meth:`run_djangosite_local`.
-    #~ """
 
     verbose_name = None  # "Unnamed Lino Application"
 
@@ -168,6 +190,8 @@ class Site(object):
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
+
+
 
     #~ def init_before_local(self,project_file,django_settings,*user_apps):
     def init_before_local(self, settings_globals, user_apps):
@@ -275,37 +299,16 @@ class Site(object):
                         "Tried to define existing Django setting %s" % name)
         self.django_settings.update(kwargs)
 
-    def get_plugin(self, q):
-        """
-        Return the specified plugin (or a subclass) if it is installed.
-        """
-        for p in self.installed_plugins:
-            if isinstance(p, q):
-                return p
-
-    #~ def remove_plugin(self,q):
-        #~ """
-        #~ Deactivate the specified plugin.
-        #~ """
-        #~ self.installed_plugins = tuple([p for p in self.installed_plugins if not issubclass(p,q)])
-
-    def get_installed_plugins(self):
-        return []
-
-    #~ def get_plugin_snippets(self):
-        #~ html = []
-        #~ for p in self.installed_plugins:
-            #~ for tplname in p.site_js_snippets:
-                #~ html.append(tplname)
 
     def startup(self):
         """
-        Start the Lino instance (the object stored as :setting:`LINO` in 
+        Start the Lino instance (the object stored as :setting:`LINO` in
         your :xfile:`settings.py`).
-        This is called exactly once from :mod:`lino.models` 
+        This is called exactly once from :mod:`lino.models`
         when Django has has populated it's model cache.
-        
-        This code can run several times at once when running e.g. under mod_wsgi: 
+
+        This code can run several times at once when
+        running e.g. under mod_wsgi:
         another thread has started and not yet finished `startup()`.
         
         """
@@ -315,27 +318,6 @@ class Site(object):
 
         self._startup_done = True
 
-        #~ try:
-            #~ self.installed_plugins = tuple(self.get_installed_plugins())
-        #~ except Exception,e:
-            #~ import traceback
-            #~ traceback.print_exc(e)
-            #~
-
-        from django.utils import importlib
-
-        plugins = []
-        for plugin_spec in self.get_installed_plugins():
-            if isinstance(plugin_spec, basestring):
-                mod_name, class_name = plugin_spec.rsplit('.', 1)
-                m = importlib.import_module(mod_name)
-                cl = getattr(m, class_name)
-                plugin_spec = cl()
-            plugins.append(plugin_spec)
-        self.installed_plugins = tuple(plugins)
-
-        #~ for p in self.installed_plugins:
-            #~ p.before_site_startup(self)
 
         #~ self.logger.info("20130418 djangosite.Site.do_site_startup() gonna send startup signal")
         from djangosite.signals import pre_startup, post_startup
