@@ -36,3 +36,12 @@ This is where the Site stores the `globals()` dictionary of your
 :xfile:`settings.py` file (the one you provided when 
 instantiating the Site object).
 
+
+.. setting:: plugins
+
+An :class:`AttrDict` object with one entry for each installed 
+app that is a plugin (i.e. which has an 
+:class:`ad.App <djangosite.djangosite_site.App>` class object)
+
+
+
