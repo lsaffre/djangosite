@@ -7,6 +7,8 @@ This defines the :class:`Site` class.
 
 """
 
+import logging
+logger = logging.getLogger(__name__)
 
 import os
 from os.path import join, abspath, dirname, normpath, isdir
@@ -317,11 +319,11 @@ class Site(object):
         self.installed_plugins = tuple(plugins)
 
         if self.override_modlib_models is None:
-            self.override_modlib_models = set()
+            self.override_modlib_models = dict()
             for p in self.installed_plugins:
                     if p.extends_models is not None:
                         for m in p.extends_models:
-                            self.override_modlib_models.add(m)
+                            self.override_modlib_models[m] = p
 
             # from django.utils.importlib import import_module
             # for n in installed_apps:
