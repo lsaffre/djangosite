@@ -28,11 +28,17 @@ class App(object):
     """Base class for all plugins.
 
     Every Django app which defines a class object called "App" in its
-    main module (not in the models module) is a plugin.  Plugins get
-    some special functionality: their App class object will be
-    instiantiated exactly once when the :class:`Site` instantiates
-    (i.e. before Django settings are ready), and this object is stored
-    in :setting:`settings.SITE.plugins <plugins>`
+    main module (not in the models module) is a plugin.
+
+    Corollaire: There is at most one plugin per app, and plugins
+    can be referenced using their app_label.
+
+    TODO: rename this class (and the expected name) to "Plugin"
+
+    Plugins get some special functionality: their App class object
+    will be instiantiated exactly once when the :class:`Site`
+    instantiates (i.e. before Django settings are ready), and this
+    object is stored in :setting:`settings.SITE.plugins <plugins>`
     using the `app_label` as key.
 
     """
