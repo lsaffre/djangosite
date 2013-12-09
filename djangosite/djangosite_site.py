@@ -446,10 +446,9 @@ class Site(object):
         See e.g. :blogref:`20131025`.
         
         """
-        #~ raise DeprecationWarning
-
-        warnings.warn("is_installed_model_spec is deprecated.",
-                      category=DeprecationWarning)
+        if False:  # mod_wsgi interprets them as error 
+            warnings.warn("is_installed_model_spec is deprecated.",
+                          category=DeprecationWarning)
 
         if model_spec == 'self':
             return True
