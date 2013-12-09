@@ -194,6 +194,8 @@ class Site(object):
 
     django_settings = None
 
+    hidden_apps = set()
+
     startup_time = None
     """
     Don't modify this. 
@@ -305,9 +307,19 @@ class Site(object):
                 raise Exception("%s has no attribute %s" % (self.__class__, k))
             setattr(self, k, v)
 
+        if isinstance(self.hidden_apps, basestring):
+            self.hidden_apps = set(self.hidden_apps.split())
+
         installed_apps = tuple(self.get_installed_apps()) + \
             ('djangosite',)
-        installed_apps = tuple([str(x) for x in installed_apps])
+
+        for a in self.hidden_apps:
+            if not a in installed_apps:
+                raise Exception("Unknown app %r in hidden_apps" % a)
+
+        installed_apps = tuple([
+            str(x) for x in installed_apps
+            if not x in self.hidden_apps])
         self.update_settings(INSTALLED_APPS=installed_apps)
 
         from django.utils.importlib import import_module

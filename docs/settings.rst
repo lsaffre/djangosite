@@ -6,6 +6,11 @@ Here is a list of attributes and methods of
 :ref:`djangosite` instance
 which application developers should know.
 
+.. setting:: verbose_name
+
+Used as display name to end-users at different places.
+
+
 .. setting:: make_missing_dirs
 
 Set this to False if you don't want this Site to automatically 
@@ -19,9 +24,12 @@ Yield the list of apps to be installed on this site.
 This will be stored to :setting:`INSTALLED_APPS` when the Site 
 instantiates.
 
-.. setting:: verbose_name
+.. setting:: hidden_apps
 
-Used as display name to end-users at different places.
+A set (or space-spearated string) with the names of apps which should
+*not* get installed even if :setting:`get_installed_apps` returns  them.
+
+Either an empty `set`
 
 .. setting:: override_modlib_models
 
