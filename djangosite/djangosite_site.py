@@ -313,13 +313,9 @@ class Site(object):
         installed_apps = tuple(self.get_installed_apps()) + \
             ('djangosite',)
 
-        for a in self.hidden_apps:
-            if not a in installed_apps:
-                raise Exception("Unknown app %r in hidden_apps" % a)
-
         installed_apps = tuple([
             str(x) for x in installed_apps
-            if not x in self.hidden_apps])
+            if not x.split('.')[-1] in self.hidden_apps])
         self.update_settings(INSTALLED_APPS=installed_apps)
 
         from django.utils.importlib import import_module
