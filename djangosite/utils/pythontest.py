@@ -55,17 +55,12 @@ class TestCase(TestCase):
         self.run_subprocess(args, **kw)
 
     def run_django_manage_test(self, cwd=None, **kw):
-        #~ cwd = self.project_root.child(*cwd.split('/'))
         args = ["python", "manage.py"]
         args += ["test"]
-        #~ args += more
         args += ["--noinput"]
         args += ["--failfast"]
-        #~ args += ["--settings=settings"]
-        #~ args += ["--pythonpath=%s" % cwd.absolute()]
         if cwd is not None:
             kw.update(cwd=cwd)
-        #~ kw.update(cwd=cwd.absolute())
         self.run_subprocess(args, **kw)
 
     def run_django_admin_test_cd(self, cwd, **kw):
@@ -99,7 +94,7 @@ class TestCase(TestCase):
 
     def run_docs_doctests(self, filename):
         """
-        Run a simple doctest for specified file after importing the 
+        Run a simple doctest for specified file after importing the
         docs `conf.py` (which causes the demo database to be activated).
         
         This is used e.g. for testing pages like those below
@@ -116,7 +111,8 @@ class TestCase(TestCase):
         import conf  # trigger Django startup
 
         res = doctest.testfile(filename, module_relative=False,
-                               encoding='utf-8', optionflags=doctest.REPORT_ONLY_FIRST_FAILURE)
+                               encoding='utf-8',
+                               optionflags=doctest.REPORT_ONLY_FIRST_FAILURE)
 
         del sys.path[0]
         #~ os.chdir(oldcwd)
