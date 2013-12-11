@@ -11,13 +11,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 import os
-from os.path import join, abspath, dirname, normpath, isdir
-import sys
-import cgi
+from os.path import normpath, dirname, exists, join, isdir
+# from os.path import join, abspath, dirname, normpath, isdir
+# import sys
+# import cgi
 import inspect
 import datetime
 import warnings
 #~ from decimal import Decimal
+from urllib import urlencode
 
 
 from atelier.utils import AttrDict, ispure
@@ -41,6 +43,21 @@ class App(object):
     object is stored in :setting:`settings.SITE.plugins <plugins>`
     using the `app_label` as key.
 
+    """
+
+    media_base_url = None
+    """
+    Remote URL base for library media files.
+    """
+
+    media_root = None
+
+    media_name = None
+    """
+    Set this to a nonempty string to use as the name of the media directory
+    for this App.
+    Used only by Lino applications.
+    Will be ignored if `media_base_url` is nonempty.
     """
 
     site_js_snippets = []
@@ -79,13 +96,14 @@ class App(object):
     when :setting:`override_modlib_models` is set.
     """
 
-    def __init__(self, site):
+    def __init__(self, site, app_label):
         """
         This is called when the Site object *instantiates*, i.e.
         you may not yet import `django.conf.settings`.
         But you get the `site` object which being instiantiated.
         """
-        pass
+        self.app_label = app_label
+        self.site = site
 
     def before_site_startup(cls, site):
         pass
@@ -93,7 +111,7 @@ class App(object):
     def get_css_includes(self, site):
         return []
 
-    def get_js_includes(self, site):
+    def get_js_includes(self, settings, language):
         return []
 
     def get_head_lines(cls, site, request):
@@ -109,6 +127,39 @@ class App(object):
             if not hasattr(self, k):
                 raise Exception("%s has no attribute %s" % (self, k))
             setattr(self, k, v)
+
+    def build_media_url(self, *parts):
+        if self.media_base_url:
+            return self.media_base_url + '/'.join(parts)
+        return self.buildurl('media', self.media_name, *parts)
+
+    def buildurl(self, *args, **kw):
+        url = self.site.site_prefix + ("/".join(args))
+        if len(kw):
+            url += "?" + urlencode(kw)
+        return url
+
+    def setup_media_links(self, ui, urlpatterns):
+
+        if self.media_name is None:
+            return
+
+        if self.media_base_url:
+            return
+
+        source = self.media_root
+        if not source:
+            # raise Exception("%s.media_root is not set." % self)
+            return
+        if not exists(source):
+            raise Exception(
+                "Directory %s (specified in %s.media_root) does not exist" %
+                (source, self))
+        ui.setup_media_link(
+            urlpatterns,
+            self.media_name, source=self.media_root)
+
+
 
 
 #~ class BaseSite(object):
@@ -218,10 +269,30 @@ class Site(object):
         """
         #~ print "20130404 ok?"
         self.init_before_local(settings_globals, user_apps)
-        if not kwargs.pop('no_local', False):
+        no_local = kwargs.pop('no_local', False)
+        if not no_local:
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
+
+        if not no_local:
+            try:
+                from djangosite_local import setup_ui
+            except ImportError:
+                pass
+            else:
+                setup_ui(self)
+
+    def run_djangosite_local(self):
+        """
+        See :doc:`/djangosite_local`
+        """
+        try:
+            from djangosite_local import setup_site
+        except ImportError:
+            pass
+        else:
+            setup_site(self)
 
     def init_before_local(self, settings_globals, user_apps):
         """
@@ -279,18 +350,6 @@ class Site(object):
         #~ django_settings.update(LONG_DATE_FORMAT = "l, j F Y")
         #~ django_settings.update(LONG_DATE_FORMAT = "l, F j, Y")
 
-    def run_djangosite_local(self):
-        """
-        See :doc:`/djangosite_local`
-        """
-        #~ kwargs.pop('nolocal',None)
-        try:
-            from djangosite_local import setup_site
-        except ImportError:
-            pass
-        else:
-            setup_site(self)
-
     override_modlib_models = None
 
     def is_abstract_model(self, name):
@@ -326,9 +385,10 @@ class Site(object):
             app_mod = import_module(app_name)
             app_class = getattr(app_mod, 'App', None)
             if app_class is not None:
-                p = app_class(self)
-                plugins.append(p)
+                # print "Loading plugin", app_name
                 n = app_name.rsplit('.')[-1]
+                p = app_class(self,n)
+                plugins.append(p)
                 self.plugins.define(n, p)
         self.installed_plugins = tuple(plugins)
 
@@ -597,3 +657,8 @@ class Site(object):
     #~ def call_command(self,*args,**options):
         #~ from django.core.management import call_command
         #~ call_command(*args,**options)
+
+    def configure_plugin(self, app_label, **kw):
+        p = self.plugins.get(app_label, None)
+        if p is not None:
+            p.configure(**kw)
