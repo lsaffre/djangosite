@@ -12,13 +12,9 @@ logger = logging.getLogger(__name__)
 
 import os
 from os.path import normpath, dirname, exists, join, isdir
-# from os.path import join, abspath, dirname, normpath, isdir
-# import sys
-# import cgi
 import inspect
 import datetime
 import warnings
-#~ from decimal import Decimal
 from urllib import urlencode
 
 
@@ -47,17 +43,27 @@ class App(object):
 
     media_base_url = None
     """
-    Remote URL base for library media files.
+    Remote URL base for media files.
     """
 
     media_root = None
+    """Local path where third-party media files are installed.
+
+    Only used if this app has :attr:`media_base_url` empty and
+    :attr:`media_name` non-empty, *and* if the :xfile:`media`
+    directory has no entry named :attr:`media_name`.
+
+    """
 
     media_name = None
-    """
-    Set this to a nonempty string to use as the name of the media directory
-    for this App.
-    Used only by Lino applications.
-    Will be ignored if `media_base_url` is nonempty.
+    """Either `None` (default) or a non-empty string with the name of the
+    subdirectory of your :xfile:`media` directory which is expected to
+    contain media files for this app.
+
+    `None` means that there this app has no media files of her own.
+    Best practice is to set this to the `app_label`.  Will be ignored
+    if :setting:`media_base_url` is nonempty.
+
     """
 
     site_js_snippets = []
@@ -104,6 +110,12 @@ class App(object):
         """
         self.app_label = app_label
         self.site = site
+
+    def get_used_libs(self, html=None):
+        """Yield a list of items to be included in :meth:`Site.get_used_libs`.
+
+        """
+        return []
 
     def before_site_startup(cls, site):
         pass
@@ -590,24 +602,14 @@ class Site(object):
             return self.startup_time.date() + datetime.timedelta(**offset)
         return self.startup_time.date()
 
-    def using(self, ui=None):
-        """
-        Yields a list of (name, version, url) tuples
-        describing the software used on this site.
+    def get_used_libs(self, html=None):
+        """Yield a list of (name, version, url) tuples describing the
+        software used on this site.
         
-        The first tuple NO LONGER describes the application itself.
-        
-        This function is used by :meth:`using_text`
-        which is used  by :meth:`welcome_text`.
-        
-        """
-        #~ from .utils import ispure
-        #~ assert ispure(self.verbose_name)
+        This function is used by :meth:`using_text` which is used by
+        :meth:`welcome_text`.
 
-        #~ if self.verbose_name and self.version and self.url:
-            #~ yield (self.verbose_name, self.version, self.url)
-
-        #~ yield ("django-site",__version__,"http://site.lino-framework.org")
+        """
         from djangosite import SETUP_INFO
         yield (SETUP_INFO['name'], SETUP_INFO['version'], SETUP_INFO['url'])
 
@@ -619,44 +621,28 @@ class Site(object):
         yield ("Python", version, "http://www.python.org/")
 
     def welcome_text(self):
+        """Text to display in a console window when Lino starts.
+
         """
-        Text to display in a console window when Lino starts.
-        """
-        #~ return "Using %s." % (', '.join(["%s %s" % (n,v) for n,v,u in self.using()]))
-        return "This is %s using %s." % (self.site_version(), self.using_text())
+        return "This is %s using %s." % (
+            self.site_version(), self.using_text())
 
     def using_text(self):
+        """Text to display in a console window when Lino starts.
+
         """
-        Text to display in a console window when Lino starts.
-        """
-        return ', '.join(["%s %s" % (n, v) for n, v, u in self.using()])
+        return ', '.join(["%s %s" % (n, v)
+                          for n, v, u in self.get_used_libs()])
 
     def site_version(self):
-        """
-        Used in footnote or header of certain printed documents.
-        """
-        #~ from .utils import ispure
+        """Used in footnote or header of certain printed documents.
 
-        #~ if self.verbose_name and self.version and self.url:
+        """
         if self.verbose_name:
             assert ispure(self.verbose_name)
-            #~ return self.verbose_name, self.version, self.url)
             if self.version:
                 return self.verbose_name + ' ' + self.version
             return self.verbose_name
-
-        #~ name,version,url = self.using().next()
-        #~ name,version,url = self.get_application_info()
-        #~ if self.verbose_name
-        #~ if self.version is None:
-            #~ return self.verbose_name + ' (Lino %s)' % __version__
-        #~ return self.verbose_name + ' ' + self.version
-        #~ return name + ' ' + version
-        #~ return "Lino " + __version__
-
-    #~ def call_command(self,*args,**options):
-        #~ from django.core.management import call_command
-        #~ call_command(*args,**options)
 
     def configure_plugin(self, app_label, **kw):
         p = self.plugins.get(app_label, None)
