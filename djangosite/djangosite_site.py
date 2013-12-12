@@ -266,6 +266,8 @@ class Site(object):
     iaw the startup time of this Django process.
     """
 
+    _plugin_configs = {}
+
     modules = AttrDict()
     # this is explained in the polls tutorial
     # cannot use autodoc for this attribute
@@ -286,14 +288,6 @@ class Site(object):
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
-
-        if not no_local:
-            try:
-                from djangosite_local import setup_ui
-            except ImportError:
-                pass
-            else:
-                setup_ui(self)
 
     def run_djangosite_local(self):
         """
@@ -399,7 +393,10 @@ class Site(object):
             if app_class is not None:
                 # print "Loading plugin", app_name
                 n = app_name.rsplit('.')[-1]
-                p = app_class(self,n)
+                p = app_class(self, n)
+                cfg = self._plugin_configs.pop(n, None)
+                if cfg:
+                    p.configure(**cfg)
                 plugins.append(p)
                 self.plugins.define(n, p)
         self.installed_plugins = tuple(plugins)
@@ -645,6 +642,6 @@ class Site(object):
             return self.verbose_name
 
     def configure_plugin(self, app_label, **kw):
-        p = self.plugins.get(app_label, None)
-        if p is not None:
-            p.configure(**kw)
+        cfg = self._plugin_configs.setdefault(app_label, {})
+        cfg.update(kw)
+        return cfg
