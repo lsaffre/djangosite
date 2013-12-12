@@ -171,10 +171,22 @@ class App(object):
             urlpatterns,
             self.media_name, source=self.media_root)
 
+    def on_ui_init(cls, ui):
+        """This is called when the UI is being instantiated.
+
+        E.g. the :mod:`lino.extjs` app uses this to install its own
+        `default_renderer`.
+
+        """
+        pass
+
+    def get_patterns(self, ui):
+        """Return a list of url patterns to be added to the Site's patterns.
+
+        """
+        return []
 
 
-
-#~ class BaseSite(object):
 class Site(object):
 
     """
