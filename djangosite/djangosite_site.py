@@ -66,6 +66,12 @@ class App(object):
 
     """
 
+    url_prefix = None
+    """
+    The url prefix under which this app should ask to
+    install its url patterns.
+    """
+
     site_js_snippets = []
     """
     List of js snippets to be injected into the `lino_*.js` file.
@@ -140,10 +146,16 @@ class App(object):
                 raise Exception("%s has no attribute %s" % (self, k))
             setattr(self, k, v)
 
-    def build_media_url(self, *parts):
+    def build_media_url(self, *parts, **kw):
         if self.media_base_url:
-            return self.media_base_url + '/'.join(parts)
-        return self.buildurl('media', self.media_name, *parts)
+            url = self.media_base_url + '/'.join(parts)
+            if len(kw):
+                url += "?" + urlencode(kw)
+            return url
+        return self.buildurl('media', self.media_name, *parts, **kw)
+
+    def build_plain_url(self, *args, **kw):
+        return self.buildurl(self.url_prefix, *args, **kw)
 
     def buildurl(self, *args, **kw):
         url = self.site.site_prefix + ("/".join(args))
