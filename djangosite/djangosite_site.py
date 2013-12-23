@@ -291,6 +291,7 @@ class Site(object):
     """
 
     _plugin_configs = {}
+    plugins = None
 
     modules = AttrDict()
     # this is explained in the polls tutorial
@@ -424,6 +425,7 @@ class Site(object):
                 plugins.append(p)
                 self.plugins.define(n, p)
         self.installed_plugins = tuple(plugins)
+        self._plugin_configs = None
 
         if self.override_modlib_models is None:
             self.override_modlib_models = dict()
@@ -666,6 +668,11 @@ class Site(object):
             return self.verbose_name
 
     def configure_plugin(self, app_label, **kw):
-        cfg = self._plugin_configs.setdefault(app_label, {})
-        cfg.update(kw)
-        return cfg
+        if self._plugin_configs is None:
+            p = self.plugins.get(app_label,None)
+            if p is not None:
+                p.configure(**kw)
+        else:
+            cfg = self._plugin_configs.setdefault(app_label, {})
+            cfg.update(kw)
+
