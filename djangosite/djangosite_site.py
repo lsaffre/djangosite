@@ -668,8 +668,11 @@ class Site(object):
             return self.verbose_name
 
     def configure_plugin(self, app_label, **kw):
+        """Set plugin configuration settings.
+        
+        """
         if self._plugin_configs is None:
-            p = self.plugins.get(app_label,None)
+            p = self.plugins.get(app_label, None)
             if p is not None:
                 p.configure(**kw)
         else:
