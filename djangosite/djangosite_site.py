@@ -11,21 +11,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 import os
-from os.path import normpath, dirname, exists, join, isdir
+from os.path import normpath, dirname, join, isdir
 import inspect
 import datetime
 import warnings
-from urllib import urlencode
 
 
 from atelier.utils import AttrDict, ispure
 
 
-class App(object):
+class Plugin(object):
 
     """Base class for all plugins.
 
-    Every Django app which defines a class object called "App" in its
+    Every Django app which defines a class object called "Plugin" in its
     main module (not in the models module) is a plugin.
 
     Corollaire: There is at most one plugin per app, and plugins
@@ -41,42 +40,6 @@ class App(object):
 
     """
 
-    media_base_url = None
-    """
-    Remote URL base for media files.
-    """
-
-    media_root = None
-    """Local path where third-party media files are installed.
-
-    Only used if this app has :attr:`media_base_url` empty and
-    :attr:`media_name` non-empty, *and* if the :xfile:`media`
-    directory has no entry named :attr:`media_name`.
-
-    """
-
-    media_name = None
-    """Either `None` (default) or a non-empty string with the name of the
-    subdirectory of your :xfile:`media` directory which is expected to
-    contain media files for this app.
-
-    `None` means that there this app has no media files of her own.
-    Best practice is to set this to the `app_label`.  Will be ignored
-    if :setting:`media_base_url` is nonempty.
-
-    """
-
-    url_prefix = None
-    """
-    The url prefix under which this app should ask to
-    install its url patterns.
-    """
-
-    site_js_snippets = []
-    """
-    List of js snippets to be injected into the `lino_*.js` file.
-    """
-
     extends = None
     """
     The full name of an app from which this app inherits.
@@ -85,14 +48,14 @@ class App(object):
 
     verbose_name = None
     """
-    TODO: if this is not None, then Lino will automatically 
+    TODO: if this is not None, then Lino will automatically
     add a UserGroup.
     """
 
     depends = None
     """
     TODO: A list of names of apps that this app depends on.
-    Lino will automatically add these to your 
+    Lino will automatically add these to your
     `INSTALLED_APPS` if necessary.
     Note that Lino will add them *after* your app.
     To have them *before* your app, specify them explicitly.
@@ -126,15 +89,6 @@ class App(object):
     def before_site_startup(cls, site):
         pass
 
-    def get_css_includes(self, site):
-        return []
-
-    def get_js_includes(self, settings, language):
-        return []
-
-    def get_head_lines(cls, site, request):
-        return []
-
     def configure(self, **kw):
         """
         Set the given parameters of this App instance,
@@ -146,57 +100,8 @@ class App(object):
                 raise Exception("%s has no attribute %s" % (self, k))
             setattr(self, k, v)
 
-    def build_media_url(self, *parts, **kw):
-        if self.media_base_url:
-            url = self.media_base_url + '/'.join(parts)
-            if len(kw):
-                url += "?" + urlencode(kw)
-            return url
-        return self.buildurl('media', self.media_name, *parts, **kw)
 
-    def build_plain_url(self, *args, **kw):
-        return self.buildurl(self.url_prefix, *args, **kw)
-
-    def buildurl(self, *args, **kw):
-        url = self.site.site_prefix + ("/".join(args))
-        if len(kw):
-            url += "?" + urlencode(kw)
-        return url
-
-    def setup_media_links(self, ui, urlpatterns):
-
-        if self.media_name is None:
-            return
-
-        if self.media_base_url:
-            return
-
-        source = self.media_root
-        if not source:
-            # raise Exception("%s.media_root is not set." % self)
-            return
-        if not exists(source):
-            raise Exception(
-                "Directory %s (specified in %s.media_root) does not exist" %
-                (source, self))
-        ui.setup_media_link(
-            urlpatterns,
-            self.media_name, source=self.media_root)
-
-    def on_ui_init(cls, ui):
-        """This is called when the UI is being instantiated.
-
-        E.g. the :mod:`lino.extjs` app uses this to install its own
-        `default_renderer`.
-
-        """
-        pass
-
-    def get_patterns(self, ui):
-        """Return a list of url patterns to be added to the Site's patterns.
-
-        """
-        return []
+# App = Plugin  # backwards compatibility
 
 
 class Site(object):
@@ -414,7 +319,9 @@ class Site(object):
         self.plugins = AttrDict()
         for app_name in installed_apps:
             app_mod = import_module(app_name)
-            app_class = getattr(app_mod, 'App', None)
+            app_class = getattr(app_mod, 'Plugin', None)
+            # if app_class is None:
+            #     app_class = getattr(app_mod, 'App', None)
             if app_class is not None:
                 # print "Loading plugin", app_name
                 n = app_name.rsplit('.')[-1]
@@ -476,24 +383,20 @@ class Site(object):
         self.django_settings.update(kwargs)
 
     def startup(self):
-        """
-        Start the Lino instance (the object stored as :setting:`LINO` in
-        your :xfile:`settings.py`).
-        This is called exactly once from :mod:`lino.models`
-        when Django has has populated it's model cache.
+        """Start up this Django Site This is called exactly once when Django
+        has has populated it's model cache.
 
-        This code can run several times at once when
-        running e.g. under mod_wsgi:
-        another thread has started and not yet finished `startup()`.
-        
         """
+
+        # This code can run several times at once when running
+        # e.g. under mod_wsgi: another thread has started and not yet
+        # finished `startup()`.
         if self._startup_done:
             #~ self.logger.info("Lino startup already done")
             return
 
         self._startup_done = True
 
-        #~ self.logger.info("20130418 djangosite.Site.do_site_startup() gonna send startup signal")
         from djangosite.signals import pre_startup, post_startup
         pre_startup.send(self)
         self.do_site_startup()
@@ -502,6 +405,7 @@ class Site(object):
 
     @property
     def logger(self):
+        "Shortcut to the djangosite logger"
         if self._logger is None:
             import logging
             self._logger = logging.getLogger(__name__)
@@ -509,15 +413,18 @@ class Site(object):
 
     def do_site_startup(self):
         """
-        This method is called during site startup
+        This method is called exactly once during site startup,
+        just between the pre_startup and the post_startup signals.
+        A hook for subclasses.
         """
         pass
 
     def get_settings_subdirs(self, subdir_name):
-        """
-        Yield all (existing) directories named `subdir_name` 
-        of this site's project directory and it's inherited 
-        project directories.
+
+        """Yield all (existing) directories named `subdir_name` of this
+        site's project directory and it's inherited project
+        directories.
+
         """
 
         # if local settings.py doesn't subclass Site:
