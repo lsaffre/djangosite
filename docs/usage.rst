@@ -1,69 +1,37 @@
 Usage
 =====
 
-The :mod:`djangosite` Python package is a small Django app which 
-does not define any models, it just provides a `Site` class 
-designed to be instantiated as ``settings.SITE``.
+The :mod:`djangosite` Python package is a small Django app which does
+not define any models, but it adds a powerful mechanism and a new
+comprehensive understanding of *applications* and *plugins*.
 
 Installation is easy::
 
     pip install djangosite
     
-    
-To turn your Django project into a djangosite, you add two lines 
-*at the beginning* of your :xfile:`settings.py` file
-and add ``djangosite`` as the last item of your :setting:`INSTALLED_APPS`::
+To turn your Django project into a djangosite, you change your
+:xfile:`settings.py` file as follows:
+
+Before::
+
+  # ... your settings 
+  INSTALLED_APPS = ["myapp1","myapp2"]
+  # ... your settings 
+
+After::
 
   from djangosite import Site
-  SITE = Site(globals())
+  SITE = Site(globals(),["myapp1","myapp2"])
   # ... your settings here
-  INSTALLED_APPS = ["myapp1","myapp2", "djangosite"]
-  # "djangosite" must be the last item of your INSTALLED_APPS
-
 
 That is, you import the :class:`Site` class 
-(or some subclass, see :doc:`later </extending>`), 
+(or some subclass, see :doc:`/extending`), 
 then assign an instance of it to a setting variable whose 
-name must be ``SITE``.
+name *must* be ``SITE``.
 
-When instantiating a :class:`djangosite.Site`,
-only the first parameter is mandatory 
-and it should always be the `globals()`
-dictionary of your :file:`settings.py`.
-
-`djangosite` will for example read the `__file__ 
-<http://docs.python.org/2/reference/datamodel.html#index-49>`__
-attribute of this, to know where your :file:`settings.py` 
-is in the file system.
-
-By passing the globals dictionary of your :file:`settings.py` file
-you also give djangosite the possibility to modify your Django 
-settings.
-Which means that if you want to modify one of these, 
-do it *after* instantiating your :setting:`SITE`).
-That's why we told you to instantiate your `SITE`
-*at the beginning* of your :xfile:`settings.py` file
-
-An optional second positional argument is the value of your original 
-:setting:`INSTALLED_APPS`, to which `djangosite`
-will automatically add itself as last item.
-
-  from djangosite import Site
-  INSTALLED_APPS = ['myapp1','myapp2']
-  SITE = Site(globals(),INSTALLED_APPS)
-
-Besides this you can override any class argument using a keyword 
-argment of same name:
-
-- title <djangosite.Site.title>
-- verbose_name <djangosite.Site.verbose_name>
-
-You've maybe heard that it is not allowed 
-to modify Django's settings once it has started.
-But there's nothing illegal with this here
-because this happens before Django has seen your :xfile:`settings.py`.
-
-The base class will modify the following Django settings:
+When instantiating a :class:`Site <djangosite.djangosite_site.Site>`,
+the first parameter must be ``globals()``, because djangosite is going
+to automatically set certain Django settings:
 
 - `DATABASES 
   <https://docs.djangoproject.com/en/dev/ref/settings/#databases>`_ :
@@ -73,4 +41,30 @@ The base class will modify the following Django settings:
 - `INSTALLED_APPS
   <https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps>`_
   
+Which means that if you want to modify one of these, 
+do it *after* instantiating your :setting:`SITE`).
+
+The optional second positional argument should be the value of your
+original :setting:`INSTALLED_APPS` (to which `djangosite` will
+automatically add itself as last item).  If you don't specifiy this
+argument, then you should specify your installed apps by overriding
+:setting:`get_installed_apps`.
+
+Besides this you can override any class argument using a keyword 
+argment of same name:
+
+- :setting:`title`
+- :setting:`verbose_name`
+- :setting:`hidden_apps`
+
+You've maybe heard that it is not allowed to modify Django's settings
+once it has started.  But there's nothing illegal with this here
+because this happens before Django has seen your :xfile:`settings.py`.
+
+`djangosite` does more than this. It will for example read the
+`__file__
+<http://docs.python.org/2/reference/datamodel.html#index-49>`__
+attribute of this, to know where your :file:`settings.py` is in the
+file system.
+
 See also :ref:`djangosite_local.py <djangosite_local>`

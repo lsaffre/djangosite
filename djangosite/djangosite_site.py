@@ -71,23 +71,18 @@ class Plugin(object):
     when :setting:`override_modlib_models` is set.
     """
 
-    def __init__(self, site, app_label):
+    def __init__(self, site, app_label, app_name, app_module):
         """
         This is called when the Site object *instantiates*, i.e.
         you may not yet import `django.conf.settings`.
         But you get the `site` object which being instiantiated.
         """
-        self.app_label = app_label
         self.site = site
-
-    def get_used_libs(self, html=None):
-        """Yield a list of items to be included in :meth:`Site.get_used_libs`.
-
-        """
-        return []
-
-    def before_site_startup(cls, site):
-        pass
+        self.app_name = app_name
+        self.app_label = app_label
+        self.app_module = app_module
+        if self.verbose_name is None:
+            self.verbose_name = app_label.title()
 
     def configure(self, **kw):
         """
@@ -99,6 +94,15 @@ class Plugin(object):
             if not hasattr(self, k):
                 raise Exception("%s has no attribute %s" % (self, k))
             setattr(self, k, v)
+
+    def get_used_libs(self, html=None):
+        """Yield a list of items to be included in :meth:`Site.get_used_libs`.
+
+        """
+        return []
+
+    def before_site_startup(cls, site):
+        pass
 
 
 # App = Plugin  # backwards compatibility
@@ -297,6 +301,8 @@ class Site(object):
 
     def override_defaults(self, **kwargs):
 
+        from django.utils.importlib import import_module
+
         for k, v in kwargs.items():
             if not hasattr(self, k):
                 raise Exception("%s has no attribute %s" % (self.__class__, k))
@@ -305,32 +311,37 @@ class Site(object):
         if isinstance(self.hidden_apps, basestring):
             self.hidden_apps = set(self.hidden_apps.split())
 
-        installed_apps = tuple(self.get_installed_apps()) + \
-            ('djangosite',)
+        installed_apps = []
 
-        installed_apps = tuple([
-            str(x) for x in installed_apps
-            if not x.split('.')[-1] in self.hidden_apps])
-        self.update_settings(INSTALLED_APPS=installed_apps)
-
-        from django.utils.importlib import import_module
+        def add(x):
+            if isinstance(x, basestring):
+                if not x.split('.')[-1] in self.hidden_apps:
+                    # convert unicode to string
+                    installed_apps.append(str(x))
+            else:
+                # if it's not a string, then it's a generator of strings
+                for xi in x:
+                    add(xi)
+        for x in self.get_installed_apps():
+            add(x)
+        add('djangosite')
+        self.update_settings(INSTALLED_APPS=tuple(installed_apps))
 
         plugins = []
         self.plugins = AttrDict()
         for app_name in installed_apps:
             app_mod = import_module(app_name)
             app_class = getattr(app_mod, 'Plugin', None)
-            # if app_class is None:
-            #     app_class = getattr(app_mod, 'App', None)
-            if app_class is not None:
-                # print "Loading plugin", app_name
-                n = app_name.rsplit('.')[-1]
-                p = app_class(self, n)
-                cfg = self._plugin_configs.pop(n, None)
-                if cfg:
-                    p.configure(**cfg)
-                plugins.append(p)
-                self.plugins.define(n, p)
+            if app_class is None:
+                app_class = Plugin
+            # print "Loading plugin", app_name
+            k = app_name.rsplit('.')[-1]
+            p = app_class(self, k, app_name, app_mod)
+            cfg = self._plugin_configs.pop(k, None)
+            if cfg:
+                p.configure(**cfg)
+            plugins.append(p)
+            self.plugins.define(k, p)
         self.installed_plugins = tuple(plugins)
         self._plugin_configs = None
 
@@ -341,16 +352,8 @@ class Site(object):
                         for m in p.extends_models:
                             self.override_modlib_models[m] = p
 
-            # from django.utils.importlib import import_module
-            # for n in installed_apps:
-            #     m = import_module(n)
-            #     app = getattr(m, 'App', None)
-            #     if app is not None:
-            #         if app.extends_models is not None:
-            #             for m in app.extends_models:
-            #                 self.override_modlib_models.add(m)
-
     def get_installed_apps(self):
+        """See :setting:`get_installed_apps`."""
         return self.user_apps
 
     def update_settings(self, **kw):

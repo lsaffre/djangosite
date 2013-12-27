@@ -22,14 +22,17 @@ create missing directories when needed
 
 .. setting:: get_installed_apps
 
-Yield the list of apps to be installed on this site.
-This will be stored to :setting:`INSTALLED_APPS` when the Site 
-instantiates.
+Yield the list of apps to be installed on this site.  This will be
+stored to :setting:`INSTALLED_APPS` when the Site instantiates.  
+
+Each item must be either a string (unicode being converted to str) or
+a *generator* which will be iterated recursively (again expecting
+either strings or geneortaors of strings).
 
 .. setting:: hidden_apps
 
 A set (or space-spearated string) with the names of apps which should
-*not* get installed even if :setting:`get_installed_apps` returns  them.
+*not* get installed even if :setting:`get_installed_apps` returns them.
 
 Either an empty `set`
 
