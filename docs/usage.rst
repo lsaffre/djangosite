@@ -1,10 +1,6 @@
 Usage
 =====
 
-The :mod:`djangosite` Python package is a small Django app which does
-not define any models, but it adds a powerful mechanism and a new
-comprehensive understanding of *applications* and *plugins*.
-
 Installation is easy::
 
     pip install djangosite

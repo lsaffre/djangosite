@@ -34,24 +34,22 @@ The difference is important e.g. if you want to analyze all installed models.
 How `djangosite` solves it
 --------------------------
 
-The basic trick is to simply send the signal
-"at the end of your last app's models.py file"
-as described by `Ross McFarland on Sun 24 June 2012
-<http://www.xormedia.com/django-startup-signal/>`_.
+The basic trick is to simply send the signal "at the end of your last
+app's models.py file" as described by `Ross McFarland on Sun 24 June
+2012 <http://www.xormedia.com/django-startup-signal/>`_.
 
-That's why `djangosite` must be the 
-*last* item of your :setting:`INSTALLED_APPS`.
+That's why `djangosite` must be the *last* item of your
+:setting:`INSTALLED_APPS`.
 
 Although djangosite doesn't have any model of its own, it
 does have a `models` module which invokes
-the :meth:`startup <djangosite.Site.startup>` method.
-The :meth:`startup <djangosite.Site.startup>` method
+the :meth:`startup <djangosite.djangosite_site.Site.startup>` method.
+The :meth:`startup <djangosite.djangosite_site.Site.startup>` method
 then emits a :attr:`startup <djangosite.signals.startup>`
 signal.
 
-Result is that you can now write code like the following 
-in any `models` or `admin` 
-module of your existing project::
+Result is that you can now write code like the following in any
+`models` or `admin` module of your existing project::
 
   from djangosite.signals import startup, receiver
   

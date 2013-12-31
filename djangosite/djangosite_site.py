@@ -222,6 +222,7 @@ class Site(object):
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
+        self.setup_plugins()
 
     def run_djangosite_local(self):
         """
@@ -414,6 +415,13 @@ class Site(object):
             self._logger = logging.getLogger(__name__)
         return self._logger
 
+    def setup_plugins(self):
+        """
+        This method is called exactly once during site startup,
+        before models are being populated.
+        """
+        pass
+
     def do_site_startup(self):
         """
         This method is called exactly once during site startup,
@@ -474,35 +482,17 @@ class Site(object):
                 raise Exception("Please create yourself directory %s" %
                                 dirname)
 
-    def add_site_attribute(self, name, default_value):
-        """
-        Must be called from global level of a models module.
-        
-        Example::
-        
-          from django.conf import settings
-          settings.SITE.add_site_attribute('accounts_ref_length',20)
-        
-        """
-        if hasattr(self, name):
-            current = getattr(self, name)
-            if type(current) != type(default_value):
-                raise TypeError("Invalid type")
-        else:
-            setattr(self, name, default_value)
-
     def is_installed(self, app_label):
         """
         Return `True` if :setting:`INSTALLED_APPS` contains an item
         which ends with the specified `app_label`.
         """
-        from django.conf import settings
-        #~ if not '.' in app_label:
-            #~ app_label = '.' + app_label
-        for s in settings.INSTALLED_APPS:
-            if s == app_label or s.endswith('.' + app_label):
-            #~ if s.endswith(app_label):
-                return True
+        return app_label in self.plugins
+
+        # from django.conf import settings
+        # for s in settings.INSTALLED_APPS:
+        #     if s == app_label or s.endswith('.' + app_label):
+        #         return True
         #~ print "20120703 not installed: %r" % app_label
 
     #~ def get_installed_modules(self):
@@ -513,6 +503,7 @@ class Site(object):
             #~ app_module = import_module(app_name)
             #~ if module_has_submodule(app_module, 'models'):
                 #~ yield import_module('.models', app_module)
+
     def on_each_app(self, methname, *args):
         """
         Call the named method on the `models` module of each installed 
@@ -554,7 +545,7 @@ class Site(object):
         yield ("Python", version, "http://www.python.org/")
 
     def welcome_text(self):
-        """Text to display in a console window when Lino starts.
+        """Text to display in a console window when this Site starts.
 
         """
         return "This is %s using %s." % (

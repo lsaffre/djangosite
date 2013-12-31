@@ -4,6 +4,8 @@
 What is a software application?
 ===============================
 
+.. currentmodule:: djangosite.djangosite_site
+
 
 An application is not an app
 ----------------------------
@@ -28,38 +30,38 @@ because the word is used in variables like
 `app_label` and :setting:`INSTALLED_APPS`.
 Too much work for "just a vocabulary" problem.
 We have to live with it and forgive Django its oddness.
-In fact Django is such a great product that 
-we forgive even more oddnesses than this one.
-So it's clear that they won't fix it.
-They are perfectionists, but they have deadlines.
 
-The problem with this "vocabulary" problem is that it leaves 
-us with no word left for what a software application really is. 
-That's why we decided to speak 
-about a :class:`Site <djangosite.Site>` class and a ``SITE`` setting 
-rather than an ``Application`` class and an ``APP`` setting.
+We suggest to differentiate between "app" and "application".  We can
+continue to call them "apps", but should refrain from expanding that
+word to "application". Because apps are *not* applications, they are
+plugins which we happen to call "app" for historical reasons.  This
+rule shouldn't offend even the most conservative Django developer.
+
+The problem with this "vocabulary" problem is that it leaves us with
+no word left for what a software application *really* is.  That's why
+we decided to speak about a :class:`Site` class and a ``SITE`` setting rather
+than an ``Application`` class and an ``APP`` setting.
 
 
-So what then is a Site really? 
-==============================
+So what then is an application really?
+======================================
 
-.. currentmodule:: djangosite
-
-A :class:`Site` defines a `software application 
+A `software application 
 <http://en.wikipedia.org/wiki/Software_application>`_,
-that is, a piece of software which is perceived as an 
+is a piece of software which is perceived as an 
 entity by end-users.
 
-The base :class:`Site <djangosite.Site>` class 
-has attributes like
-:attr:`Site.verbose_name` (the "short" user-visible name)
-and the :attr:`Site.version` which are used by the method
+The :class:`Site` is the base clase for representing a "Django
+application".
+it has attributes like
+:setting:`verbose_name` (the "short" user-visible name)
+and the :setting:`version` which are used by the method
 :meth:`Site.welcome_text`.
 It also defines a 
 :meth:`Site.startup` method 
 and signals, which is the 
 concrete reason why you might want a bare
-:class:`Site <djangosite.Site>`.
+:class:`Site`.
 
 But then it is designed to be subclassed.
 It is subclassed by :class:`north.Site`,
