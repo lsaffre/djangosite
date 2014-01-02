@@ -3,7 +3,7 @@
 # License: BSD, see LICENSE for more details.
 
 """
-This defines the :class:`Site` class.
+This defines the  :class:`Plugin` and  :class:`Site` classes.
 
 """
 
@@ -40,11 +40,11 @@ class Plugin(object):
 
     """
 
-    extends = None
-    """
-    The full name of an app from which this app inherits.
-    They must have the same "app_label"
-    """
+    # extends = None
+    # """
+    # The full name of an app from which this app inherits.
+    # They must have the same "app_label"
+    # """
 
     verbose_name = None
     """
@@ -83,6 +83,7 @@ class Plugin(object):
         self.app_module = app_module
         if self.verbose_name is None:
             self.verbose_name = app_label.title()
+        # super(Plugin, self).__init__()
 
     def configure(self, **kw):
         """
@@ -506,14 +507,37 @@ class Site(object):
 
     def on_each_app(self, methname, *args):
         """
-        Call the named method on the `models` module of each installed 
-        app. 
+        Call the named method on the `models` module of each installed
+        app.
         """
         from django.db.models import loading
         for mod in loading.get_apps():
             meth = getattr(mod, methname, None)
             if meth is not None:
                 meth(self, *args)
+
+    def for_each_app(self, func, *args, **kw):
+        """Successor of :meth:`Site.on_each_app`.  This also loops over
+
+        - apps that don't have a models module
+        - inherited apps
+
+        """
+
+        from django.utils.importlib import import_module
+
+        done = set()
+
+        for p in self.installed_plugins:
+            if hasattr(p, 'extends'):
+                raise Exception("%s has an attribute `extends`" % p)
+            for b in p.__class__.__mro__:
+                if not b.__module__ in done:
+                    done.add(b.__module__)
+                    if not b in (object, Plugin):
+                        parent = import_module(b.__module__)
+                        func(b.__module__, parent, *args, **kw)
+            func(p.app_name, p.app_module, *args, **kw)
 
     def demo_date(self, days=0, **offset):
         """
