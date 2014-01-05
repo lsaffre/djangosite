@@ -339,9 +339,10 @@ class Site(object):
             # print "Loading plugin", app_name
             k = app_name.rsplit('.')[-1]
             p = app_class(self, k, app_name, app_mod)
-            cfg = self._plugin_configs.pop(k, None)
-            if cfg:
-                p.configure(**cfg)
+            if self._plugin_configs is not None:
+                cfg = self._plugin_configs.pop(k, None)
+                if cfg:
+                    p.configure(**cfg)
             plugins.append(p)
             self.plugins.define(k, p)
         self.installed_plugins = tuple(plugins)
