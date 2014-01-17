@@ -10,7 +10,7 @@ Welcome to the :ref:`djangosite` project documentation.
 .. py2rst::
 
   import djangosite
-  print djangosite.SETUP_INFO['long_description']
+  print(djangosite.SETUP_INFO['long_description'])
 
 
 Sitemap

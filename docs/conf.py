@@ -13,7 +13,7 @@
 
 import sys, os
 from atelier.sphinxconf import configure
-configure(globals(),'settings')
+configure(globals(), 'settings')
 
 #~ from unipath import Path
 #~ DOCSDIR = Path(__file__).parent.absolute()

@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2013 by Luc Saffre.
+# Copyright 2013-2014 by Luc Saffre.
 # License: BSD, see LICENSE for more details.
 
 """
@@ -184,21 +184,6 @@ def inrange_filter(fld, rng, **kw):
     return Q(**kw)
 
 
-#~ def dtos(d):
-    #~ """
-    #~ Return the specified date as a localized short string of type '15.06.2011'.
-    #~ See also :doc:`/date_format`.
-    #~ """
-    #~ if d is None: return ''
-    #~ return date_format(d,'SHORT_DATE_FORMAT')
-#~ def dtosl(d):
-    #~ """
-    #~ Return the specified date as a localized long string of type 'Wednesday, May 4, 2011'.
-    #~ See also :doc:`/date_format`.
-    #~ """
-    #~ if d is None: return ''
-    #~ from north import babel
-    #~ return date_format(d,'LONG_DATE_FORMAT')
 def monthname(n):
     """
     Return the monthname for month # n in current language.
