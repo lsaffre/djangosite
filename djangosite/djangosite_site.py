@@ -102,7 +102,10 @@ class Plugin(object):
         """
         return []
 
-    def before_site_startup(cls, site):
+    def on_site_startup(self, site):
+        """
+        This will be called exactly once, when models are ready.
+        """
         pass
 
 
@@ -425,12 +428,17 @@ class Site(object):
         pass
 
     def do_site_startup(self):
-        """
-        This method is called exactly once during site startup,
+        """This method is called exactly once during site startup,
         just between the pre_startup and the post_startup signals.
         A hook for subclasses.
+
+        If you override it, don't forget to call the super method
+        which calls :meth:`Plugin.on_site_startup` for each
+        installed plugin.
+
         """
-        pass
+        for p in self.installed_plugins:
+            p.on_site_startup(self)
 
     def get_settings_subdirs(self, subdir_name):
 
