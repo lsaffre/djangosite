@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# Copyright 2002-2013 by Luc Saffre.
+# Copyright 2002-2014 Luc Saffre.
 # License: BSD, see LICENSE for more details.
 
 """
@@ -538,8 +538,6 @@ class Site(object):
         done = set()
 
         for p in self.installed_plugins:
-            if hasattr(p, 'extends'):
-                raise Exception("%s has an attribute `extends`" % p)
             for b in p.__class__.__mro__:
                 if not b.__module__ in done:
                     done.add(b.__module__)
