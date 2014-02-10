@@ -1,4 +1,4 @@
-# Copyright 2009-2013 by Luc Saffre.
+# Copyright 2009-2014 by Luc Saffre.
 # License: BSD, see LICENSE for more details.
 
 """
@@ -59,14 +59,15 @@ class Command(BaseCommand):
     args = "fixture [fixture ...]"
 
     option_list = BaseCommand.option_list + (
-        #~ make_option('--dumped', action='store_true', dest='dumped', default=False,
-        #~ help='It is a dumped fixture, which requires us to disable the post_syncdb signal.'),
         make_option(
-            '--noinput', action='store_false', dest='interactive', default=True,
+            '--noinput', action='store_false',
+            dest='interactive', default=True,
             help='Do not prompt for input of any kind.'),
-        make_option('--database', action='store', dest='database',
-                    default=DEFAULT_DB_ALIAS, help='Nominates a database to reset. '
-                    'Defaults to the "default" database.'),
+        make_option(
+            '--database', action='store', dest='database',
+            default=DEFAULT_DB_ALIAS,
+            help='Nominates a database to reset. '
+            'Defaults to the "default" database.'),
     )
 
     def handle(self, *args, **options):
@@ -83,7 +84,8 @@ class Command(BaseCommand):
         using = options.get('database', DEFAULT_DB_ALIAS)
         dbname = settings.DATABASES[using]['NAME']
         if options.get('interactive'):
-            if not confirm("We are going to flush your database (%s).\nAre you sure (y/n) ?" % dbname):
+            if not confirm("We are going to flush your database (%s).\n\
+            Are you sure (y/n) ?" % dbname):
                 raise CommandError("User abort.")
 
         options.update(interactive=False)
