@@ -1,15 +1,12 @@
-# Copyright 2013 by Luc Saffre.
+# Copyright 2013-2014 by Luc Saffre.
 # License: BSD, see LICENSE for more details.
 
-"""
-An extended `unittest.TestCase` to be run using `setup.py` 
-in the root of a project which may contain several Django projects.
+"""An extended `unittest.TestCase` to be run using `setup.py` in the
+root of a project which may contain several Django projects.
 
-We cannot import :mod:`djangosite.utils.djangotest` here
-because that's designed for unit tests *within a particular* Django project 
+We cannot import :mod:`djangosite.utils.djangotest` here because
+that's designed for unit tests *within a particular* Django project
 (run using `djange-admin test`).
-
-
 
 """
 import sys
@@ -26,7 +23,7 @@ class TestCase(TestCase):
 
     demo_settings_module = None
     """
-    The `DJANGO_SETTINGS_MODULE` to set for each subprocess 
+    The `DJANGO_SETTINGS_MODULE` to set for each subprocess
     launched by this test case.
     """
 
@@ -117,6 +114,5 @@ class TestCase(TestCase):
         del sys.path[0]
         #~ os.chdir(oldcwd)
 
-        #~ return res
         if res.failed:
             self.fail("doctest.testfile() failed. See earlier messages.")
