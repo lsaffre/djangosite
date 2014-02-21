@@ -27,7 +27,8 @@ caused so big problems that Django 1.3. decided to `deprecate this command
 
 """
 
-import logging
+from __future__ import unicode_literals
+
 from optparse import make_option
 
 from django.conf import settings
@@ -84,8 +85,8 @@ class Command(BaseCommand):
         using = options.get('database', DEFAULT_DB_ALIAS)
         dbname = settings.DATABASES[using]['NAME']
         if options.get('interactive'):
-            if not confirm("We are going to flush your database (%s).\n\
-            Are you sure (y/n) ?" % dbname):
+            if not confirm("""We are going to flush your database (%s).
+Are you sure (y/n) ?""" % dbname):
                 raise CommandError("User abort.")
 
         options.update(interactive=False)

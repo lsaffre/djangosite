@@ -10,3 +10,5 @@ htmlcov
 .coveragerc
 .build
 docs/api
+.DS_Store
+
