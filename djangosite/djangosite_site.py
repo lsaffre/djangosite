@@ -17,7 +17,7 @@ import datetime
 import warnings
 
 
-from atelier.utils import AttrDict, ispure
+from atelier.utils import AttrDict, ispure, date_offset
 
 
 class Plugin(object):
@@ -546,16 +546,9 @@ class Site(object):
                         func(b.__module__, parent, *args, **kw)
             func(p.app_name, p.app_module, *args, **kw)
 
-    def demo_date(self, days=0, **offset):
-        """
-        Used e.g. in python fixtures.
-        """
-        if days:
-            offset.update(days=days)
-        #~ J = datetime.date(2011,12,16)
-        if offset:
-            return self.startup_time.date() + datetime.timedelta(**offset)
-        return self.startup_time.date()
+    def demo_date(self, *args, **kwargs):
+        "See :setting:`demo_date`."
+        return date_offset(self.startup_time.date(), *args, **kwargs)
 
     def get_used_libs(self, html=None):
         """Yield a list of (name, version, url) tuples describing the

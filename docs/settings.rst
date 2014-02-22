@@ -50,6 +50,15 @@ This is where the Site stores the `globals()` dictionary of your
 instantiating the Site object).
 
 
+.. setting:: demo_date
+
+Compute a date using :func:`atelier.utils.date_offset`
+based on the process startup time.
+
+Used in Python fixtures and unit tests.
+
+
+
 .. setting:: plugins
 
 An :class:`AttrDict` object with one entry for each installed 
