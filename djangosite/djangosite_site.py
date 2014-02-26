@@ -7,6 +7,9 @@ This defines the  :class:`Plugin` and  :class:`Site` classes.
 
 """
 
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -84,6 +87,7 @@ class Plugin(object):
         if self.verbose_name is None:
             self.verbose_name = app_label.title()
         # super(Plugin, self).__init__()
+        # print("20140226 djangosite.Plugin()", self.app_label)
 
     def configure(self, **kw):
         """
@@ -227,6 +231,7 @@ class Site(object):
         self.override_defaults(**kwargs)
         #~ self.apply_languages()
         self.setup_plugins()
+        # print("20140226 djangosite.Site.__init__()")
 
     def run_djangosite_local(self):
         """
