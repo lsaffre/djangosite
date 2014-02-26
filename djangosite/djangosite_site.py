@@ -87,7 +87,7 @@ class Plugin(object):
         if self.verbose_name is None:
             self.verbose_name = app_label.title()
         # super(Plugin, self).__init__()
-        # print("20140226 djangosite.Plugin()", self.app_label)
+        # logger.info("20140226 djangosite.Plugin() %s", self.app_label)
 
     def configure(self, **kw):
         """
@@ -310,7 +310,8 @@ class Site(object):
         return name in self.override_modlib_models
 
     def override_defaults(self, **kwargs):
-
+        """Called internally exactly once during `__init__` method.
+        """
         from django.utils.importlib import import_module
 
         for k, v in kwargs.items():
