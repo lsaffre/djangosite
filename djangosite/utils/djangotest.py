@@ -1,32 +1,21 @@
-# Copyright: Copyright 2011-2013 by Luc Saffre.
+# Copyright: Copyright 2011-2014 by Luc Saffre.
 # License: BSD, see LICENSE for more details.
 
-"""
-An extended `django.test.TestCase` to be run using 
-Django's test runner (i.e. `manage.py test`).
- 
+"""An extended `django.test.TestCase` to be run using Django's test
+runner (i.e. `manage.py test`).
+
 """
 
 from __future__ import print_function
 
 import os
-#~ import unittest
-import subprocess
-from setuptools import find_packages
 
 import logging
 logger = logging.getLogger(__name__)
 
-import os
-#~ import six
-
 import unittest
 
-#~ import doctest
-#~ from django.utils import unittest
-
 from django.conf import settings
-#~ from django.utils import simplejson
 import json
 from django.utils.importlib import import_module
 from django.test import TestCase as DjangoTestCase

@@ -7,11 +7,11 @@ This defines the  :class:`Plugin` and  :class:`Site` classes.
 
 """
 
-from __future__ import unicode_literals
-from __future__ import print_function
+# from __future__ import unicode_literals
+# from __future__ import print_function
 
-import logging
-logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
 
 import os
 from os.path import normpath, dirname, join, isdir
@@ -66,34 +66,40 @@ class Plugin(object):
     """
 
     extends_models = None
-    """
-    If specified, a list of modlib model names for which this
-    app provides a subclass.
+    """If specified, a list of model names for which this app provides a
+    subclass.
     
     For backwards compatibility this has no effect
     when :setting:`override_modlib_models` is set.
+
     """
 
     def __init__(self, site, app_label, app_name, app_module):
+        """This is called when the Site object *instantiates*, i.e.  you may
+        not yet import `django.conf.settings`.  But you get the `site`
+        object being instantiated.
+
         """
-        This is called when the Site object *instantiates*, i.e.
-        you may not yet import `django.conf.settings`.
-        But you get the `site` object which being instiantiated.
-        """
+        # site.logger.info("20140226 djangosite.Plugin.__init__() %s",
+        #                  app_label)
+        if site._startup_done:
+            raise Exception(20140227)
         self.site = site
         self.app_name = app_name
         self.app_label = app_label
         self.app_module = app_module
         if self.verbose_name is None:
             self.verbose_name = app_label.title()
+        # import pdb; pdb.set_trace()
         # super(Plugin, self).__init__()
-        # logger.info("20140226 djangosite.Plugin() %s", self.app_label)
 
     def configure(self, **kw):
-        """
-        Set the given parameters of this App instance,
-        raising an exception if caller specified invalid
-        attribute name.
+        """Set the given parameter(s) of this Plugin instance.
+        Any number of parameters can be specified as keyword arguments.
+
+        Raise an exception if caller specified a key that does not
+        have a corresponding attribute.
+
         """
         for k, v in kw.items():
             if not hasattr(self, k):
@@ -116,6 +122,17 @@ class Plugin(object):
 # App = Plugin  # backwards compatibility
 
 
+class Singleton(type):
+    # thanks to http://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(
+                Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
 class Site(object):
 
     """
@@ -127,6 +144,8 @@ class Site(object):
     - :doc:`/settings`
     - :ref:`application`
     """
+
+    # __metaclass__ = Singleton
 
     verbose_name = None  # "Unnamed Lino Application"
 
@@ -223,15 +242,19 @@ class Site(object):
         :file:`settings.py` file.
         See :doc:`/usage`.
         """
+        # self.logger.info("20140226 djangosite.Site.__init__() a %s", self)
         #~ print "20130404 ok?"
         self.init_before_local(settings_globals, user_apps)
         no_local = kwargs.pop('no_local', False)
         if not no_local:
             self.run_djangosite_local()
         self.override_defaults(**kwargs)
+        self.load_plugins()
         #~ self.apply_languages()
         self.setup_plugins()
-        # print("20140226 djangosite.Site.__init__()")
+        # self.logger.info("20140226 djangosite.Site.__init__() b")
+        # if len(self.logger.handlers) == 0:
+        #     raise Exception(self.logger.name)
 
     def run_djangosite_local(self):
         """
@@ -278,8 +301,9 @@ class Site(object):
 
         #~ self.qooxdoo_prefix = '/media/qooxdoo/lino_apps/' + self.project_name + '/build/'
         #~ self.dummy_messages = set()
-        #~ self._starting_up = False
+        self._starting_up = False
         self._startup_done = False
+
         #~ self._response = None
         self.startup_time = datetime.datetime.now()
 
@@ -310,14 +334,22 @@ class Site(object):
         return name in self.override_modlib_models
 
     def override_defaults(self, **kwargs):
-        """Called internally exactly once during `__init__` method.
         """
-        from django.utils.importlib import import_module
+        Called internally during `__init__` method.
+        Also called from :mod:`djangosite.utils.djangotest`
 
+        """
         for k, v in kwargs.items():
             if not hasattr(self, k):
                 raise Exception("%s has no attribute %s" % (self.__class__, k))
             setattr(self, k, v)
+
+    def load_plugins(self):
+        """
+        Called internally during `__init__` method.
+        """
+
+        from django.utils.importlib import import_module
 
         if isinstance(self.hidden_apps, basestring):
             self.hidden_apps = set(self.hidden_apps.split())
@@ -398,8 +430,13 @@ class Site(object):
         self.django_settings.update(kwargs)
 
     def startup(self):
-        """Start up this Django Site This is called exactly once when Django
-        has has populated it's model cache.
+        """Start up this Django Site. 
+
+This is called from :mod:`djangosite.models`, 
+designed to be called potentially several times.
+
+exactly once when Django has has populated it's model
+ cache.
 
         """
 
@@ -407,29 +444,33 @@ class Site(object):
         # e.g. under mod_wsgi: another thread has started and not yet
         # finished `startup()`.
         if self._startup_done:
-            #~ self.logger.info("Lino startup already done")
+            # self.logger.info("20140227 Lino startup already done")
             return
+
+        # self.override_defaults()  # 20140227
+
+        if not self._starting_up:
+            self._starting_up = True
+            from djangosite.signals import pre_startup, post_startup
+            pre_startup.send(self)
+            self.do_site_startup()
+            # self.logger.info("20140227 Site.do_site_startup() done")
+            post_startup.send(self)
 
         self._startup_done = True
 
-        from djangosite.signals import pre_startup, post_startup
-        pre_startup.send(self)
-        self.do_site_startup()
-        #~ self.logger.info("20130418 djangosite.Site.startup() ok")
-        post_startup.send(self)
-
     @property
     def logger(self):
-        "Shortcut to the djangosite logger"
+        "Shortcut to the 'djangosite' logger"
         if self._logger is None:
             import logging
             self._logger = logging.getLogger(__name__)
         return self._logger
 
     def setup_plugins(self):
-        """
-        This method is called exactly once during site startup,
-        before models are being populated.
+        """This method is called exactly once during site startup, after
+        :meth:`load_plugins` and before models are being populated.
+
         """
         pass
 
