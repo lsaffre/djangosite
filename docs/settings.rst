@@ -36,6 +36,28 @@ A set (or space-spearated string) with the names of apps which should
 
 Either an empty `set`
 
+.. setting:: get_apps_modifiers
+
+This will be called during Site instantiation (i.e. may not import any
+Django modules) and is expected to return a dict of `app_label` to
+`full_python_path` mappings. The default returns an empty dict.
+
+These mappings will be applied to the apps returned by
+:setting:`get_installed_apps`. 
+
+Mapping an app_label to `None` will remove (not install) that app from
+your Site.
+
+You can use this to override or hide individual apps without changing
+their order. Example::
+
+    def get_apps_modifiers(self, **kw):
+        kw.update(debts=None)
+        kw.update(courses='lino.modlib.courses')
+        kw.update(pcsw='lino_welfare.settings.fr.pcsw')
+        return kw
+
+
 .. setting:: override_modlib_models
 
 Internally used. Contains a set of model names that were 

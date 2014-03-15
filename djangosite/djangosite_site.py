@@ -217,7 +217,7 @@ class Site(object):
 
     django_settings = None
 
-    hidden_apps = set()
+    # hidden_apps = set()
 
     startup_time = None
     """
@@ -344,6 +344,10 @@ class Site(object):
                 raise Exception("%s has no attribute %s" % (self.__class__, k))
             setattr(self, k, v)
 
+    def get_apps_modifiers(self, **kw):
+        "See :setting:`get_apps_modifiers`."
+        return kw
+
     def load_plugins(self):
         """
         Called internally during `__init__` method.
@@ -351,14 +355,20 @@ class Site(object):
 
         from django.utils.importlib import import_module
 
-        if isinstance(self.hidden_apps, basestring):
-            self.hidden_apps = set(self.hidden_apps.split())
+        # if isinstance(self.hidden_apps, basestring):
+        #     self.hidden_apps = set(self.hidden_apps.split())
 
         installed_apps = []
+        apps_modifiers = self.get_apps_modifiers()
+
+        if hasattr(self, 'hidden_apps'):
+            raise Exception("Replace hidden_apps by get_apps_modifiers()")
 
         def add(x):
             if isinstance(x, basestring):
-                if not x.split('.')[-1] in self.hidden_apps:
+                app_label = x.split('.')[-1]
+                x = apps_modifiers.get(app_label, x)
+                if x:
                     # convert unicode to string
                     installed_apps.append(str(x))
             else:
