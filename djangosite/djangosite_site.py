@@ -410,6 +410,14 @@ class Site(object):
         """See :setting:`get_installed_apps`."""
         return self.user_apps
 
+    def is_hidden_app(self, app_label):
+        """Return True if the app is known, but has been disabled using 
+        :setting:`get_apps_modifiers`.
+        """
+        am = self.get_apps_modifiers()
+        if am.get(app_label, 1) is None:
+            return True
+
     def update_settings(self, **kw):
         """
         This may be called from within a 
