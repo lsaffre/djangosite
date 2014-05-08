@@ -24,24 +24,7 @@ from atelier.utils import AttrDict, ispure, date_offset
 
 
 class Plugin(object):
-
-    """Base class for all plugins.
-
-    Every Django app which defines a class object called "Plugin" in its
-    main module (not in the models module) is a plugin.
-
-    Corollaire: There is at most one plugin per app, and plugins
-    can be referenced using their app_label.
-
-    TODO: rename this class (and the expected name) to "Plugin"
-
-    Plugins get some special functionality: their App class object
-    will be instiantiated exactly once when the :class:`Site`
-    instantiates (i.e. before Django settings are ready), and this
-    object is stored in :setting:`settings.SITE.plugins <plugins>`
-    using the `app_label` as key.
-
-    """
+    "See :class:`settings.Plugin`."
 
     # extends = None
     # """
@@ -94,32 +77,16 @@ class Plugin(object):
         # super(Plugin, self).__init__()
 
     def configure(self, **kw):
-        """Set the given parameter(s) of this Plugin instance.
-        Any number of parameters can be specified as keyword arguments.
-
-        Raise an exception if caller specified a key that does not
-        have a corresponding attribute.
-
-        """
         for k, v in kw.items():
             if not hasattr(self, k):
                 raise Exception("%s has no attribute %s" % (self, k))
             setattr(self, k, v)
 
     def get_used_libs(self, html=None):
-        """Yield a list of items to be included in :meth:`Site.get_used_libs`.
-
-        """
         return []
 
     def on_site_startup(self, site):
-        """
-        This will be called exactly once, when models are ready.
-        """
         pass
-
-
-# App = Plugin  # backwards compatibility
 
 
 class Singleton(type):
@@ -134,9 +101,8 @@ class Singleton(type):
 
 
 class Site(object):
-
     """
-    Base class for the Site instance to be stored in :setting:`SITE`.
+    See :class:`settings.Site`.
 
     See also:
 
@@ -148,70 +114,14 @@ class Site(object):
     # __metaclass__ = Singleton
 
     verbose_name = None  # "Unnamed Lino Application"
-
-    #~ author = None
-    #~ author_email = None
     version = None
-    """
-    """
-
-    #~ languages = None
-    #~ """
-    #~ Will be overridden by :attr:`north.Site.languages`.
-    #~ """
-
     url = None
-    """
-    The URL of the website that describes this application.
-    Used e.g. in a :menuselection:`Site --> About` dialog bix.
-    """
-
-    #~ description = """
-    #~ yet another <a href="%s">Django-Sites</a> application.""" % __url__
-    #~ """
-    #~ A short single-sentence description.
-    #~ It should start with a lowercase letter because the beginning
-    #~ of the sentence will be generated from other class attributes
-    #~ like :attr:`verbose_name` and :attr:`version`.
-    #~ """
-
     make_missing_dirs = True
-
-    # ~ source_dir = None # os.path.dirname(__file__)
-    #~ """
-    #~ Full path to the source directory of this Lino application.
-    #~ Local Lino subclasses should not override this variable.
-    #~ This is used in :mod:`lino.utils.config` to decide
-    #~ whether there is a local config directory.
-    #~ """
-    # ~ source_name = None  # os.path.split(source_dir)[-1]
     userdocs_prefix = ''
-
     project_name = None
-    """
-    Read-only.
-    The leaf name of your local project directory.
-    """
-
     project_dir = None
-    """
-    Read-only.
-    Full path to your local project directory. 
-    Local subclasses should not override this variable.
-    
-    The local project directory is where 
-    local configuration files are stored:
-    
-    - Your :xfile:`settings.py`
-    - Optionally the :xfile:`manage.py` and :xfile:`urls.py` files
-    - Your :xfile:`media` directory
-    - Optional local :xfile:`config` and :xfile:`fixtures` directories
-    """
 
-    site_config = None
-    """
-    Overridden by :attr:`lino.lino_site.Site.site_config`.
-    """
+    site_config = None  # Overridden by `lino.lino_site.Site.site_config`.
 
     not_found_msg = '(not installed)'
 
@@ -220,11 +130,6 @@ class Site(object):
     # hidden_apps = set()
 
     startup_time = None
-    """
-    Don't modify this. 
-    It contains the time when this this Site has been instantiated,
-    iaw the startup time of this Django process.
-    """
 
     _plugin_configs = {}
     plugins = None
@@ -238,7 +143,7 @@ class Site(object):
 
     def __init__(self, settings_globals, user_apps=[], **kwargs):
         """
-        Every djangosite application calls this once it's
+        Every djangosite application calls this once in it's
         :file:`settings.py` file.
         See :doc:`/usage`.
         """
@@ -327,10 +232,7 @@ class Site(object):
     override_modlib_models = None
 
     def is_abstract_model(self, name):
-        """
-        Return True if the named model ("myapp.MyModel") is declared in
-        :attr:`override_modlib_models`.
-        """
+        "See :func:`dd.is_abstract_model`."
         return name in self.override_modlib_models
 
     def override_defaults(self, **kwargs):
@@ -345,18 +247,13 @@ class Site(object):
             setattr(self, k, v)
 
     def get_apps_modifiers(self, **kw):
-        "See :setting:`get_apps_modifiers`."
+        "See :meth:`settings.Site.get_apps_modifiers`."
         return kw
 
     def load_plugins(self):
-        """
-        Called internally during `__init__` method.
-        """
+        # Called internally during `__init__` method.
 
         from django.utils.importlib import import_module
-
-        # if isinstance(self.hidden_apps, basestring):
-        #     self.hidden_apps = set(self.hidden_apps.split())
 
         installed_apps = []
         apps_modifiers = self.get_apps_modifiers()
@@ -407,13 +304,11 @@ class Site(object):
                             self.override_modlib_models[m] = p
 
     def get_installed_apps(self):
-        """See :setting:`get_installed_apps`."""
+        "See :method:`settings.Site.get_installed_apps`."
         return self.user_apps
 
     def is_hidden_app(self, app_label):
-        """Return True if the app is known, but has been disabled using 
-        :setting:`get_apps_modifiers`.
-        """
+        "See :func:`dd.is_hidden_app`."
         am = self.get_apps_modifiers()
         if am.get(app_label, 1) is None:
             return True
@@ -448,16 +343,8 @@ class Site(object):
         self.django_settings.update(kwargs)
 
     def startup(self):
-        """Start up this Django Site. 
-
-This is called from :mod:`djangosite.models`, 
-designed to be called potentially several times.
-
-exactly once when Django has has populated it's model
- cache.
-
-        """
-
+        "See :func:`dd.startup`."
+        
         # This code can run several times at once when running
         # e.g. under mod_wsgi: another thread has started and not yet
         # finished `startup()`.
@@ -479,39 +366,23 @@ exactly once when Django has has populated it's model
 
     @property
     def logger(self):
-        "Shortcut to the 'djangosite' logger"
+        "See :method:`settings.Site.startup`."
         if self._logger is None:
             import logging
             self._logger = logging.getLogger(__name__)
         return self._logger
 
     def setup_plugins(self):
-        """This method is called exactly once during site startup, after
-        :meth:`load_plugins` and before models are being populated.
-
-        """
+        "See :method:`settings.Site.setup_plugins`."
         pass
 
     def do_site_startup(self):
-        """This method is called exactly once during site startup,
-        just between the pre_startup and the post_startup signals.
-        A hook for subclasses.
-
-        If you override it, don't forget to call the super method
-        which calls :meth:`Plugin.on_site_startup` for each
-        installed plugin.
-
-        """
+        "See :method:`settings.Site.do_site_setup`."
         for p in self.installed_plugins:
             p.on_site_startup(self)
 
     def get_settings_subdirs(self, subdir_name):
-
-        """Yield all (existing) directories named `subdir_name` of this
-        site's project directory and it's inherited project
-        directories.
-
-        """
+        "See :method:`settings.Site.get_settings_subdirs`."
 
         # if local settings.py doesn't subclass Site:
         if self.project_dir != normpath(dirname(
@@ -534,7 +405,7 @@ exactly once when Django has has populated it's model
         See e.g. :blogref:`20131025`.
         
         """
-        if False:  # mod_wsgi interprets them as error 
+        if False:  # mod_wsgi interprets them as error
             warnings.warn("is_installed_model_spec is deprecated.",
                           category=DeprecationWarning)
 
@@ -544,12 +415,7 @@ exactly once when Django has has populated it's model
         return self.is_installed(app_label)
 
     def makedirs_if_missing(self, dirname):
-        """
-        Make missing directories if they don't exist 
-        and if :attr:`make_missing_dirs` is `True`.
-        """
-        #~ if not os.path.exists(dirname):
-            #~ os.makedirs(dirname)
+        "See :func:`dd.makedirs_if_missing`."
         if not isdir(dirname):
             if self.make_missing_dirs:
                 os.makedirs(dirname)
@@ -558,32 +424,11 @@ exactly once when Django has has populated it's model
                                 dirname)
 
     def is_installed(self, app_label):
-        """
-        Return `True` if :setting:`INSTALLED_APPS` contains an item
-        which ends with the specified `app_label`.
-        """
+        "See :func:`dd.is_installed`."
         return app_label in self.plugins
 
-        # from django.conf import settings
-        # for s in settings.INSTALLED_APPS:
-        #     if s == app_label or s.endswith('.' + app_label):
-        #         return True
-        #~ print "20120703 not installed: %r" % app_label
-
-    #~ def get_installed_modules(self):
-        #~ from django.conf import settings
-        #~ from django.utils.importlib import import_module
-        #~ from django.utils.module_loading import module_has_submodule
-        #~ for app_name in settings.INSTALLED_APPS:
-            #~ app_module = import_module(app_name)
-            #~ if module_has_submodule(app_module, 'models'):
-                #~ yield import_module('.models', app_module)
-
     def on_each_app(self, methname, *args):
-        """
-        Call the named method on the `models` module of each installed
-        app.
-        """
+        "See :func:`dd.on_each_app`."
         from django.db.models import loading
         for mod in loading.get_apps():
             meth = getattr(mod, methname, None)
@@ -591,12 +436,7 @@ exactly once when Django has has populated it's model
                 meth(self, *args)
 
     def for_each_app(self, func, *args, **kw):
-        """Successor of :meth:`Site.on_each_app`.  This also loops over
-
-        - apps that don't have a models module
-        - inherited apps
-
-        """
+        "See :func:`dd.for_each_app`."
 
         from django.utils.importlib import import_module
 
@@ -612,17 +452,12 @@ exactly once when Django has has populated it's model
             func(p.app_name, p.app_module, *args, **kw)
 
     def demo_date(self, *args, **kwargs):
-        "See :setting:`demo_date`."
+        "See :attr:`settings.Site.demo_date`."
         return date_offset(self.startup_time.date(), *args, **kwargs)
 
     def get_used_libs(self, html=None):
-        """Yield a list of (name, version, url) tuples describing the
-        software used on this site.
+        "See :meth:`settings.Site.get_used_libs`."
         
-        This function is used by :meth:`using_text` which is used by
-        :meth:`welcome_text`.
-
-        """
         from djangosite import SETUP_INFO
         yield (SETUP_INFO['name'], SETUP_INFO['version'], SETUP_INFO['url'])
 
@@ -634,23 +469,17 @@ exactly once when Django has has populated it's model
         yield ("Python", version, "http://www.python.org/")
 
     def welcome_text(self):
-        """Text to display in a console window when this Site starts.
-
-        """
+        "See :meth:`settings.Site.welcome_text`."
         return "This is %s using %s." % (
             self.site_version(), self.using_text())
 
     def using_text(self):
-        """Text to display in a console window when Lino starts.
-
-        """
+        "See :meth:`settings.Site.using_text`."
         return ', '.join(["%s %s" % (n, v)
                           for n, v, u in self.get_used_libs()])
 
     def site_version(self):
-        """Used in footnote or header of certain printed documents.
-
-        """
+        "See :meth:`settings.Site.site_version`."
         if self.verbose_name:
             assert ispure(self.verbose_name)
             if self.version:
@@ -658,9 +487,7 @@ exactly once when Django has has populated it's model
             return self.verbose_name
 
     def configure_plugin(self, app_label, **kw):
-        """Set plugin configuration settings.
-        
-        """
+        "See :meth:`settings.Site.configure_plugin`."
         if self._plugin_configs is None:
             p = self.plugins.get(app_label, None)
             if p is not None:
