@@ -102,7 +102,7 @@ class Singleton(type):
 
 class Site(object):
     """
-    See :class:`settings.Site`.
+    See :class:`dd.Site`.
 
     See also:
 
@@ -247,7 +247,7 @@ class Site(object):
             setattr(self, k, v)
 
     def get_apps_modifiers(self, **kw):
-        "See :meth:`settings.Site.get_apps_modifiers`."
+        "See :meth:`dd.Site.get_apps_modifiers`."
         return kw
 
     def load_plugins(self):
@@ -304,7 +304,7 @@ class Site(object):
                             self.override_modlib_models[m] = p
 
     def get_installed_apps(self):
-        "See :method:`settings.Site.get_installed_apps`."
+        "See :meth:`dd.Site.get_installed_apps`."
         return self.user_apps
 
     def is_hidden_app(self, app_label):
@@ -366,23 +366,23 @@ class Site(object):
 
     @property
     def logger(self):
-        "See :method:`settings.Site.startup`."
+        "See :meth:`dd.Site.startup`."
         if self._logger is None:
             import logging
             self._logger = logging.getLogger(__name__)
         return self._logger
 
     def setup_plugins(self):
-        "See :method:`settings.Site.setup_plugins`."
+        "See :meth:`dd.Site.setup_plugins`."
         pass
 
     def do_site_startup(self):
-        "See :method:`settings.Site.do_site_setup`."
+        "See :meth:`ad.Site.do_site_setup`."
         for p in self.installed_plugins:
             p.on_site_startup(self)
 
     def get_settings_subdirs(self, subdir_name):
-        "See :method:`settings.Site.get_settings_subdirs`."
+        "See :meth:`ad.Site.get_settings_subdirs`."
 
         # if local settings.py doesn't subclass Site:
         if self.project_dir != normpath(dirname(
@@ -399,11 +399,9 @@ class Site(object):
                     yield pth
 
     def is_installed_model_spec(self, model_spec):
-        """
-        Deprecated. This feature 
-        was a bit too automagic and caused bugs to pass silently. 
-        See e.g. :blogref:`20131025`.
-        
+        """Deprecated. This feature was a bit too automagic and caused bugs
+        to pass silently.  See e.g. :blogref:`20131025`.
+
         """
         if False:  # mod_wsgi interprets them as error
             warnings.warn("is_installed_model_spec is deprecated.",
@@ -469,17 +467,17 @@ class Site(object):
         yield ("Python", version, "http://www.python.org/")
 
     def welcome_text(self):
-        "See :meth:`settings.Site.welcome_text`."
+        "See :meth:`ad.Site.welcome_text`."
         return "This is %s using %s." % (
             self.site_version(), self.using_text())
 
     def using_text(self):
-        "See :meth:`settings.Site.using_text`."
+        "See :meth:`ad.Site.using_text`."
         return ', '.join(["%s %s" % (n, v)
                           for n, v, u in self.get_used_libs()])
 
     def site_version(self):
-        "See :meth:`settings.Site.site_version`."
+        "See :meth:`ad.Site.site_version`."
         if self.verbose_name:
             assert ispure(self.verbose_name)
             if self.version:
