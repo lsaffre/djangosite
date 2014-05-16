@@ -78,7 +78,6 @@ class TestCase(TestCase):
         assert parts[-1] == "settings"
         cwd = '/'.join(parts[:-1])
         return self.run_django_admin_test_cd(cwd, *args, **kw)
-        #~ return self.run_django_admin_command(settings_module,'test',"--verbosity=0",*args,**kw)
 
     def run_django_admin_command(self, settings_module, *cmdargs, **kw):
         args = ["django-admin.py"]
