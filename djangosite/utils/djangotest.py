@@ -50,14 +50,17 @@ class CommonTestCase(unittest.TestCase):
 
     def check_json_result(self, response, expected_keys=None, msg=None):
         """
-        Checks the result of response which is expected to return 
+        Checks the result of response which is expected to return
         a JSON-encoded dictionary with the expected_keys.
         """
         #~ print("20110301 response is %r" % response.content)
-        self.assertEqual(response.status_code, 200, msg)
+        self.assertEqual(
+            response.status_code, 200,
+            "%s returned %s instead of 200" % (
+                msg, response.status_code))
         try:
             result = json.loads(response.content)
-        except ValueError, e:
+        except ValueError as e:
             logger.warning("%s in %r", e, response.content)
             raise
         if expected_keys is not None:
@@ -66,8 +69,8 @@ class CommonTestCase(unittest.TestCase):
 
     def assertEquivalent(self, a, b, report_plain=False):
         """
-        Compares to strings, ignoring whitespace repetitions and 
-        writing a logger message in case they are different. 
+        Compares to strings, ignoring whitespace repetitions and
+        writing a logger message in case they are different.
         For long strings it's then more easy to find the difference.
         """
         if a == b:
