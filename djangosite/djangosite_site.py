@@ -24,7 +24,7 @@ from atelier.utils import AttrDict, ispure, date_offset
 
 
 class Plugin(object):
-    "See :class:`settings.Plugin`."
+    "See :class:`ad.Plugin`."
 
     # extends = None
     # """
@@ -113,6 +113,7 @@ class Site(object):
 
     # __metaclass__ = Singleton
 
+    the_demo_date = None
     verbose_name = None  # "Unnamed Lino Application"
     version = None
     url = None
@@ -211,6 +212,9 @@ class Site(object):
 
         #~ self._response = None
         self.startup_time = datetime.datetime.now()
+
+        if self.the_demo_date is None:
+            self.the_demo_date = self.startup_time.date()
 
         dbname = join(self.project_dir, 'default.db')
         #~ if memory_db:
@@ -450,11 +454,11 @@ class Site(object):
             func(p.app_name, p.app_module, *args, **kw)
 
     def demo_date(self, *args, **kwargs):
-        "See :attr:`settings.Site.demo_date`."
-        return date_offset(self.startup_time.date(), *args, **kwargs)
+        "See :attr:`ad.Site.demo_date`."
+        return date_offset(self.the_demo_date, *args, **kwargs)
 
     def get_used_libs(self, html=None):
-        "See :meth:`settings.Site.get_used_libs`."
+        "See :meth:`ad.Site.get_used_libs`."
         
         from djangosite import SETUP_INFO
         yield (SETUP_INFO['name'], SETUP_INFO['version'], SETUP_INFO['url'])
@@ -485,7 +489,7 @@ class Site(object):
             return self.verbose_name
 
     def configure_plugin(self, app_label, **kw):
-        "See :meth:`settings.Site.configure_plugin`."
+        "See :meth:`ad.Site.configure_plugin`."
         if self._plugin_configs is None:
             p = self.plugins.get(app_label, None)
             if p is not None:
