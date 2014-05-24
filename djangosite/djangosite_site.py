@@ -22,6 +22,13 @@ import warnings
 
 from atelier.utils import AttrDict, ispure, date_offset
 
+PLUGIN_CONFIGS = {}
+
+
+def configure_plugin(app_label, **kwargs):
+    cfg = PLUGIN_CONFIGS.setdefault(app_label, {})
+    cfg.update(kwargs)
+
 
 class Plugin(object):
     "See :class:`ad.Plugin`."
@@ -132,7 +139,6 @@ class Site(object):
 
     startup_time = None
 
-    _plugin_configs = {}
     plugins = None
 
     modules = AttrDict()
@@ -291,14 +297,12 @@ class Site(object):
             # print "Loading plugin", app_name
             k = app_name.rsplit('.')[-1]
             p = app_class(self, k, app_name, app_mod)
-            if self._plugin_configs is not None:
-                cfg = self._plugin_configs.pop(k, None)
-                if cfg:
-                    p.configure(**cfg)
+            cfg = PLUGIN_CONFIGS.pop(k, None)
+            if cfg:
+                p.configure(**cfg)
             plugins.append(p)
             self.plugins.define(k, p)
         self.installed_plugins = tuple(plugins)
-        self._plugin_configs = None
 
         if self.override_modlib_models is None:
             self.override_modlib_models = dict()
@@ -370,14 +374,13 @@ class Site(object):
 
     @property
     def logger(self):
-        "See :meth:`dd.Site.startup`."
         if self._logger is None:
             import logging
             self._logger = logging.getLogger(__name__)
         return self._logger
 
     def setup_plugins(self):
-        "See :meth:`dd.Site.setup_plugins`."
+        "See :meth:`ad.Site.setup_plugins`."
         pass
 
     def do_site_startup(self):
@@ -489,12 +492,4 @@ class Site(object):
             return self.verbose_name
 
     def configure_plugin(self, app_label, **kw):
-        "See :meth:`ad.Site.configure_plugin`."
-        if self._plugin_configs is None:
-            p = self.plugins.get(app_label, None)
-            if p is not None:
-                p.configure(**kw)
-        else:
-            cfg = self._plugin_configs.setdefault(app_label, {})
-            cfg.update(kw)
-
+        raise Exception("Replace SITE.configure_plugin by ad.configure_plugin")
