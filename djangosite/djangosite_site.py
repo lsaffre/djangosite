@@ -421,7 +421,7 @@ class Site(object):
 
     def makedirs_if_missing(self, dirname):
         "See :func:`dd.makedirs_if_missing`."
-        if not isdir(dirname):
+        if dirname and not isdir(dirname):
             if self.make_missing_dirs:
                 os.makedirs(dirname)
             else:
