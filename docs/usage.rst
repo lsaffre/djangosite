@@ -1,5 +1,5 @@
 Usage
 =====
 
-Content moved to lino/docs/dev/settings.rst
+Content moved to :ref:`settings`.
 

@@ -3,5 +3,5 @@
 The `djangosite_local.py` file
 ==============================
 
-Content moved to :ref:`lino.settings`
+Content moved to :ref:`settings`.
 
