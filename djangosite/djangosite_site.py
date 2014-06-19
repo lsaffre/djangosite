@@ -279,7 +279,7 @@ class Site(object):
                     # convert unicode to string
                     installed_apps.append(str(x))
             else:
-                # if it's not a string, then it's a generator of strings
+                # if it's not a string, then it's a iterable of strings
                 for xi in x:
                     add(xi)
         for x in self.get_installed_apps():
@@ -449,12 +449,13 @@ class Site(object):
 
         for p in self.installed_plugins:
             for b in p.__class__.__mro__:
-                if not b.__module__ in done:
-                    done.add(b.__module__)
-                    if not b in (object, Plugin):
+                if not b in (object, Plugin):
+                    if not b.__module__ in done:
+                        done.add(b.__module__)
                         parent = import_module(b.__module__)
                         func(b.__module__, parent, *args, **kw)
-            func(p.app_name, p.app_module, *args, **kw)
+            if not p.app_name in done:
+                func(p.app_name, p.app_module, *args, **kw)
 
     def demo_date(self, *args, **kwargs):
         "See :attr:`ad.Site.demo_date`."
