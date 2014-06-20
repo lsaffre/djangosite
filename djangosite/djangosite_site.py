@@ -219,9 +219,6 @@ class Site(object):
         #~ self._response = None
         self.startup_time = datetime.datetime.now()
 
-        if self.the_demo_date is None:
-            self.the_demo_date = self.startup_time.date()
-
         dbname = join(self.project_dir, 'default.db')
         #~ if memory_db:
             #~ dbname  = ':memory:'
@@ -444,9 +441,7 @@ class Site(object):
         "See :func:`dd.for_each_app`."
 
         from django.utils.importlib import import_module
-
         done = set()
-
         for p in self.installed_plugins:
             for b in p.__class__.__mro__:
                 if not b in (object, Plugin):
@@ -459,7 +454,11 @@ class Site(object):
 
     def demo_date(self, *args, **kwargs):
         "See :attr:`ad.Site.demo_date`."
-        return date_offset(self.the_demo_date, *args, **kwargs)
+        base = self.the_demo_date or self.startup_time.date()
+        return date_offset(base, *args, **kwargs)
+
+    def today(self):
+        return self.the_demo_date or datetime.date.today()
 
     def get_used_libs(self, html=None):
         "See :meth:`ad.Site.get_used_libs`."
