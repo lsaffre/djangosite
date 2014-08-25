@@ -95,6 +95,13 @@ class Plugin(object):
     def on_site_startup(self, site):
         pass
 
+    def extends_from(self):
+        # return the name of the module from which this module inherits.
+        for p in self.__class__.__bases__:
+            if issubclass(p, Plugin):
+                return p.__module__
+        raise Exception("20140825 extends_from failed")
+
 
 class Singleton(type):
     # thanks to http://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
@@ -238,9 +245,13 @@ class Site(object):
 
     override_modlib_models = None
 
-    def is_abstract_model(self, name):
+    def is_abstract_model(self, module_name, model_name):
         "See :func:`dd.is_abstract_model`."
-        return name in self.override_modlib_models
+        name = '.'.join(module_name.split('.')[:-1])
+        name += '.' + model_name
+        rv = name in self.override_modlib_models
+        # self.logger.info("20140825 is_abstract_model %s -> %s", name, rv)
+        return rv
 
     def override_defaults(self, **kwargs):
         """
@@ -301,12 +312,20 @@ class Site(object):
             self.plugins.define(k, p)
         self.installed_plugins = tuple(plugins)
 
-        if self.override_modlib_models is None:
-            self.override_modlib_models = dict()
-            for p in self.installed_plugins:
-                    if p.extends_models is not None:
-                        for m in p.extends_models:
-                            self.override_modlib_models[m] = p
+        if self.override_modlib_models is not None:
+            raise Exception("20140825")
+
+        self.override_modlib_models = dict()
+        for p in self.installed_plugins:
+                if p.extends_models is not None:
+                    for m in p.extends_models:
+                        if "." in m:
+                            raise Exception(
+                                "extends_models in %s still uses '.'" %
+                                p.app_name)
+                        name = p.extends_from() + '.' + m
+                        self.override_modlib_models[name] = p
+        # raise Exception("20140825 %s", self.override_modlib_models)
 
     def get_installed_apps(self):
         "See :meth:`dd.Site.get_installed_apps`."
