@@ -23,27 +23,57 @@ even if they succeeded at the second attempt.
 # logger = logging.getLogger(__name__)
 
 # import sys
-from django.db.models import loading
 
-if len(loading.cache.postponed) > 0:
-    # i.e. if this is the first time
-    if not 'djangosite' in loading.cache.postponed:
-        msg = "Waiting for postponed apps (%s) to import" % \
-              loading.cache.postponed
-        # logging.info("20140227 " + msg)
-        raise ImportError(msg)
+from django import VERSION
 
-# logging.debug("20140227 foo")
-
-from django.conf import settings
-if False:
-    settings.SITE.startup()
+if VERSION[0] == 1:
+    if VERSION[1] > 6:
+        AFTER17 = True
+    else:
+        AFTER17 = False
 else:
-    try:
+    raise Exception("Unsupported Django version %s" % VERSION)
+
+
+def startup():
+
+    from django.conf import settings
+    if False:
         settings.SITE.startup()
-    except ImportError as e:
-        import traceback
-        #~ traceback.print_exc(e)
-        #~ sys.exit(-1)
-        raise Exception("ImportError during startup:\n" +
-                        traceback.format_exc(e))
+    else:
+        try:
+            settings.SITE.startup()
+        except ImportError as e:
+            import traceback
+            #~ traceback.print_exc(e)
+            #~ sys.exit(-1)
+            raise Exception("ImportError during startup:\n" +
+                            traceback.format_exc(e))
+
+
+if AFTER17:
+
+    from django.apps import AppConfig
+
+    class DjangoSiteConfig(AppConfig):
+        name = 'djangosite'
+        verbose_name = "Djangosite"
+    
+        def ready(self):
+            
+            startup()
+
+else:
+
+    from django.db.models import loading
+
+    if len(loading.cache.postponed) > 0:
+        # i.e. if this is the first time
+        if not 'djangosite' in loading.cache.postponed:
+            msg = "Waiting for postponed apps (%s) to import" % \
+                  loading.cache.postponed
+            # logging.info("20140227 " + msg)
+            raise ImportError(msg)
+    
+    startup()
+    
