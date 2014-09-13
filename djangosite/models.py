@@ -24,46 +24,10 @@ even if they succeeded at the second attempt.
 
 # import sys
 
-from django import VERSION
-
-if VERSION[0] == 1:
-    if VERSION[1] > 6:
-        AFTER17 = True
-    else:
-        AFTER17 = False
-else:
-    raise Exception("Unsupported Django version %s" % VERSION)
+from djangosite import AFTER17, startup
 
 
-def startup():
-
-    from django.conf import settings
-    if False:
-        settings.SITE.startup()
-    else:
-        try:
-            settings.SITE.startup()
-        except ImportError as e:
-            import traceback
-            #~ traceback.print_exc(e)
-            #~ sys.exit(-1)
-            raise Exception("ImportError during startup:\n" +
-                            traceback.format_exc(e))
-
-
-if AFTER17:
-
-    from django.apps import AppConfig
-
-    class DjangoSiteConfig(AppConfig):
-        name = 'djangosite'
-        verbose_name = "Djangosite"
-    
-        def ready(self):
-            
-            startup()
-
-else:
+if not AFTER17:
 
     from django.db.models import loading
 
@@ -74,6 +38,6 @@ else:
                   loading.cache.postponed
             # logging.info("20140227 " + msg)
             raise ImportError(msg)
-    
+
     startup()
-    
+

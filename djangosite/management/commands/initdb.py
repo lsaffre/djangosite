@@ -43,6 +43,7 @@ from django.db import models
 
 
 from djangosite.dbutils import app_labels
+from djangosite import AFTER17
 from atelier.utils import confirm
 
 USE_SQLDELETE = True
@@ -106,7 +107,14 @@ Are you sure (y/n) ?""" % dbname):
             sql_list = []
             conn = connections[using]
 
-            if USE_SQLDELETE:
+            if AFTER17:
+                # from django.apps import apps
+                # print 20140913, apps
+                # app_list = apps.get_app_configs()
+                sql = sql_flush(no_style(), conn, only_django=False)
+                sql_list.extend(sql)
+
+            elif USE_SQLDELETE:
                 #~ sql_list = u'\n'.join(sql_reset(app, no_style(), conn)).encode('utf-8')
                 app_list = [models.get_app(app_label)
                             for app_label in app_labels()]
@@ -126,7 +134,7 @@ Are you sure (y/n) ?""" % dbname):
                 for sql in sql_list:
                     # print sql
                     cursor.execute(sql)
-            except Exception, e:
+            except Exception:
                 transaction.rollback_unless_managed(using=using)
                 raise
 
