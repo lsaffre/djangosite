@@ -137,21 +137,11 @@ class Site(object):
     project_dir = None
 
     site_config = None  # Overridden by `lino.lino_site.Site.site_config`.
-
     not_found_msg = '(not installed)'
-
     django_settings = None
-
-    # hidden_apps = set()
-
     startup_time = None
-
     plugins = None
-
     modules = AttrDict()
-    # this is explained in the polls tutorial
-    # cannot use autodoc for this attribute
-    # because autodoc shows the "default" value
 
     _logger = None
 
@@ -380,8 +370,18 @@ class Site(object):
 
         if not self._starting_up:
             self._starting_up = True
+
             from djangosite.signals import pre_startup, post_startup
+            from django.db.models import loading
+
             pre_startup.send(self)
+
+            for a in loading.get_apps():
+                self.modules.define(a.__name__.split('.')[-2], a)
+
+            for p in self.installed_plugins:
+                p.on_site_startup(self)
+
             self.do_site_startup()
             # self.logger.info("20140227 Site.do_site_startup() done")
             post_startup.send(self)
@@ -401,8 +401,7 @@ class Site(object):
 
     def do_site_startup(self):
         "See :meth:`ad.Site.do_site_setup`."
-        for p in self.installed_plugins:
-            p.on_site_startup(self)
+        pass
 
     def get_settings_subdirs(self, subdir_name):
         "See :meth:`ad.Site.get_settings_subdirs`."
