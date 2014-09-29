@@ -376,8 +376,9 @@ class Site(object):
 
             pre_startup.send(self)
 
-            for a in loading.get_apps():
-                self.modules.define(a.__name__.split('.')[-2], a)
+            for p in self.installed_plugins:
+                m = loading.load_app(p.app_name, False)
+                self.modules.define(p.app_label, m)
 
             for p in self.installed_plugins:
                 p.on_site_startup(self)
