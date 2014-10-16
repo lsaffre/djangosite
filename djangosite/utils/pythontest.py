@@ -65,9 +65,9 @@ class TestCase(TestCase):
         args = ["django-admin.py"]
         args += ["test"]
         args += ["--settings=settings"]
+        args += ["--pythonpath=."]
         args += ["--verbosity=0"]
         args += ["--noinput"]
-        args += ["--pythonpath=."]
         args += ["--failfast"]
         args += ["--traceback"]
         self.run_subprocess(args, **kw)
@@ -83,9 +83,14 @@ class TestCase(TestCase):
         args = ["django-admin.py"]
         args += cmdargs
         args += ["--settings=%s" % settings_module]
-        args += ["--noinput"]
-        args += ["--failfast"]
-        args += ["--traceback"]
+        self.run_subprocess(args, **kw)
+
+    def run_django_admin_command_cd(self, cwd, *cmdargs, **kw):
+        kw.update(cwd=cwd)
+        args = ["python", "manage.py"]
+        args += cmdargs
+        # args += ["--settings=settings"]
+        # args += ["--pythonpath=."]
         self.run_subprocess(args, **kw)
 
     def run_docs_doctests(self, filename):
