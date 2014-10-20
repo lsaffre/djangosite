@@ -11,7 +11,7 @@ from os.path import join, abspath, dirname, normpath, isdir
 
 execfile(join(dirname(__file__), 'project_info.py'))
 __version__ = SETUP_INFO['version']
-intersphinx_url = "http://site.lino-framework.org"
+intersphinx_urls = dict(docs="http://site.lino-framework.org")
 srcref_url = 'https://github.com/lsaffre/djangosite/blob/master/%s'
 
 
