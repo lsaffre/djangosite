@@ -11,4 +11,4 @@ htmlcov
 .build
 docs/api
 .DS_Store
-
+.idea
