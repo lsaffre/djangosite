@@ -9,7 +9,7 @@ SETUP_INFO = dict(
     name='djangosite',
     version='0.1.9',
     #~ install_requires = ['atelier==0.0.2','Django>=1.5,<1.6','Sphinx','unipath','python_dateutil'],
-    install_requires=['atelier', 'Django',
+    install_requires=['atelier', 'Django < 1.7',
                       'Sphinx', 'unipath', 'python_dateutil'],
     description="A server startup signal for Django",
     license='Free BSD',
