@@ -45,15 +45,7 @@ class Plugin(object):
     add a UserGroup.
     """
 
-    depends = None
-    """
-    TODO: A list of names of apps that this app depends on.
-    Lino will automatically add these to your
-    `INSTALLED_APPS` if necessary.
-    Note that Lino will add them *after* your app.
-    To have them *before* your app, specify them explicitly.
-    
-    """
+    needs_plugins = []
 
     extends_models = None
     """If specified, a list of model names for which this app provides a
@@ -101,6 +93,9 @@ class Plugin(object):
             if issubclass(p, Plugin):
                 return p.__module__
         raise Exception("20140825 extends_from failed")
+
+    def __repr__(self):
+        return self.app_name  # str(self.__class__)
 
 
 class Singleton(type):
@@ -283,23 +278,40 @@ class Site(object):
         for x in self.get_installed_apps():
             add(x)
         add('djangosite')
-        self.update_settings(INSTALLED_APPS=tuple(installed_apps))
 
         plugins = []
+        auto_apps = []
         self.plugins = AttrDict()
-        for app_name in installed_apps:
+
+        def install_plugin(app_name):
             app_mod = import_module(app_name)
             app_class = getattr(app_mod, 'Plugin', None)
             if app_class is None:
                 app_class = Plugin
             # print "Loading plugin", app_name
             k = app_name.rsplit('.')[-1]
+            if k in self.plugins:
+                raise Exception("Tried to install %s where %r "
+                                "is already installed." % (
+                                    app_name, self.plugins[k]))
             p = app_class(self, k, app_name, app_mod)
             cfg = PLUGIN_CONFIGS.pop(k, None)
             if cfg:
                 p.configure(**cfg)
             plugins.append(p)
             self.plugins.define(k, p)
+            for dep in p.needs_plugins:
+                k = dep.rsplit('.')[-1]
+                if not k in self.plugins:
+                    install_plugin(dep)
+                    auto_apps.append(dep)
+
+        for app_name in installed_apps:
+            install_plugin(app_name)
+
+        installed_apps.extend(auto_apps)
+
+        self.update_settings(INSTALLED_APPS=tuple(installed_apps))
         self.installed_plugins = tuple(plugins)
 
         if self.override_modlib_models is not None:
