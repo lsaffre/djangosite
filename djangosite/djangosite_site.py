@@ -130,6 +130,7 @@ class Site(object):
     userdocs_prefix = ''
     project_name = None
     project_dir = None
+    languages = ''
 
     site_config = None  # Overridden by `lino.lino_site.Site.site_config`.
     not_found_msg = '(not installed)'
