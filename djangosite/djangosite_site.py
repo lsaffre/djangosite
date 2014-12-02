@@ -316,7 +316,7 @@ class Site(object):
         self.installed_plugins = tuple(plugins)
 
         if self.override_modlib_models is not None:
-            raise Exception("20140825")
+            raise Exception("override_modlib_models no longer allowed")
 
         self.override_modlib_models = dict()
         for p in self.installed_plugins:
