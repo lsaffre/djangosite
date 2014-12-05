@@ -43,8 +43,7 @@ different "site started" signals.
 
 The real power of `djangosite` lies in the fact that it brings an
 additional level of encapsulation to Django applications and is used
-as the foundation for `North <http://north.lino-framework.org>`__ and
-`Lino <http://www.lino-framework.org>`__.
+as the foundation for `Lino <http://www.lino-framework.org>`__.
 
 """,
     #~ test_suite = 'tests.suite',

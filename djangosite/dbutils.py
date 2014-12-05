@@ -22,10 +22,6 @@ from django.conf import settings
 from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models import loading
-#~ from django.utils.formats import get_format
-#~ from django.utils.formats import date_format
-from django.template import defaultfilters
-from django.utils import translation
 
 from djangosite import DJANGO_DEFAULT_LANGUAGE, assert_django_code
 
@@ -184,20 +180,3 @@ def inrange_filter(fld, rng, **kw):
     return Q(**kw)
 
 
-def monthname(n):
-    """
-    Return the monthname for month # n in current language.
-    """
-    d = datetime.date(2013, n, 1)
-    return defaultfilters.date(d, 'F')
-
-
-def fdmy(d):
-    """
-    "format date as month and year" :
-    return the specified date as a localized string of type 'June 2011'."""
-    if d is None:
-        return ''
-    return defaultfilters.date(d, 'F Y')
-
-dtomy = fdmy  # backward compat
